@@ -47,27 +47,6 @@ export const createApiResponse = (data = null, message = '成功', code = ERROR_
 };
 
 /**
- * 创建错误响应
- * @param {string|number} messageOrCode - 错误信息或错误码
- * @param {number|string} codeOrMessage - 错误码或错误信息
- * @param {any} details - 错误详情
- */
-export const createError = (messageOrCode = '错误', codeOrMessage = ERROR_CODES.GENERAL_ERROR, details = null) => {
-    // 兼容旧版本调用方式：createError(message, code, details)
-    if (typeof messageOrCode === 'string' && typeof codeOrMessage === 'number') {
-        return createResponse(codeOrMessage, messageOrCode, null, details);
-    }
-
-    // 新版本调用方式：createError(code, message, details)
-    if (typeof messageOrCode === 'number') {
-        return createResponse(messageOrCode, codeOrMessage, null, details);
-    }
-
-    // 默认处理
-    return createResponse(ERROR_CODES.GENERAL_ERROR, messageOrCode, null, codeOrMessage);
-};
-
-/**
  * 验证 JSON 参数
  * @param {Request} request - 请求对象
  * @param {ZodSchema} schema - Zod 验证模式
@@ -80,7 +59,7 @@ export async function validateJsonParams(request, schema) {
         if (!contentType || !contentType.includes('application/json')) {
             return {
                 success: false,
-                error: createError(ERROR_CODES.INVALID_PARAM_FORMAT, 'Content-Type 必须是 application/json')
+                error: createResponse(ERROR_CODES.INVALID_PARAM_FORMAT, 'Content-Type 必须是 application/json')
             };
         }
 
@@ -91,7 +70,7 @@ export async function validateJsonParams(request, schema) {
         } catch (err) {
             return {
                 success: false,
-                error: createError(ERROR_CODES.INVALID_PARAM_FORMAT, '无效的 JSON 格式', err.message)
+                error: createResponse(ERROR_CODES.INVALID_PARAM_FORMAT, '无效的 JSON 格式', err.message)
             };
         }
 
@@ -100,7 +79,7 @@ export async function validateJsonParams(request, schema) {
         if (!result.success) {
             return {
                 success: false,
-                error: createError(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.error.errors)
+                error: createResponse(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.error.errors)
             };
         }
 
@@ -111,7 +90,7 @@ export async function validateJsonParams(request, schema) {
     } catch (err) {
         return {
             success: false,
-            error: createError(ERROR_CODES.API_INTERNAL_ERROR, '验证过程中发生错误', err.message)
+            error: createResponse(ERROR_CODES.API_INTERNAL_ERROR, '验证过程中发生错误', err.message)
         };
     }
 }
@@ -128,14 +107,12 @@ export function createPostAPI(schema, handler) {
 
         // 检查请求方法
         if (request.method !== 'POST') {
-            response.status = 405;
-            return createError('不允许的请求方法，仅支持 POST', 405);
+            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, '不允许的请求方法，仅支持 POST');
         }
 
         // 验证参数
         const validation = await validateJsonParams(request, schema);
         if (!validation.success) {
-            response.status = validation.error.code;
             return validation.error;
         }
 
@@ -144,8 +121,7 @@ export function createPostAPI(schema, handler) {
             const result = await handler(validation.data, context);
             return result || createResponse();
         } catch (error) {
-            response.status = 500;
-            return createError('内部服务器错误', 500, error.message);
+            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, '内部服务器错误', error.message);
         }
     };
 
@@ -174,8 +150,7 @@ export function createGetAPI(schema, handler) {
 
         // 检查请求方法
         if (request.method !== 'GET') {
-            response.status = 405;
-            return createError('不允许的请求方法，仅支持 GET', 405);
+            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, '不允许的请求方法，仅支持 GET');
         }
 
         let data = null;
@@ -205,8 +180,7 @@ export function createGetAPI(schema, handler) {
             // 验证参数
             const result = schema.safeParse(queryParams);
             if (!result.success) {
-                response.status = 400;
-                return createError('验证失败', 400, result.error.errors);
+                return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.error.errors);
             }
             data = result.data;
         }
@@ -216,8 +190,7 @@ export function createGetAPI(schema, handler) {
             const result = await handler(data, context);
             return result || createResponse();
         } catch (error) {
-            response.status = 500;
-            return createError('内部服务器错误', 500, error.message);
+            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, '内部服务器错误', error.message);
         }
     };
 
@@ -245,8 +218,7 @@ export function createAPI(config) {
 
         // 检查请求方法
         if (!allowedMethods.includes(request.method)) {
-            response.status = 405;
-            return createError(`不允许的请求方法，支持的方法: ${allowedMethods.join(', ')}`, 405);
+            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, `不允许的请求方法，支持的方法: ${allowedMethods.join(', ')}`);
         }
 
         let data = null;
@@ -257,7 +229,6 @@ export function createAPI(config) {
                 // 对于有 body 的请求，验证 JSON 参数
                 const validation = await validateJsonParams(request, schema);
                 if (!validation.success) {
-                    response.status = validation.error.code;
                     return validation.error;
                 }
                 data = validation.data;
@@ -286,8 +257,7 @@ export function createAPI(config) {
                 // 验证参数
                 const result = schema.safeParse(queryParams);
                 if (!result.success) {
-                    response.status = 400;
-                    return createError('验证失败', 400, result.error.errors);
+                    return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.error.errors);
                 }
                 data = result.data;
             }
@@ -298,8 +268,7 @@ export function createAPI(config) {
             const result = await handler(data, context);
             return result || createResponse();
         } catch (error) {
-            response.status = 500;
-            return createError('内部服务器错误', 500, error.message);
+            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, '内部服务器错误', error.message);
         }
     };
 

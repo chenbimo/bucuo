@@ -3,7 +3,7 @@
  */
 
 import path from 'path';
-import { createGetAPI, createResponse, createError } from '../../libs/http.js';
+import { createGetAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
 import { tool } from '../../schema/index.js';
 
 export default createGetAPI(tool.filename(), async (data, context) => {
@@ -13,16 +13,14 @@ export default createGetAPI(tool.filename(), async (data, context) => {
     const filename = url.pathname.split('/').pop();
 
     if (!filename) {
-        response.status = 400;
-        return { error: '文件名是必须的' };
+        return createResponse(ERROR_CODES.MISSING_REQUIRED_PARAMS, '文件名是必须的');
     }
 
     const filePath = path.join(config.upload.uploadDir, filename);
     const exists = await util.fileExists(filePath);
 
     if (!exists) {
-        response.status = 404;
-        return { error: '文件未找到' };
+        return createResponse(ERROR_CODES.FILE_NOT_FOUND, '文件未找到');
     }
 
     try {
@@ -37,7 +35,6 @@ export default createGetAPI(tool.filename(), async (data, context) => {
         response.sent = true;
         return response.send();
     } catch (error) {
-        response.status = 500;
-        return { error: '文件下载失败' };
+        return createResponse(ERROR_CODES.FILE_READ_ERROR, '文件下载失败', error.message);
     }
 });

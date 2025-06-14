@@ -2,7 +2,7 @@
  * 用户详情 API - /user/detail
  */
 
-import { createPostAPI, createResponse, createError } from 'bunfly';
+import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
 import { common } from '../../schema/index.js';
 
 export default createPostAPI(common.id(), async (data, context) => {
@@ -18,7 +18,7 @@ export default createPostAPI(common.id(), async (data, context) => {
 
     // 模拟用户数据
     if (id > 50 && id < 1000) {
-        return createError('用户未找到', 404);
+        return createResponse(ERROR_CODES.FILE_NOT_FOUND, '用户未找到');
     }
 
     const user = {

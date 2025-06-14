@@ -2,14 +2,14 @@
  * 获取当前用户信息 API - /user/auth/me
  */
 
-import { createPostAPI, createResponse, createError } from 'bunfly';
+import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
 import { user } from '../../../schema/index.js';
 
 export default createPostAPI(user.profile(), async (data, context) => {
     const { user, isAuthenticated } = context;
 
     if (!isAuthenticated) {
-        return createError('需要身份验证', 401);
+        return createResponse(ERROR_CODES.UNAUTHORIZED, '需要身份验证');
     }
 
     return createResponse(

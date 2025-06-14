@@ -2,7 +2,7 @@
  * 用户登录 API - /user/auth/login
  */
 
-import { createPostAPI, createResponse, createError } from 'bunfly';
+import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
 import { user } from '../../../schema/index.js';
 
 export default createPostAPI(user.login(), async (data, context) => {
@@ -29,6 +29,6 @@ export default createPostAPI(user.login(), async (data, context) => {
             'Login successful'
         );
     } else {
-        return createError('用户名或密码错误', 401);
+        return createResponse(ERROR_CODES.UNAUTHORIZED, '用户名或密码错误');
     }
 });

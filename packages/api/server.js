@@ -5,6 +5,7 @@
  */
 
 import { BunflyAPI } from './main.js';
+import { createResponse, ERROR_CODES } from 'bunfly';
 
 // 配置服务器
 const app = new BunflyAPI({
@@ -31,12 +32,7 @@ app.onError(async (context) => {
         logger.error('未处理的错误:', { error: error.message, stack: error.stack });
     }
 
-    response.status = 500;
-    response.json({
-        error: '内部服务器错误',
-        message: process.env.NODE_ENV === 'development' ? error.message : '出现了问题',
-        timestamp: new Date().toISOString()
-    });
+    response.json(createResponse(ERROR_CODES.SERVER_ERROR, process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误', null, process.env.NODE_ENV === 'development' ? error.stack : null));
 });
 
 // 优雅关闭

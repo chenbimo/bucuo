@@ -2,7 +2,7 @@
  * 创建用户 API - /user/create
  */
 
-import { createPostAPI, createResponse, createError } from 'bunfly';
+import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
 import { user } from '../../schema/index.js';
 
 export default createPostAPI(user.create(), async (data, context) => {
