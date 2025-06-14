@@ -145,35 +145,32 @@ export const ERROR_MESSAGES = {
 };
 
 /**
- * 创建标准化错误对象
- * @param {number} code - 错误码
- * @param {string} [message] - 自定义错误信息，如果不提供则使用默认信息
- * @param {any} [data] - 附加数据
- * @returns {Object} 错误对象
+ * 创建统一响应对象
+ * @param {number} code - 响应码
+ * @param {string} msg - 响应消息
+ * @param {any} data - 响应数据
+ * @param {any} detail - 详细信息
+ * @param {Object} options - 其他选项，会与前4个参数合并，但不能覆盖它们
+ * @returns {Object} 响应对象
  */
-export function createErrorResponse(code, message, data = null) {
-    const defaultMessage = ERROR_MESSAGES[code] || '未知错误';
+export function createResponse(code = ERROR_CODES.SUCCESS, msg = null, data = null, detail = null, options = {}) {
+    const defaultMessage = msg || ERROR_MESSAGES[code] || '未知状态';
 
-    return {
+    // 基础响应对象
+    const response = {
         code,
-        message: message || defaultMessage,
+        msg: defaultMessage,
         data,
+        detail,
         timestamp: new Date().toISOString()
     };
-}
 
-/**
- * 创建成功响应对象
- * @param {any} data - 响应数据
- * @param {string} [message] - 自定义成功信息
- * @returns {Object} 成功响应对象
- */
-export function createSuccess(data = null, message = null) {
+    // 合并 options，但不覆盖基础参数
+    const { code: _, msg: __, data: ___, detail: ____, ...safeOptions } = options;
+
     return {
-        code: ERROR_CODES.SUCCESS,
-        message: message || ERROR_MESSAGES[ERROR_CODES.SUCCESS],
-        data,
-        timestamp: new Date().toISOString()
+        ...safeOptions,
+        ...response
     };
 }
 
@@ -232,3 +229,18 @@ export function getErrorMessage(code) {
 
 // 导出常用错误码以便快速使用
 export const { SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } = ERROR_CODES;
+
+/* 使用示例:
+ *
+ * // 成功响应
+ * createResponse(0, '操作成功', userData)
+ * // 返回: { code: 0, msg: '操作成功', data: userData, detail: null, timestamp: '...' }
+ *
+ * // 错误响应
+ * createResponse(20, '参数错误', null, errorDetails)
+ * // 返回: { code: 20, msg: '参数错误', data: null, detail: errorDetails, timestamp: '...' }
+ *
+ * // 使用 options 扩展
+ * createResponse(0, '成功', data, null, { requestId: 'abc123', version: '1.0' })
+ * // 返回: { requestId: 'abc123', version: '1.0', code: 0, msg: '成功', data: data, detail: null, timestamp: '...' }
+ */

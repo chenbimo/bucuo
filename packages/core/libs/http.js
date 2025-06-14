@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { ERROR_CODES, createErrorResponse as createErrorObject, createSuccess } from './error.js';
+import { ERROR_CODES, createResponse as createResponseObject } from './error.js';
 
 /**
  * 创建标准的 API 响应格式
@@ -13,11 +13,7 @@ import { ERROR_CODES, createErrorResponse as createErrorObject, createSuccess } 
  * @param {number} code - 响应码（默认使用成功码）
  */
 export const createResponse = (data = null, message = '成功', code = ERROR_CODES.SUCCESS) => {
-    if (code === ERROR_CODES.SUCCESS) {
-        return createSuccess(data, message);
-    }
-
-    return createErrorObject(code, message, data);
+    return createResponseObject(code, message, data);
 };
 
 /**
@@ -29,16 +25,16 @@ export const createResponse = (data = null, message = '成功', code = ERROR_COD
 export const createError = (messageOrCode = '错误', codeOrMessage = ERROR_CODES.GENERAL_ERROR, details = null) => {
     // 兼容旧版本调用方式：createError(message, code, details)
     if (typeof messageOrCode === 'string' && typeof codeOrMessage === 'number') {
-        return createErrorObject(codeOrMessage, messageOrCode, details);
+        return createResponseObject(codeOrMessage, messageOrCode, null, details);
     }
 
     // 新版本调用方式：createError(code, message, details)
     if (typeof messageOrCode === 'number') {
-        return createErrorObject(messageOrCode, codeOrMessage, details);
+        return createResponseObject(messageOrCode, codeOrMessage, null, details);
     }
 
     // 默认处理
-    return createErrorObject(ERROR_CODES.GENERAL_ERROR, messageOrCode, codeOrMessage);
+    return createResponseObject(ERROR_CODES.GENERAL_ERROR, messageOrCode, null, codeOrMessage);
 };
 
 /**
