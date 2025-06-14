@@ -99,133 +99,42 @@ export async function validateJsonParams(request, rules) {
 }
 
 /**
- * 创建标准的 POST API 处理器
- * @param {Object} rules - 验证规则对象
- * @param {Function} handler - 处理函数
- * @returns {Function} API 处理器
- */
-export function createPostAPI(rules, handler) {
-    const apiHandler = async (context) => {
-        const { request, response } = context;
-
-        // 检查请求方法
-        if (request.method !== 'POST') {
-            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, '不允许的请求方法，仅支持 POST');
-        }
-
-        // 验证参数
-        const validation = await validateJsonParams(request, rules);
-        if (!validation.success) {
-            return validation.error;
-        }
-
-        try {
-            // 调用处理函数
-            const result = await handler(validation.data, context);
-            return result || createResponse();
-        } catch (error) {
-            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, '内部服务器错误', error.message);
-        }
-    };
-
-    // 添加标记表示这是通过 createPostAPI 包裹的 API
-    apiHandler.__isBunflyAPI__ = true;
-    apiHandler.__apiType__ = 'POST';
-
-    return apiHandler;
-}
-
-/**
- * 创建标准的 GET API 处理器
- * @param {Object} rules - 验证规则对象（可选）
- * @param {Function} handler - 处理函数
- * @returns {Function} API 处理器
- */
-export function createGetAPI(rules, handler) {
-    // 如果只传了一个参数且是函数，说明没有 rules
-    if (typeof rules === 'function' && !handler) {
-        handler = rules;
-        rules = null;
-    }
-
-    const apiHandler = async (context) => {
-        const { request, response } = context;
-
-        // 检查请求方法
-        if (request.method !== 'GET') {
-            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, '不允许的请求方法，仅支持 GET');
-        }
-
-        let data = null;
-
-        // 如果有验证规则，验证查询参数
-        if (rules) {
-            const url = new URL(request.url);
-            const queryParams = {};
-
-            // 提取 query 参数
-            for (const [key, value] of url.searchParams) {
-                queryParams[key] = value;
-            }
-
-            // 提取 URL 路径参数（如 /user/123 中的 123）
-            const pathParts = url.pathname.split('/').filter(Boolean);
-            const lastPart = pathParts[pathParts.length - 1];
-            if (!isNaN(lastPart) && lastPart !== '') {
-                queryParams.id = lastPart;
-            }
-
-            // 验证参数
-            const result = validate(queryParams, rules);
-            if (!result.success) {
-                return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.errors);
-            }
-            data = result.data;
-        }
-
-        try {
-            // 调用处理函数
-            const result = await handler(data, context);
-            return result || createResponse();
-        } catch (error) {
-            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, '内部服务器错误', error.message);
-        }
-    };
-
-    // 添加标记表示这是通过 createGetAPI 包裹的 API
-    apiHandler.__isBunflyAPI__ = true;
-    apiHandler.__apiType__ = 'GET';
-
-    return apiHandler;
-}
-
-/**
- * 创建支持多种 HTTP 方法的 API 处理器
- * @param {Object} config - 配置对象
- * @param {string|string[]} config.methods - 支持的 HTTP 方法
- * @param {Object} config.rules - 验证规则（可选）
+ * 创建统一的 API 处理器（支持插件化配置）
+ * @param {Object} config - API 配置对象
+ * @param {string} config.name - 接口名称
+ * @param {Object} config.schema - 验证规则对象（可选）
+ * @param {string} config.method - HTTP 方法，'get' 或 'post'，默认为 'post'
  * @param {Function} config.handler - 处理函数
  * @returns {Function} API 处理器
  */
 export function createAPI(config) {
-    const { methods, rules, handler } = config;
-    const allowedMethods = Array.isArray(methods) ? methods : [methods];
+    const { name, schema, method = 'post', handler } = config;
+
+    if (!name || typeof name !== 'string') {
+        throw new Error('API 配置必须包含 name 字段');
+    }
+
+    if (!handler || typeof handler !== 'function') {
+        throw new Error('API 配置必须包含 handler 函数');
+    }
+
+    const httpMethod = method.toUpperCase();
 
     const apiHandler = async (context) => {
         const { request, response } = context;
 
         // 检查请求方法
-        if (!allowedMethods.includes(request.method)) {
-            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, `不允许的请求方法，支持的方法: ${allowedMethods.join(', ')}`);
+        if (request.method !== httpMethod) {
+            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, `${name}: 不允许的请求方法，仅支持 ${httpMethod}`);
         }
 
         let data = null;
 
-        // 如果需要验证参数
-        if (rules) {
-            if (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH') {
+        // 如果有验证规则，进行参数验证
+        if (schema) {
+            if (httpMethod === 'POST' || httpMethod === 'PUT' || httpMethod === 'PATCH') {
                 // 对于有 body 的请求，验证 JSON 参数
-                const validation = await validateJsonParams(request, rules);
+                const validation = await validateJsonParams(request, schema);
                 if (!validation.success) {
                     return validation.error;
                 }
@@ -247,14 +156,10 @@ export function createAPI(config) {
                     queryParams.id = Number(lastPart);
                 }
 
-                if (!isNaN(lastPart) && lastPart !== '') {
-                    queryParams.id = lastPart;
-                }
-
                 // 验证参数
-                const result = validate(queryParams, rules);
+                const result = validate(queryParams, schema);
                 if (!result.success) {
-                    return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.errors);
+                    return createResponse(ERROR_CODES.INVALID_PARAMS, `${name}: 验证失败`, result.errors);
                 }
                 data = result.data;
             }
@@ -265,13 +170,51 @@ export function createAPI(config) {
             const result = await handler(data, context);
             return result || createResponse();
         } catch (error) {
-            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, '内部服务器错误', error.message);
+            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, `${name}: 内部服务器错误`, error.message);
         }
     };
 
-    // 添加标记表示这是通过 createAPI 包裹的 API
+    // 添加 API 元信息
     apiHandler.__isBunflyAPI__ = true;
-    apiHandler.__apiType__ = allowedMethods.join(',');
+    apiHandler.__apiName__ = name;
+    apiHandler.__apiMethod__ = httpMethod;
+    apiHandler.__apiSchema__ = schema;
 
     return apiHandler;
+}
+
+/**
+ * 创建 GET API 处理器（向后兼容）
+ * @param {Object} schema - 验证规则对象（可选）
+ * @param {Function} handler - 处理函数
+ * @returns {Function} API 处理器
+ */
+export function createGetAPI(schema, handler) {
+    // 如果只传了一个参数且是函数，说明没有 schema
+    if (typeof schema === 'function' && !handler) {
+        handler = schema;
+        schema = null;
+    }
+
+    return createAPI({
+        name: 'GET API (Legacy)',
+        schema,
+        method: 'get',
+        handler
+    });
+}
+
+/**
+ * 创建 POST API 处理器（向后兼容）
+ * @param {Object} schema - 验证规则对象
+ * @param {Function} handler - 处理函数
+ * @returns {Function} API 处理器
+ */
+export function createPostAPI(schema, handler) {
+    return createAPI({
+        name: 'POST API (Legacy)',
+        schema,
+        method: 'post',
+        handler
+    });
 }

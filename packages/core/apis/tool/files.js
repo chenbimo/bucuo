@@ -2,10 +2,14 @@
  * 文件列表 API - /core/tool/files
  */
 
-import { createGetAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
+import { createAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
 import { common } from '../../schema/index.js';
 
-export default createGetAPI(common.pagination, async (data, context) => {
+export default createAPI({
+    name: '文件列表',
+    schema: common.pagination,
+    method: 'get',
+    handler: async (data, context) => {
     const { config, util } = context;
 
     const page = data.page || 1;

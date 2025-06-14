@@ -2,10 +2,14 @@
  * 文件上传 API - /core/tool/upload
  */
 
-import { createPostAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
+import { createAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
 import { tool } from '../../schema/index.js';
 
-export default createPostAPI(tool.upload, async (data, context) => {
+export default createAPI({
+    name: '文件上传',
+    schema: tool.upload,
+    method: 'post',
+    handler: async (data, context) => {
     const { request, files, fields } = context;
 
     if (!files || files.length === 0) {

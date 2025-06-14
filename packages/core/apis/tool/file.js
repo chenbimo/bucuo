@@ -3,10 +3,14 @@
  */
 
 import path from 'path';
-import { createGetAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
-import { tool } from '../../schema/index.js';
+import { createAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
+import { common } from '../../schema/index.js';
 
-export default createGetAPI(tool.filename, async (data, context) => {
+export default createAPI({
+    name: '文件详情',
+    schema: common.filename,
+    method: 'get',
+    handler: async (data, context) => {
     const { request, response, config, util } = context;
 
     const url = new URL(request.url);
