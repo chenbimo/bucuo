@@ -3,15 +3,10 @@
  */
 
 import path from 'path';
+import { createGetAPI, validators } from 'bunfly';
 
-export default async (context) => {
+export default createGetAPI(validators.filename, async (data, context) => {
     const { request, response, config, util } = context;
-
-    // 只支持 GET 请求
-    if (request.method !== 'GET') {
-        response.status = 405;
-        return { error: '不允许的请求方法', allowedMethods: ['GET'] };
-    }
 
     const url = new URL(request.url);
     const filename = url.pathname.split('/').pop();
@@ -44,4 +39,4 @@ export default async (context) => {
         response.status = 500;
         return { error: 'Failed to download file' };
     }
-};
+});

@@ -2,17 +2,13 @@
  * 文件列表 API - /core/tool/files
  */
 
-export default async (context) => {
-    const { request, response, config, util, query } = context;
+import { createGetAPI, validators } from 'bunfly';
 
-    // 只支持 GET 请求
-    if (request.method !== 'GET') {
-        response.status = 405;
-        return { error: '不允许的请求方法', allowedMethods: ['GET'] };
-    }
+export default createGetAPI(validators.pagination, async (data, context) => {
+    const { config, util } = context;
 
-    const page = parseInt(query.page) || 1;
-    const limit = parseInt(query.limit) || 20;
+    const page = data.page || 1;
+    const limit = data.limit || 20;
 
     try {
         const files = await util.readDir(config.upload.uploadDir);
@@ -32,4 +28,4 @@ export default async (context) => {
     } catch (error) {
         return { files: [], pagination: util.pagination(0, page, limit) };
     }
-};
+});
