@@ -6,7 +6,8 @@
 4. 尽快使用 Bun 的原生 api，减少使用 nodejs 的 api。
 5. 所有测试文件放到 bunfly/tests 目录下，并且使用 Bun 来进行测试，不要用 nodejs。
 6. 所有注释，提示都用中文。
-7. 其中 bunfly/core 是核心驱动，提供了通用的 api 接口框架的功能。
+7. 所有的接口文件都要被 createGetAPI 或 createPostAPI 包裹。
+8. 其中 bunfly/core 是核心驱动，提供了通用的 api 接口框架的功能。
 
     1. bunfly/core/apis 是所有内置的接口所在目录。
     2. bunfly/core/libs 是诸如 redis 操作库，jwt 实现，文件上传实现等通用实现的库目录。
@@ -18,7 +19,7 @@
         5. bunfly/core/plugins/upload.js 是内置 upload 文件上传插件。
     4. bunfly/core/main.js 是入口文件。
 
-8. 其中 bunfly/api 是业务目录，在 bunfly/core 的基础上，提供对外业务功能。
+9. 其中 bunfly/api 是业务目录，在 bunfly/core 的基础上，提供对外业务功能。
     1. bunlfy/api/apis 是业务接口目录。
     2. bunfly/api/plugins 是业务插件目录。
     3. bunfly/api/main.js 是业务入口文件。
