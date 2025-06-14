@@ -2,26 +2,15 @@
  * 健康状态 API - /core/health/status
  */
 
-import { createApi } from '../../libs/http.js';
+import { createApi, createRes, ERROR_CODES } from '../../libs/http.js';
 import healthSchema from '../../schema/health.json';
 
 export default createApi({
     name: '系统状态',
-    schema: healthSchema.presets.status,
-    method: 'get',
-    handler: async (data, context) => {- /core/health/status
- */
-
-import { createApi } from '../../libs/http.js';
-import { processSchema } from '../../libs/simple-schema.js';
-import healthSchema from '../../schema/health.json';
-import commonSchema from '../../schema/common.json';
-
-const { status } = processSchema(healthSchema, commonSchema.commonRules);
-
-export default createApi({
-    name: '系统状态',
-    schema: status,
+    schema: {
+        fields: [],
+        required: []
+    },
     method: 'get',
     handler: async (data, context) => {
         const { redis } = context;
@@ -57,6 +46,6 @@ export default createApi({
             status.redis = 'disabled';
         }
 
-        return status;
+        return createRes(ERROR_CODES.SUCCESS, '系统状态获取成功', status);
     }
 });

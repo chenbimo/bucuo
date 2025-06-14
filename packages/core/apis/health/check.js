@@ -2,29 +2,18 @@
  * 健康检查 API - /core/health/check
  */
 
-import { createApi } from '../../libs/http.js';
+import { createApi, createRes, ERROR_CODES } from '../../libs/http.js';
 import healthSchema from '../../schema/health.json';
 
 export default createApi({
     name: '健康检查',
-    schema: healthSchema.presets.check,
-    method: 'get',
-    handler: async (data, context) => {- /core/health/check
- */
-
-import { createApi } from '../../libs/http.js';
-import { processSchema } from '../../libs/simple-schema.js';
-import healthSchema from '../../schema/health.json';
-import commonSchema from '../../schema/common.json';
-
-const { check } = processSchema(healthSchema, commonSchema.commonRules);
-
-export default createApi({
-    name: '健康检查',
-    schema: check,
+    schema: {
+        fields: [],
+        required: []
+    },
     method: 'get',
     handler: async (data, context) => {
-        return {
+        return createRes(ERROR_CODES.SUCCESS, '健康检查成功', {
             status: 'ok',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
@@ -33,6 +22,6 @@ export default createApi({
             version: Bun.version,
             platform: process.platform,
             arch: process.arch
-        };
+        });
     }
 });
