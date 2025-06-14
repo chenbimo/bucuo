@@ -5,7 +5,6 @@
 import { Bunfly } from 'bunfly';
 import { util } from '../core/util.js';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 class BunflyAPI extends Bunfly {
     constructor(options = {}) {
@@ -76,7 +75,7 @@ class BunflyAPI extends Bunfly {
      * 加载业务插件
      */
     async loadBusinessPlugins() {
-        const pluginDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'plugins');
+        const pluginDir = path.join(import.meta.dir, 'plugins');
 
         try {
             const files = await util.readDir(pluginDir);
@@ -161,11 +160,11 @@ class BunflyAPI extends Bunfly {
      */
     async loadBusinessAPIs() {
         // 加载业务 API (api/apis/*.js -> /xxx)
-        const apiDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'apis');
+        const apiDir = path.join(import.meta.dir, 'apis');
         await this.loadApiRoutes(apiDir, ''); // 空前缀，直接映射到根路径
 
         // 加载核心 API (core/apis/*.js -> /core/xxx)
-        const coreApiDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../core/apis');
+        const coreApiDir = path.join(import.meta.dir, '../core/apis');
         await this.loadApiRoutes(coreApiDir, 'core'); // 'core' 前缀
     }
 

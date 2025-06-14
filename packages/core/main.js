@@ -4,7 +4,6 @@
 
 import { serve } from 'bun';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { util } from './util.js';
 
 // 导出验证工具
@@ -77,7 +76,7 @@ class Bunfly {
      * 加载核心插件
      */
     async loadCorePlugins() {
-        const pluginDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'plugins');
+        const pluginDir = path.join(import.meta.dir, 'plugins');
 
         try {
             const files = await util.readDir(pluginDir);
