@@ -2,7 +2,7 @@
  * 文件上传 API - /core/tool/upload
  */
 
-import { createPostAPI } from '../../libs/http.js';
+import { createPostAPI, createResponse, createError } from '../../libs/http.js';
 import { tool } from '../../schema/index.js';
 
 export default createPostAPI(tool.upload(), async (data, context) => {

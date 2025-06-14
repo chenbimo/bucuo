@@ -5,12 +5,7 @@
 import { createGetAPI } from '../../libs/http.js';
 import { health } from '../../schema/index.js';
 
-export default createGetAPI(health.info(), async (data, context) => {系统信息 API - /core/health/info
- */
-
-import { createGetAPI, validators } from '../../libs/validation.js';
-
-export default createGetAPI(validators.empty(), async (data, context) => {
+export default createGetAPI(health.info(), async (data, context) => {
     return {
         name: 'Bunfly',
         description: 'A universal JS backend API framework for Bun',

@@ -5,12 +5,7 @@
 import { createPostAPI, createResponse, createError } from 'bunfly';
 import { common } from '../../schema/index.js';
 
-export default createPostAPI(common.id(), async (data, context) => {用户详情 API - /user/detail/:id
- */
-
-import { createPostAPI, validators, createResponse } from 'bunfly';
-
-export default createPostAPI(validators.id, async (data, context) => {
+export default createPostAPI(common.id(), async (data, context) => {
     const { id } = data;
     const { cache } = context;
 

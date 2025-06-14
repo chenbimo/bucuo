@@ -5,12 +5,7 @@
 import { createPostAPI, createResponse, createError } from 'bunfly';
 import { user } from '../../schema/index.js';
 
-export default createPostAPI(user.create(), async (data, context) => {用户创建 API - /user/create
- */
-
-import { createPostAPI, validators, createResponse } from 'bunfly';
-
-export default createPostAPI(validators.userCreate, async (data, context) => {
+export default createPostAPI(user.create(), async (data, context) => {
     const { username, password, email, nickname } = data;
 
     // 模拟创建用户

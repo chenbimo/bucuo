@@ -2,7 +2,7 @@
  * 文件列表 API - /core/tool/files
  */
 
-import { createGetAPI } from '../../libs/http.js';
+import { createGetAPI, createResponse, createError } from '../../libs/http.js';
 import { common } from '../../schema/index.js';
 
 export default createGetAPI(common.pagination(), async (data, context) => {

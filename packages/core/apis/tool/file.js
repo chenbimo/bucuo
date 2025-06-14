@@ -3,7 +3,7 @@
  */
 
 import path from 'path';
-import { createGetAPI } from '../../libs/http.js';
+import { createGetAPI, createResponse, createError } from '../../libs/http.js';
 import { tool } from '../../schema/index.js';
 
 export default createGetAPI(tool.filename(), async (data, context) => {
@@ -14,7 +14,7 @@ export default createGetAPI(tool.filename(), async (data, context) => {
 
     if (!filename) {
         response.status = 400;
-        return { error: '文件名是必须的' };
+        return createError('文件名是必须的', 400);
     }
 
     const filePath = path.join(config.upload.uploadDir, filename);
@@ -22,7 +22,7 @@ export default createGetAPI(tool.filename(), async (data, context) => {
 
     if (!exists) {
         response.status = 404;
-        return { error: '文件未找到' };
+        return createError('文件未找到', 404);
     }
 
     try {

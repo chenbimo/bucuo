@@ -5,12 +5,7 @@
 import { createGetAPI } from '../../libs/http.js';
 import { health } from '../../schema/index.js';
 
-export default createGetAPI(health.status(), async (data, context) => {详细状态检查 API - /core/health/status
- */
-
-import { createGetAPI, validators } from '../../libs/validation.js';
-
-export default createGetAPI(validators.empty(), async (data, context) => {
+export default createGetAPI(health.status(), async (data, context) => {
     const { redis } = context;
 
     const status = {
