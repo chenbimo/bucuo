@@ -31,33 +31,21 @@ export default createPostAPI(common.pagination(), async (data, context) => {
     const endIndex = startIndex + limit;
     const paginatedUsers = users.slice(startIndex, endIndex);
 
-    const result = createResponse({
-        users: paginatedUsers,
-        pagination: {
-            page,
-            limit,
-            total: users.length,
-            totalPages: Math.ceil(users.length / limit)
-        }
-    }, '用户列表获取成功');
+    const result = createResponse(
+        {
+            users: paginatedUsers,
+            pagination: {
+                page,
+                limit,
+                total: users.length,
+                totalPages: Math.ceil(users.length / limit)
+            }
+        },
+        '用户列表获取成功'
+    );
 
     // 缓存结果
     await cache.set(cacheKey, result, 60); // 缓存60秒
 
     return result;
 });
-        active: Math.random() > 0.2
-    }));
-
-    const total = users.length;
-    const pagination = util.pagination(total, page, limit);
-    const result = {
-        users: users.slice(pagination.offset, pagination.offset + pagination.limit),
-        pagination
-    };
-
-    // 缓存结果
-    await cache.set(cacheKey, result, 300); // 5分钟
-
-    return result;
-};
