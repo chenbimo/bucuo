@@ -41,16 +41,3 @@ export default createPostAPI(validators.id, async (data, context) => {
 
     return result;
 });
-        name: `User ${userId}`,
-        createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-        active: true,
-        profile: {
-            bio: `This is user ${userId}'s bio`,
-            location: 'Earth',
-            website: `https://user${userId}.example.com`
-        }
-    };
-
-    await cache.set(cacheKey, user, 600); // 10分钟
-    return user;
-};
