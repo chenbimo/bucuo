@@ -4,10 +4,12 @@
 
 import path from 'path';
 import { util } from '../util.js';
+import { createSimplePlugin } from '../libs/plugin.js';
 
-export const uploadPlugin = {
+export default createSimplePlugin({
     name: 'upload',
     order: 3,
+
     async handler(context) {
         const { request, config } = context;
         const uploadConfig = config.upload;
@@ -109,4 +111,4 @@ export const uploadPlugin = {
             context.response.sent = true;
         }
     }
-};
+});

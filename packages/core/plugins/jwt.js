@@ -3,19 +3,35 @@
  */
 
 import { JWT } from '../libs/jwt.js';
+import { createPlugin } from '../libs/plugin.js';
 
-export const jwtPlugin = {
+export default createPlugin({
     name: 'jwt',
     order: 2,
-    async handler(context) {
-        const { request, config } = context;
+
+    async onInit(context) {
+        const { config } = context;
         const jwtConfig = config.jwt || {};
 
         if (!jwtConfig.enabled) {
+            console.log('JWT 插件已禁用');
+            return null;
+        }
+
+        console.log('🔧 正在初始化 JWT...');
+        const jwt = new JWT(jwtConfig.secret, jwtConfig);
+        console.log('✅ JWT 初始化完成');
+
+        return { jwt };
+    },
+
+    async onRequest(context, initData) {
+        if (!initData || !initData.jwt) {
             return;
         }
 
-        const jwt = new JWT(jwtConfig.secret, jwtConfig);
+        const { request } = context;
+        const jwt = initData.jwt;
         context.jwt = jwt;
 
         // 解析 Authorization 头部
@@ -55,4 +71,4 @@ export const jwtPlugin = {
             return jwt.sign(payload, options);
         };
     }
-};
+});

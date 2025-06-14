@@ -88,12 +88,15 @@ class BunflyAPI extends Bunfly {
                 try {
                     const pluginPath = path.join(pluginDir, file);
                     const plugin = await import(pluginPath);
-                    // 支持命名导出的插件
-                    const pluginInstance = plugin.default || plugin.corsPlugin || plugin.loggerPlugin || plugin.jwtPlugin || plugin.redisPlugin || plugin.uploadPlugin || plugin.statsPlugin;
 
-                    if (pluginInstance) {
+                    // 统一使用 default 导出
+                    const pluginInstance = plugin.default;
+
+                    if (pluginInstance && typeof pluginInstance.handler === 'function') {
                         loadedPlugins.push(pluginInstance);
-                        console.log(`✓ 已加载业务插件: ${file} [order: ${pluginInstance.order || 0}]`);
+                        console.log(`✓ 已加载业务插件: ${file} [${pluginInstance.name}] [order: ${pluginInstance.order || 0}]`);
+                    } else {
+                        console.warn(`插件 ${file} 没有正确的 default 导出或缺少 handler 方法`);
                     }
                 } catch (error) {
                     console.warn(`加载业务插件失败 ${file}:`, error.message);
@@ -103,8 +106,53 @@ class BunflyAPI extends Bunfly {
             // 按 order 排序并注册插件
             loadedPlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
             loadedPlugins.forEach((plugin) => this.use(plugin));
+
+            // 初始化业务插件
+            await this.initializeBusinessPlugins(loadedPlugins);
         } catch (error) {
             console.warn('未找到业务插件目录，跳过');
+        }
+    }
+
+    /**
+     * 初始化业务插件
+     */
+    async initializeBusinessPlugins(plugins) {
+        console.log('🔌 正在初始化业务插件...');
+
+        // 等待核心插件初始化完成
+        await super.initPromise;
+
+        // 创建一个临时的上下文来初始化插件，包含核心组件
+        const tempContext = {
+            config: this.config,
+            util,
+            request: null,
+            response: null,
+            redis: this.coreComponents?.redis,
+            cache: this.coreComponents?.redis
+                ? {
+                      set: (key, value, ttl) => this.coreComponents.redis.set(key, value, ttl),
+                      get: (key) => this.coreComponents.redis.get(key),
+                      del: (key) => this.coreComponents.redis.del(key),
+                      exists: (key) => this.coreComponents.redis.exists(key),
+                      expire: (key, ttl) => this.coreComponents.redis.expire(key, ttl),
+                      ttl: (key) => this.coreComponents.redis.ttl(key),
+                      clear: () => this.coreComponents.redis.clear()
+                  }
+                : null,
+            logger: this.coreComponents?.logger
+        };
+
+        for (const plugin of plugins) {
+            try {
+                if (plugin.handler && typeof plugin.handler === 'function') {
+                    await plugin.handler(tempContext);
+                    console.log(`✓ 业务插件 ${plugin.name} 初始化完成`);
+                }
+            } catch (error) {
+                console.warn(`业务插件 ${plugin.name} 初始化失败:`, error.message);
+            }
         }
     }
 

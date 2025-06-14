@@ -2,9 +2,12 @@
  * CORS 跨域插件
  */
 
-export const corsPlugin = {
+import { createSimplePlugin } from '../libs/plugin.js';
+
+export default createSimplePlugin({
     name: 'cors',
     order: 1,
+
     async handler(context) {
         const { request, response, config } = context;
         const corsConfig = config.cors;
@@ -45,4 +48,4 @@ export const corsPlugin = {
             response.sent = true;
         }
     }
-};
+});

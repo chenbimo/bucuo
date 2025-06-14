@@ -17,6 +17,9 @@ export { createPostAPI, createGetAPI, createAPI, createResponse, createApiRespon
 // 从 error.js 导出错误管理工具
 export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedError, registerUserError, getErrorMessage, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/error.js';
 
+// 导出插件创建工具
+export { createPlugin, createSimplePlugin } from './libs/plugin.js';
+
 // 内部使用的导入
 import { createResponse } from './libs/http.js';
 import { ERROR_CODES } from './libs/error.js';
@@ -51,7 +54,24 @@ class Bunfly {
             }
         };
 
-        this.loadCorePlugins();
+        // 标记初始化状态
+        this.initialized = false;
+        this.initPromise = this.initializeCore();
+    }
+
+    /**
+     * 异步初始化核心组件
+     */
+    async initializeCore() {
+        if (this.initialized) return;
+
+        console.log('🔧 正在初始化 Bunfly 核心组件...');
+
+        // 加载并初始化核心插件
+        await this.loadCorePlugins();
+
+        this.initialized = true;
+        console.log('✅ Bunfly 核心组件初始化完成');
     }
 
     /**
@@ -70,12 +90,15 @@ class Bunfly {
                 try {
                     const pluginPath = path.join(pluginDir, file);
                     const plugin = await import(pluginPath);
-                    // 支持命名导出的插件
-                    const pluginInstance = plugin.default || plugin.corsPlugin || plugin.loggerPlugin || plugin.jwtPlugin || plugin.redisPlugin || plugin.uploadPlugin || plugin.statsPlugin;
 
-                    if (pluginInstance) {
+                    // 统一使用 default 导出
+                    const pluginInstance = plugin.default;
+
+                    if (pluginInstance && typeof pluginInstance.handler === 'function') {
                         loadedPlugins.push(pluginInstance);
-                        console.log(`✓ 已加载核心插件: ${file} [order: ${pluginInstance.order || 0}]`);
+                        console.log(`✓ 已加载核心插件: ${file} [${pluginInstance.name}] [order: ${pluginInstance.order || 0}]`);
+                    } else {
+                        console.warn(`插件 ${file} 没有正确的 default 导出或缺少 handler 方法`);
                     }
                 } catch (error) {
                     console.warn(`加载插件失败 ${file}:`, error.message);
@@ -85,9 +108,44 @@ class Bunfly {
             // 按 order 排序并注册插件
             loadedPlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
             loadedPlugins.forEach((plugin) => this.use(plugin));
+
+            // 初始化所有插件
+            await this.initializePlugins(loadedPlugins);
         } catch (error) {
             console.warn('未找到插件目录，跳过插件加载');
         }
+    }
+
+    /**
+     * 初始化插件
+     */
+    async initializePlugins(plugins) {
+        console.log('🔌 正在初始化插件...');
+
+        // 创建一个临时的上下文来初始化插件
+        const tempContext = {
+            config: this.config,
+            util,
+            request: null,
+            response: null
+        };
+
+        for (const plugin of plugins) {
+            try {
+                if (plugin.handler && typeof plugin.handler === 'function') {
+                    await plugin.handler(tempContext);
+                    console.log(`✓ 插件 ${plugin.name} 初始化完成`);
+                }
+            } catch (error) {
+                console.warn(`插件 ${plugin.name} 初始化失败:`, error.message);
+            }
+        }
+
+        // 保存已初始化的核心组件，供业务插件使用
+        this.coreComponents = {
+            redis: this.plugins.find((p) => p.name === 'redis')?._cache,
+            logger: this.plugins.find((p) => p.name === 'logger')?._logger
+        };
     }
 
     /**
@@ -382,6 +440,9 @@ class Bunfly {
      * 启动服务器
      */
     async listen(callback) {
+        // 确保核心组件初始化完成
+        await this.initPromise;
+
         const server = serve({
             port: this.port,
             hostname: this.host,

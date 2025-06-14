@@ -2,12 +2,16 @@
  * 业务插件示例 - 请求统计
  */
 
-export const statsPlugin = {
+import { createSimplePlugin } from '../../core/libs/plugin.js';
+
+export default createSimplePlugin({
     name: 'request-stats',
     order: 10,
+
     async handler(context) {
         const { request, cache, util } = context;
-        console.log('请求统计插件已加载');
+
+        console.log(' 请求统计插件处理请求');
 
         if (!cache) return;
 
@@ -41,4 +45,4 @@ export const statsPlugin = {
             console.warn('请求统计插件错误:', error.message);
         }
     }
-};
+});
