@@ -3,15 +3,19 @@
  * 使用 GET 请求查看所有已注册的路由
  */
 
-import { createGetAPI } from '../../libs/http.js';
-import { debug } from '../../schema/index.js';
+import { createApi } from '../../libs/http.js';
+import debugSchema from '../../schema/debug.json';
 
-export default createGetAPI(debug.routes(), async (data, context) => {
-    const { request } = context;
+export default createApi({
+    name: '调试路由',
+    schema: debugSchema.presets.routes,
+    method: 'get',
+    handler: async (data, context) => {
+        const { request } = context;
 
-    // 获取当前 Bunfly 实例的路由信息
-    // 由于我们在 API 处理器内部，需要通过 context 访问应用实例
-    const app = context.app || this;
+        // 获取当前 Bunfly 实例的路由信息
+        // 由于我们在 API 处理器内部，需要通过 context 访问应用实例
+        const app = context.app || this;
 
     // 如果无法直接访问应用实例，我们需要从全局或其他方式获取
     if (!app || !app.routes) {
@@ -58,15 +62,17 @@ export default createGetAPI(debug.routes(), async (data, context) => {
 
     return {
         success: true,
-        message: '路由调试信息',
-        timestamp: new Date().toISOString(),
-        stats: stats,
-        routes: routes,
-        debug: {
-            contextKeys: Object.keys(context),
-            hasApp: !!app,
-            hasRoutes: !!(app && app.routes),
-            routesType: app && app.routes ? typeof app.routes : 'undefined'
-        }
-    };
+        return {
+            message: '路由调试信息',
+            timestamp: new Date().toISOString(),
+            stats: stats,
+            routes: routes,
+            debug: {
+                contextKeys: Object.keys(context),
+                hasApp: !!app,
+                hasRoutes: !!(app && app.routes),
+                routesType: app && app.routes ? typeof app.routes : 'undefined'
+            }
+        };
+    }
 });

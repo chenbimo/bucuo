@@ -3,6 +3,16 @@
  */
 
 import { createApi } from '../../libs/http.js';
+import healthSchema from '../../schema/health.json';
+
+export default createApi({
+    name: '系统信息',
+    schema: healthSchema.presets.info,
+    method: 'get',
+    handler: async (data, context) => {- /core/health/info
+ */
+
+import { createApi } from '../../libs/http.js';
 import { processSchema } from '../../libs/simple-schema.js';
 import healthSchema from '../../schema/health.json';
 import commonSchema from '../../schema/common.json';

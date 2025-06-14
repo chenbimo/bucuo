@@ -1,5 +1,5 @@
 import { createApi, createRes, ERROR_CODES } from 'bunfly';
-import userSchema from '../../../schema/user.json';
+import userSchema from '../../schema/user.json';
 
 export default createApi({
     name: '用户登录',
