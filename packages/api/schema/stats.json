@@ -1,13 +1,1 @@
-{
-    "description": "统计相关验证规则",
-    "statsRules": {},
-    "presets": {
-        "system": {},
-        "requests": {},
-        "paths": {
-            "page": "commonRules.page",
-            "limit": "commonRules.limit"
-        },
-        "methods": {}
-    }
-}
+{}
