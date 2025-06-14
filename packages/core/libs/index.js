@@ -6,6 +6,7 @@
 
 // 导出验证工具
 export * from './validation.js';
+export * from './validator.js';
 
 // 导出JWT工具
 export * from './jwt.js';
@@ -15,6 +16,9 @@ export * from './logger.js';
 
 // 导出缓存工具
 export * from './cache.js';
+
+// 导出 schema 中的通用验证模式
+export { commonSchemas } from '../schema/common.js';
 
 export const bunflyLibs = {
     version: '1.0.0',

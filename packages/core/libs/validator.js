@@ -202,51 +202,73 @@ export function createAPI(config) {
 }
 
 /**
- * 常用的 Zod 验证模式
+ * 创建标准的 GET API 处理器
+ * @param {ZodSchema} schema - 验证模式（可选）
+ * @param {Function} handler - 处理函数
+ * @returns {Function} API 处理器
  */
-export const commonSchemas = {
-    // ID 参数
-    id: z.object({
-        id: z.number().int().positive('ID 必须是正整数')
-    }),
+export function createGetAPI(schema, handler) {
+    // 如果只传了一个参数且是函数，说明没有 schema
+    if (typeof schema === 'function' && !handler) {
+        handler = schema;
+        schema = null;
+    }
 
-    // 分页参数
-    pagination: z.object({
-        page: z.number().int().min(1).default(1),
-        limit: z.number().int().min(1).max(100).default(10)
-    }),
+    const apiHandler = async (context) => {
+        const { request, response } = context;
 
-    // 用户登录
-    userLogin: z.object({
-        username: z.string().min(1, '用户名是必须的'),
-        password: z.string().min(6, '密码至少需要6个字符')
-    }),
+        // 检查请求方法
+        if (request.method !== 'GET') {
+            response.status = 405;
+            return createError('不允许的请求方法，仅支持 GET', 405);
+        }
 
-    // 用户创建
-    userCreate: z.object({
-        username: z.string().min(1, '用户名是必须的'),
-        password: z.string().min(6, '密码至少需要6个字符'),
-        email: z.string().email('无效的邮箱格式').optional(),
-        nickname: z.string().optional()
-    }),
+        let data = null;
 
-    // 用户更新
-    userUpdate: z.object({
-        id: z.number().int().positive('ID 必须是正整数'),
-        username: z.string().min(1).optional(),
-        email: z.string().email().optional(),
-        nickname: z.string().optional()
-    }),
+        // 如果有验证模式，验证查询参数
+        if (schema) {
+            const url = new URL(request.url);
+            const queryParams = {};
 
-    // 文件上传
-    fileUpload: z.object({
-        filename: z.string().min(1, '文件名是必须的'),
-        content: z.string().optional(),
-        type: z.string().optional()
-    }),
+            // 提取 query 参数
+            for (const [key, value] of url.searchParams) {
+                // 尝试转换数字
+                if (!isNaN(value) && value !== '') {
+                    queryParams[key] = Number(value);
+                } else {
+                    queryParams[key] = value;
+                }
+            }
 
-    // 文件操作
-    fileOperation: z.object({
-        filename: z.string().min(1, '文件名是必须的')
-    })
-};
+            // 提取 URL 路径参数（如 /user/123 中的 123）
+            const pathParts = url.pathname.split('/').filter(Boolean);
+            const lastPart = pathParts[pathParts.length - 1];
+            if (!isNaN(lastPart) && lastPart !== '') {
+                queryParams.id = Number(lastPart);
+            }
+
+            // 验证参数
+            const result = schema.safeParse(queryParams);
+            if (!result.success) {
+                response.status = 400;
+                return createError('验证失败', 400, result.error.errors);
+            }
+            data = result.data;
+        }
+
+        try {
+            // 调用处理函数
+            const result = await handler(data, context);
+            return result || createResponse();
+        } catch (error) {
+            response.status = 500;
+            return createError('内部服务器错误', 500, error.message);
+        }
+    };
+
+    // 添加标记表示这是通过 createGetAPI 包裹的 API
+    apiHandler.__isBunflyAPI__ = true;
+    apiHandler.__apiType__ = 'GET';
+
+    return apiHandler;
+}
