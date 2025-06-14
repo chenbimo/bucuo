@@ -187,21 +187,12 @@ export function createValidator() {
 }
 
 /**
- * 预定义的常用验证器
- * 注意：业务相关的验证器已迁移到 api/validations 目录
+ * 预定义的常用验证器已迁移到 schema 目录
+ * 此处保留为兼容性，建议使用 schema 目录中的验证器
  */
 export const validators = {
-    // 空验证（无参数）
-    empty: () => z.object({}),
-
-    // 分页验证（核心功能）
-    pagination: () => createValidator().number('page', { int: true, min: 1, default: 1, optional: true }).number('limit', { int: true, min: 1, max: 100, default: 10, optional: true }).build(),
-
-    // 文件名验证（工具接口）
-    filename: () => createValidator().string('filename', { min: 1 }).build(),
-
-    // 文件操作
-    file: () => createValidator().string('filename', { min: 1 }).string('content', { optional: true }).string('type', { optional: true }).build()
+    // 空验证（无参数）- 兼容性保留
+    empty: () => z.object({})
 };
 
 /**

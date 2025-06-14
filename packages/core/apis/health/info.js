@@ -1,5 +1,11 @@
 /**
- * 系统信息 API - /core/health/info
+ * 健康信息 API - /core/health/info
+ */
+
+import { createGetAPI } from '../../libs/validation.js';
+import { health } from '../../schema/index.js';
+
+export default createGetAPI(health.info(), async (data, context) => {系统信息 API - /core/health/info
  */
 
 import { createGetAPI, validators } from '../../libs/validation.js';

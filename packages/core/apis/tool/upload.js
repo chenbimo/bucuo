@@ -2,9 +2,10 @@
  * 文件上传 API - /core/tool/upload
  */
 
-import { createPostAPI, validators } from '../../libs/validation.js';
+import { createPostAPI } from '../../libs/validation.js';
+import { tool } from '../../schema/index.js';
 
-export default createPostAPI(validators.empty(), async (data, context) => {
+export default createPostAPI(tool.upload(), async (data, context) => {
     const { request, files, fields } = context;
 
     if (!files || files.length === 0) {

@@ -2,9 +2,10 @@
  * 文件列表 API - /core/tool/files
  */
 
-import { createGetAPI, validators } from 'bunfly';
+import { createGetAPI } from '../../libs/validation.js';
+import { common } from '../../schema/index.js';
 
-export default createGetAPI(validators.pagination(), async (data, context) => {
+export default createGetAPI(common.pagination(), async (data, context) => {
     const { config, util } = context;
 
     const page = data.page || 1;

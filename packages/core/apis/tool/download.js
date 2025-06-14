@@ -3,9 +3,10 @@
  */
 
 import path from 'path';
-import { createGetAPI, validators } from 'bunfly';
+import { createGetAPI } from '../../libs/validation.js';
+import { tool } from '../../schema/index.js';
 
-export default createGetAPI(validators.filename(), async (data, context) => {
+export default createGetAPI(tool.filename(), async (data, context) => {
     const { request, response, config, util } = context;
 
     const url = new URL(request.url);
