@@ -331,7 +331,7 @@ class Bunfly {
                         break;
                     }
                 } catch (handlerError) {
-                    console.error('Error in error handler:', handlerError);
+                    console.error('错误处理器中发生错误:', handlerError);
                 }
             }
 
@@ -363,7 +363,7 @@ class Bunfly {
             fetch: (request) => this.handleRequest(request)
         });
 
-        console.log(`🚀 Bunfly server is running on http://${this.host}:${this.port}`);
+        console.log(`🚀 Bunfly 运行中 http://${this.host}:${this.port}`);
 
         if (callback) {
             callback(server);
@@ -425,29 +425,12 @@ class Bunfly {
                             // 检查 API 是否被正确包裹
                             if (!api.default.__isBunflyAPI__) {
                                 console.error(`\n❌ 错误：API 文件 ${relativePath} 没有使用 createGetAPI 或 createPostAPI 包裹！`);
-                                console.error(`   路由路径: ${routePath}`);
-                                console.error(`   请使用 createGetAPI 或 createPostAPI 包裹您的 API 处理函数。`);
-                                console.error(`
-示例：
-import { createGetAPI, createPostAPI } from 'bunfly';
-
-// GET 接口
-export default createGetAPI(schema, async (data, context) => {
-    // 您的处理逻辑
-});
-
-// POST 接口
-export default createPostAPI(schema, async (data, context) => {
-    // 您的处理逻辑
-});
-`);
-                                console.error(`\n🚫 程序强制退出`);
                                 process.exit(1);
                             }
 
                             // 注册精确路由
                             this.route('*', routePath, api.default);
-                            console.log(`✓ 已加载 API 路由: ${relativePath} -> ${routePath} [${api.default.__apiType__ || 'Unknown'}]`);
+                            console.log(`✓ 已加载 API 路由: ${relativePath} -> ${routePath} [${api.default.__apiType__ || '未知'}]`);
                         }
                     }
                 } catch (error) {

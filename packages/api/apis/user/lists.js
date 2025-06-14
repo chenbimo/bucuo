@@ -20,7 +20,7 @@ export default createPostAPI(validators.pagination, async (data, context) => {
         id: i + 1,
         username: `user${i + 1}`,
         email: `user${i + 1}@example.com`,
-        nickname: `User ${i + 1}`,
+        nickname: `用户 ${i + 1}`,
         createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
         active: Math.random() > 0.1
     }));

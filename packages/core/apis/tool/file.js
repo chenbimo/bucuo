@@ -13,7 +13,7 @@ export default createGetAPI(validators.filename, async (data, context) => {
 
     if (!filename) {
         response.status = 400;
-        return { error: 'Filename is required' };
+        return { error: '文件名是必须的' };
     }
 
     const filePath = path.join(config.upload.uploadDir, filename);
@@ -39,6 +39,6 @@ export default createGetAPI(validators.filename, async (data, context) => {
         };
     } catch (error) {
         response.status = 500;
-        return { error: 'Failed to read file info' };
+        return { error: '读取文件信息失败' };
     }
 });

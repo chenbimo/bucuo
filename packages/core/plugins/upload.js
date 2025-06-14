@@ -33,8 +33,8 @@ export const uploadPlugin = {
                     if (value.size > uploadConfig.maxSize) {
                         context.response.status = 413;
                         context.response.json({
-                            error: 'File Too Large',
-                            message: `File size exceeds ${uploadConfig.maxSize} bytes`
+                            error: '文件过大',
+                            message: `文件大小超过 ${uploadConfig.maxSize} 字节`
                         });
                         context.response.sent = true;
                         return;
@@ -52,8 +52,8 @@ export const uploadPlugin = {
                         if (!isAllowed) {
                             context.response.status = 415;
                             context.response.json({
-                                error: 'Unsupported Media Type',
-                                message: `File type ${value.type} is not allowed`
+                                error: '不支持的媒体类型',
+                                message: `不允许的文件类型 ${value.type}`
                             });
                             context.response.sent = true;
                             return;
@@ -84,8 +84,8 @@ export const uploadPlugin = {
                     } else {
                         context.response.status = 500;
                         context.response.json({
-                            error: 'Upload Failed',
-                            message: 'Failed to save file'
+                            error: '上传失败',
+                            message: '保存文件失败'
                         });
                         context.response.sent = true;
                         return;
@@ -103,7 +103,7 @@ export const uploadPlugin = {
         } catch (error) {
             context.response.status = 400;
             context.response.json({
-                error: 'Upload Error',
+                error: '上传错误',
                 message: error.message
             });
             context.response.sent = true;

@@ -24,13 +24,13 @@ export default createPostAPI(validators.id, async (data, context) => {
         id,
         username: `user${id}`,
         email: `user${id}@example.com`,
-        nickname: `User ${id}`,
+        nickname: `用户 ${id}`,
         createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
         active: Math.random() > 0.1,
         profile: {
             avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
-            bio: `This is user ${id}'s bio`,
-            location: 'Earth'
+            bio: `这是用户 ${id} 的个人简介`,
+            location: '地球'
         }
     };
 

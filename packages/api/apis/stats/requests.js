@@ -22,6 +22,6 @@ export default createGetAPI(validators.empty(), async (data, context) => {
             date: today
         };
     } catch (error) {
-        return { error: 'Failed to get stats' };
+        return { error: '获取统计信息失败' };
     }
 });

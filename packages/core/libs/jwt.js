@@ -66,7 +66,7 @@ export class JWT {
         try {
             const parts = token.split('.');
             if (parts.length !== 3) {
-                throw new Error('Invalid token format');
+                throw new Error('无效的令牌格式');
             }
 
             const [headerEncoded, payloadEncoded, signature] = parts;
@@ -78,7 +78,7 @@ export class JWT {
             const expectedSignature = hasher.digest('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 
             if (signature !== expectedSignature) {
-                throw new Error('Invalid signature');
+                throw new Error('无效的签名');
             }
 
             // 解析载荷
@@ -87,12 +87,12 @@ export class JWT {
             // 检查过期时间
             const now = Math.floor(Date.now() / 1000);
             if (payload.exp && payload.exp < now) {
-                throw new Error('Token expired');
+                throw new Error('令牌已过期');
             }
 
             return payload;
         } catch (error) {
-            throw new Error(`JWT verification failed: ${error.message}`);
+            throw new Error(`JWT验证失败: ${error.message}`);
         }
     }
 

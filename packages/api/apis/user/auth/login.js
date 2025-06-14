@@ -14,7 +14,7 @@ export default createPostAPI(validators.userLogin, async (data, context) => {
             id: 1,
             username: 'admin',
             email: 'admin@example.com',
-            name: 'Administrator',
+            name: '管理员',
             role: 'admin'
         };
 

@@ -24,6 +24,6 @@ export default createGetAPI(validators.empty(), async (data, context) => {
             total: Object.values(stats).reduce((sum, count) => sum + count, 0)
         };
     } catch (error) {
-        return { error: 'Failed to get method stats' };
+        return { error: '获取方法统计信息失败' };
     }
 });

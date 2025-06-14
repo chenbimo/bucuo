@@ -8,7 +8,7 @@ import { z } from 'zod';
 /**
  * 创建标准的 API 响应格式
  */
-export const createResponse = (data = null, message = 'success', code = 200) => {
+export const createResponse = (data = null, message = '成功', code = 200) => {
     return {
         code,
         message,
@@ -20,7 +20,7 @@ export const createResponse = (data = null, message = 'success', code = 200) => 
 /**
  * 创建错误响应
  */
-export const createError = (message = 'error', code = 400, details = null) => {
+export const createError = (message = '错误', code = 400, details = null) => {
     return {
         code,
         message,
@@ -43,7 +43,7 @@ export async function validateJsonParams(request, schema) {
         if (!contentType || !contentType.includes('application/json')) {
             return {
                 success: false,
-                error: createError('Content-Type must be application/json', 400)
+                error: createError('Content-Type 必须是 application/json', 400)
             };
         }
 
@@ -54,7 +54,7 @@ export async function validateJsonParams(request, schema) {
         } catch (err) {
             return {
                 success: false,
-                error: createError('Invalid JSON format', 400, err.message)
+                error: createError('无效的 JSON 格式', 400, err.message)
             };
         }
 
@@ -63,7 +63,7 @@ export async function validateJsonParams(request, schema) {
         if (!result.success) {
             return {
                 success: false,
-                error: createError('Validation failed', 400, result.error.errors)
+                error: createError('验证失败', 400, result.error.errors)
             };
         }
 
@@ -74,7 +74,7 @@ export async function validateJsonParams(request, schema) {
     } catch (err) {
         return {
             success: false,
-            error: createError('Validation error', 500, err.message)
+            error: createError('验证错误', 500, err.message)
         };
     }
 }
@@ -108,7 +108,7 @@ export function createPostAPI(schema, handler) {
             return result || createResponse();
         } catch (error) {
             response.status = 500;
-            return createError('Internal server error', 500, error.message);
+            return createError('内部服务器错误', 500, error.message);
         }
     };
 
@@ -178,7 +178,7 @@ export function createAPI(config) {
                 const result = schema.safeParse(queryParams);
                 if (!result.success) {
                     response.status = 400;
-                    return createError('Validation failed', 400, result.error.errors);
+                    return createError('验证失败', 400, result.error.errors);
                 }
                 data = result.data;
             }
@@ -190,7 +190,7 @@ export function createAPI(config) {
             return result || createResponse();
         } catch (error) {
             response.status = 500;
-            return createError('Internal server error', 500, error.message);
+            return createError('内部服务器错误', 500, error.message);
         }
     };
 
@@ -207,7 +207,7 @@ export function createAPI(config) {
 export const commonSchemas = {
     // ID 参数
     id: z.object({
-        id: z.number().int().positive('ID must be a positive integer')
+        id: z.number().int().positive('ID 必须是正整数')
     }),
 
     // 分页参数
@@ -218,21 +218,21 @@ export const commonSchemas = {
 
     // 用户登录
     userLogin: z.object({
-        username: z.string().min(1, 'Username is required'),
-        password: z.string().min(6, 'Password must be at least 6 characters')
+        username: z.string().min(1, '用户名是必须的'),
+        password: z.string().min(6, '密码至少需要6个字符')
     }),
 
     // 用户创建
     userCreate: z.object({
-        username: z.string().min(1, 'Username is required'),
-        password: z.string().min(6, 'Password must be at least 6 characters'),
-        email: z.string().email('Invalid email format').optional(),
+        username: z.string().min(1, '用户名是必须的'),
+        password: z.string().min(6, '密码至少需要6个字符'),
+        email: z.string().email('无效的邮箱格式').optional(),
         nickname: z.string().optional()
     }),
 
     // 用户更新
     userUpdate: z.object({
-        id: z.number().int().positive('ID must be a positive integer'),
+        id: z.number().int().positive('ID 必须是正整数'),
         username: z.string().min(1).optional(),
         email: z.string().email().optional(),
         nickname: z.string().optional()
@@ -240,13 +240,13 @@ export const commonSchemas = {
 
     // 文件上传
     fileUpload: z.object({
-        filename: z.string().min(1, 'Filename is required'),
+        filename: z.string().min(1, '文件名是必须的'),
         content: z.string().optional(),
         type: z.string().optional()
     }),
 
     // 文件操作
     fileOperation: z.object({
-        filename: z.string().min(1, 'Filename is required')
+        filename: z.string().min(1, '文件名是必须的')
     })
 };

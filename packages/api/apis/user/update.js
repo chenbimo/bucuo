@@ -17,7 +17,7 @@ export default createPostAPI(validators.userUpdate, async (data, context) => {
         id,
         username: username || `user${id}`,
         email: email || `user${id}@example.com`,
-        nickname: nickname || `User ${id}`,
+        nickname: nickname || `用户 ${id}`,
         updatedAt: new Date().toISOString()
     };
 
@@ -27,7 +27,7 @@ export default createPostAPI(validators.userUpdate, async (data, context) => {
         id: userId,
         username: body.username || `user${userId}`,
         email: body.email || `user${userId}@example.com`,
-        name: body.name || `User ${userId}`,
+        name: body.name || `用户 ${userId}`,
         createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
         active: body.active !== undefined ? body.active : true,
         updatedAt: new Date().toISOString()
