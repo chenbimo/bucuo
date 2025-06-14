@@ -9,6 +9,8 @@ import { util } from './util.js';
 
 // 导出验证工具给 API 使用
 export * from './libs/validator.js';
+export * from './libs/validation.js';
+export * from './libs/http.js';
 
 class Bunfly {
     constructor(options = {}) {
