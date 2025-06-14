@@ -3,11 +3,18 @@
  */
 
 import { createAPI, createResponse } from 'bunfly';
-import { user } from '../../schema/index.js';
+import { loadSchema } from '../../core/libs/simple-schema.js';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const userSchemaPath = join(__dirname, '../../schema/user.json');
+const { query } = loadSchema(userSchemaPath);
 
 export default createAPI({
     name: '用户列表',
-    schema: user.query,
+    schema: query,
     method: 'post',
     handler: async (data, context) => {
         const { page, limit } = data;

@@ -3,11 +3,15 @@
  */
 
 import { createAPI, createResponse, ERROR_CODES } from 'bunfly';
-import { user } from '../../../schema/user.js';
+import { processSchema } from '../../../core/libs/simple-schema.js';
+import userSchema from '../../../schema/user.json';
+import commonSchema from '../../../core/schema/common.json';
+
+const { login } = processSchema(userSchema, commonSchema.commonRules);
 
 export default createAPI({
     name: '用户登录',
-    schema: user.login,
+    schema: login,
     method: 'post',
     handler: async (data, context) => {
         const { generateToken } = context;

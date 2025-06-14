@@ -3,9 +3,15 @@
  */
 
 import { createAPI } from '../../libs/http.js';
+import { processSchema } from '../../libs/simple-schema.js';
+import healthSchema from '../../schema/health.json';
+import commonSchema from '../../schema/common.json';
+
+const { status } = processSchema(healthSchema, commonSchema.commonRules);
 
 export default createAPI({
     name: '系统状态',
+    schema: status,
     method: 'get',
     handler: async (data, context) => {
         const { redis } = context;

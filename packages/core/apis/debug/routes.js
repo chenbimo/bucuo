@@ -4,9 +4,18 @@
  */
 
 import { createAPI } from '../../libs/http.js';
+import { loadSchema } from '../../libs/simple-schema.js';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const schemaPath = join(__dirname, '../../schema/debug.json');
+const { routes } = loadSchema(schemaPath);
 
 export default createAPI({
     name: '路由调试',
+    schema: routes,
     method: 'get',
     handler: async (data, context) => {
         const { request } = context;

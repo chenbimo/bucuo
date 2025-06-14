@@ -3,11 +3,18 @@
  */
 
 import { createAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
-import { tool } from '../../schema/index.js';
+import { loadSchema } from '../../libs/simple-schema.js';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const toolSchemaPath = join(__dirname, '../../schema/tool.json');
+const { upload } = loadSchema(toolSchemaPath);
 
 export default createAPI({
     name: '文件上传',
-    schema: tool.upload,
+    schema: upload,
     method: 'post',
     handler: async (data, context) => {
     const { request, files, fields } = context;

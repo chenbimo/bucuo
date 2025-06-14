@@ -3,11 +3,14 @@
  */
 
 import { createAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
-import { common } from '../../schema/index.js';
+import { processSchema } from '../../libs/simple-schema.js';
+import commonSchema from '../../schema/common.json';
+
+const { pagination } = processSchema(commonSchema);
 
 export default createAPI({
     name: '文件列表',
-    schema: common.pagination,
+    schema: pagination,
     method: 'get',
     handler: async (data, context) => {
     const { config, util } = context;

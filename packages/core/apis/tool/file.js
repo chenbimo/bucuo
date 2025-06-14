@@ -4,11 +4,18 @@
 
 import path from 'path';
 import { createAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
-import { common } from '../../schema/index.js';
+import { loadSchema } from '../../libs/simple-schema.js';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const commonSchemaPath = join(__dirname, '../../schema/common.json');
+const { filename } = loadSchema(commonSchemaPath);
 
 export default createAPI({
     name: '文件详情',
-    schema: common.filename,
+    schema: filename,
     method: 'get',
     handler: async (data, context) => {
     const { request, response, config, util } = context;
