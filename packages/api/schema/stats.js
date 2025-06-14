@@ -2,7 +2,7 @@
  * 统计相关验证规则
  */
 
-import { createValidator } from '../../core/libs/validation.js';
+import { createValidator } from 'bunfly';
 import { z } from 'zod';
 
 /**

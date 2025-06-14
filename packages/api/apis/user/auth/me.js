@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse, createError } from 'bunfly';
-import { user } from '../../../validations/index.js';
+import { user } from '../../../schema/index.js';
 
-export default createPostAPI(user.profile, async (data, context) => {获取当前用户信息 API - /user/auth/me
+export default createPostAPI(user.profile(), async (data, context) => {获取当前用户信息 API - /user/auth/me
  */
 
 import { createPostAPI, createResponse, validators } from 'bunfly';

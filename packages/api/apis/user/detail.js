@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse, createError } from 'bunfly';
-import { common } from '../../validations/index.js';
+import { common } from '../../schema/index.js';
 
-export default createPostAPI(common.id, async (data, context) => {用户详情 API - /user/detail/:id
+export default createPostAPI(common.id(), async (data, context) => {用户详情 API - /user/detail/:id
  */
 
 import { createPostAPI, validators, createResponse } from 'bunfly';

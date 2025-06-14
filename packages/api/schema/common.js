@@ -3,7 +3,7 @@
  * 提供常用的验证器
  */
 
-import { createValidator } from '../../core/libs/validation.js';
+import { createValidator } from 'bunfly';
 import { z } from 'zod';
 
 /**

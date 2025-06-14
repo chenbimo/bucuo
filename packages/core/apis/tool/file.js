@@ -5,7 +5,7 @@
 import path from 'path';
 import { createGetAPI, validators } from 'bunfly';
 
-export default createGetAPI(validators.filename, async (data, context) => {
+export default createGetAPI(validators.filename(), async (data, context) => {
     const { request, response, config, util } = context;
 
     const url = new URL(request.url);

@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse } from 'bunfly';
-import { common } from '../../validations/index.js';
+import { common } from '../../schema/index.js';
 
-export default createPostAPI(common.id, async (data, context) => {
+export default createPostAPI(common.id(), async (data, context) => {
     const { id } = data;
     const { cache } = context;
 

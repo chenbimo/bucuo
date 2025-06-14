@@ -4,7 +4,7 @@
 
 import { createGetAPI, validators } from 'bunfly';
 
-export default createGetAPI(validators.pagination, async (data, context) => {
+export default createGetAPI(validators.pagination(), async (data, context) => {
     const { config, util } = context;
 
     const page = data.page || 1;

@@ -3,9 +3,9 @@
  */
 
 import { createGetAPI, createResponse } from 'bunfly';
-import { stats } from '../../validations/index.js';
+import { stats } from '../../schema/index.js';
 
-export default createGetAPI(stats.system, async (data, context) => {系统统计 API - /stats/system
+export default createGetAPI(stats.system(), async (data, context) => {系统统计 API - /stats/system
  */
 
 import { createGetAPI, validators } from 'bunfly';

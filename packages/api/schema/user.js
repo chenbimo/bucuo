@@ -2,7 +2,7 @@
  * 用户相关验证规则
  */
 
-import { createValidator } from '../../core/libs/validation.js';
+import { createValidator } from 'bunfly';
 
 /**
  * 用户验证器

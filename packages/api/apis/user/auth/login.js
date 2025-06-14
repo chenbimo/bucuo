@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse, createError } from 'bunfly';
-import { user } from '../../../validations/index.js';
+import { user } from '../../../schema/index.js';
 
-export default createPostAPI(user.login, async (data, context) => {
+export default createPostAPI(user.login(), async (data, context) => {
     const { generateToken } = context;
     const { username, password } = data;
 
