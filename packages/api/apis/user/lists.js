@@ -2,7 +2,7 @@
  * 用户列表 API - /user/lists
  */
 
-import { createAPI, createResponse } from 'bunfly';
+import { createApi, createRes } from 'bunfly';
 import { loadSchema } from '../../core/libs/simple-schema.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 const userSchemaPath = join(__dirname, '../../schema/user.json');
 const { query } = loadSchema(userSchemaPath);
 
-export default createAPI({
+export default createApi({
     name: '用户列表',
     schema: query,
     method: 'post',
@@ -42,7 +42,7 @@ export default createAPI({
         const endIndex = startIndex + limit;
         const paginatedUsers = users.slice(startIndex, endIndex);
 
-        const result = createResponse(
+        const result = createRes(
             {
                 users: paginatedUsers,
                 pagination: {

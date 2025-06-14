@@ -2,7 +2,7 @@
  * 用户更新 API - /user/update
  */
 
-import { createAPI, createResponse, ERROR_CODES } from 'bunfly';
+import { createApi, createRes, ERROR_CODES } from 'bunfly';
 import { loadSchema } from '../../core/libs/simple-schema.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 const userSchemaPath = join(__dirname, '../../schema/user.json');
 const { update } = loadSchema(userSchemaPath);
 
-export default createAPI({
+export default createApi({
     name: '更新用户',
     schema: update,
     method: 'post',
@@ -21,7 +21,7 @@ export default createAPI({
 
         // 模拟检查用户是否存在
         if (id > 50 && id < 1000) {
-            return createResponse(ERROR_CODES.FILE_NOT_FOUND, '用户未找到');
+            return createRes(ERROR_CODES.FILE_NOT_FOUND, '用户未找到');
         }
 
         // 模拟更新用户
@@ -33,6 +33,6 @@ export default createAPI({
             updatedAt: new Date().toISOString()
         };
 
-        return createResponse(updatedUser, '用户更新成功');
+        return createRes(updatedUser, '用户更新成功');
     }
 });

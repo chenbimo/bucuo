@@ -18,7 +18,7 @@ export { ERROR_CODES } from './error.js';
  * @param {Object} options - 其他选项，会与前4个参数合并，但不能覆盖它们
  * @returns {Object} 响应对象
  */
-export function createResponse(code = ERROR_CODES.SUCCESS, msg = null, data = null, detail = null, options = {}) {
+export function createRes(code = ERROR_CODES.SUCCESS, msg = null, data = null, detail = null, options = {}) {
     const defaultMessage = msg || ERROR_MESSAGES[code] || '未知状态';
 
     // 基础响应对象
@@ -46,7 +46,7 @@ export function createResponse(code = ERROR_CODES.SUCCESS, msg = null, data = nu
  * @param {number} code - 响应码（默认使用成功码）
  */
 export const createApiResponse = (data = null, message = '成功', code = ERROR_CODES.SUCCESS) => {
-    return createResponse(code, message, data);
+    return createRes(code, message, data);
 };
 
 /**
@@ -62,7 +62,7 @@ export async function validateJsonParams(request, rules) {
         if (!contentType || !contentType.includes('application/json')) {
             return {
                 success: false,
-                error: createResponse(ERROR_CODES.INVALID_PARAM_FORMAT, 'Content-Type 必须是 application/json')
+                error: createRes(ERROR_CODES.INVALID_PARAM_FORMAT, 'Content-Type 必须是 application/json')
             };
         }
 
@@ -73,7 +73,7 @@ export async function validateJsonParams(request, rules) {
         } catch (err) {
             return {
                 success: false,
-                error: createResponse(ERROR_CODES.INVALID_PARAM_FORMAT, '无效的 JSON 格式', err.message)
+                error: createRes(ERROR_CODES.INVALID_PARAM_FORMAT, '无效的 JSON 格式', err.message)
             };
         }
 
@@ -82,7 +82,7 @@ export async function validateJsonParams(request, rules) {
         if (!result.success) {
             return {
                 success: false,
-                error: createResponse(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.errors)
+                error: createRes(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.errors)
             };
         }
 
@@ -93,7 +93,7 @@ export async function validateJsonParams(request, rules) {
     } catch (err) {
         return {
             success: false,
-            error: createResponse(ERROR_CODES.API_INTERNAL_ERROR, '验证过程中发生错误', err.message)
+            error: createRes(ERROR_CODES.API_INTERNAL_ERROR, '验证过程中发生错误', err.message)
         };
     }
 }
@@ -107,7 +107,7 @@ export async function validateJsonParams(request, rules) {
  * @param {Function} config.handler - 处理函数
  * @returns {Function} API 处理器
  */
-export function createAPI(config) {
+export function createApi(config) {
     const { name, schema, method = 'post', handler } = config;
 
     if (!name || typeof name !== 'string') {
@@ -125,7 +125,7 @@ export function createAPI(config) {
 
         // 检查请求方法
         if (request.method !== httpMethod) {
-            return createResponse(ERROR_CODES.API_METHOD_NOT_ALLOWED, `${name}: 不允许的请求方法，仅支持 ${httpMethod}`);
+            return createRes(ERROR_CODES.API_METHOD_NOT_ALLOWED, `${name}: 不允许的请求方法，仅支持 ${httpMethod}`);
         }
 
         let data = null;
@@ -159,7 +159,7 @@ export function createAPI(config) {
                 // 验证参数
                 const result = validate(queryParams, schema);
                 if (!result.success) {
-                    return createResponse(ERROR_CODES.INVALID_PARAMS, `${name}: 验证失败`, result.errors);
+                    return createRes(ERROR_CODES.INVALID_PARAMS, `${name}: 验证失败`, result.errors);
                 }
                 data = result.data;
             }
@@ -168,9 +168,9 @@ export function createAPI(config) {
         try {
             // 调用处理函数
             const result = await handler(data, context);
-            return result || createResponse();
+            return result || createRes();
         } catch (error) {
-            return createResponse(ERROR_CODES.API_INTERNAL_ERROR, `${name}: 内部服务器错误`, error.message);
+            return createRes(ERROR_CODES.API_INTERNAL_ERROR, `${name}: 内部服务器错误`, error.message);
         }
     };
 
@@ -196,7 +196,7 @@ export function createGetAPI(schema, handler) {
         schema = null;
     }
 
-    return createAPI({
+    return createApi({
         name: 'GET API (Legacy)',
         schema,
         method: 'get',
@@ -211,7 +211,7 @@ export function createGetAPI(schema, handler) {
  * @returns {Function} API 处理器
  */
 export function createPostAPI(schema, handler) {
-    return createAPI({
+    return createApi({
         name: 'POST API (Legacy)',
         schema,
         method: 'post',

@@ -11,7 +11,7 @@ import { util } from './util.js';
 export * from './libs/simple-validator.js';
 
 // 从 http.js 导出 HTTP 相关工具
-export { createPostAPI, createGetAPI, createAPI, createResponse, createApiResponse, validateJsonParams } from './libs/http.js';
+export { createPostAPI, createGetAPI, createApi, createRes, createApiResponse, validateJsonParams } from './libs/http.js';
 
 // 从 error.js 导出错误管理工具
 export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedError, registerUserError, getErrorMessage, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/error.js';
@@ -20,7 +20,7 @@ export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedE
 export { createPlugin, createSimplePlugin } from './libs/plugin.js';
 
 // 内部使用的导入
-import { createResponse } from './libs/http.js';
+import { createRes } from './libs/http.js';
 import { ERROR_CODES } from './libs/error.js';
 
 class Bunfly {
@@ -390,7 +390,7 @@ class Bunfly {
                     context.response.json(result);
                 }
             } else {
-                const notFoundResponse = createResponse(ERROR_CODES.API_NOT_FOUND, `路由 ${request.method} ${new URL(request.url).pathname} 未找到`);
+                const notFoundResponse = createRes(ERROR_CODES.API_NOT_FOUND, `路由 ${request.method} ${new URL(request.url).pathname} 未找到`);
                 context.response.json(notFoundResponse);
             }
 

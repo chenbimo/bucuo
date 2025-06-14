@@ -2,7 +2,7 @@
  * 获取当前用户信息 API - /user/auth/me
  */
 
-import { createAPI, createResponse, ERROR_CODES } from 'bunfly';
+import { createApi, createRes, ERROR_CODES } from 'bunfly';
 import { loadSchema } from '../../../core/libs/simple-schema.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 const userSchemaPath = join(__dirname, '../../../schema/user.json');
 const { profile } = loadSchema(userSchemaPath);
 
-export default createAPI({
+export default createApi({
     name: '当前用户信息',
     schema: profile,
     method: 'post',
@@ -20,10 +20,10 @@ export default createAPI({
         const { user, isAuthenticated } = context;
 
         if (!isAuthenticated) {
-            return createResponse(ERROR_CODES.UNAUTHORIZED, '需要身份验证');
+            return createRes(ERROR_CODES.UNAUTHORIZED, '需要身份验证');
         }
 
-        return createResponse(
+        return createRes(
             {
                 user: user || {
                     id: 1,

@@ -2,7 +2,7 @@
  * 用户资料 API - /user/profile
  */
 
-import { createAPI, createResponse, ERROR_CODES } from 'bunfly';
+import { createApi, createRes, ERROR_CODES } from 'bunfly';
 import { loadSchema } from '../../core/libs/simple-schema.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 const userSchemaPath = join(__dirname, '../../schema/user.json');
 const { profile } = loadSchema(userSchemaPath);
 
-export default createAPI({
+export default createApi({
     name: '用户资料',
     schema: profile,
     method: 'get',
@@ -21,7 +21,7 @@ export default createAPI({
 
         // 这里可以根据需要进行认证检查
         if (requireAuth && !requireAuth()) {
-            return createResponse(ERROR_CODES.UNAUTHORIZED, '需要身份验证');
+            return createRes(ERROR_CODES.UNAUTHORIZED, '需要身份验证');
         }
 
         // 模拟当前用户资料
@@ -42,7 +42,7 @@ export default createAPI({
             }
         };
 
-        return createResponse(
+        return createRes(
             {
                 user: user || profile,
                 timestamp: new Date().toISOString()

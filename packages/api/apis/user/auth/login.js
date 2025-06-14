@@ -1,18 +1,12 @@
-/**
- * 用户登录 API - /user/auth/login
- */
-
-import { createAPI, createResponse, ERROR_CODES } from 'bunfly';
-import { processSchema } from '../../../core/libs/simple-schema.js';
+import { createApi, createRes, ERROR_CODES } from 'bunfly';
 import userSchema from '../../../schema/user.json';
-import commonSchema from '../../../core/schema/common.json';
 
-const { login } = processSchema(userSchema, commonSchema.commonRules);
-
-export default createAPI({
+export default createApi({
     name: '用户登录',
-    schema: login,
-    method: 'post',
+    schema: {
+        fields: [userSchema.username, userSchema.password],
+        required: ['username', 'password']
+    },
     handler: async (data, context) => {
         const { generateToken } = context;
         const { username, password } = data;
@@ -29,12 +23,12 @@ export default createAPI({
 
             const token = generateToken ? await generateToken(userInfo) : 'mock-jwt-token';
 
-            return createResponse(ERROR_CODES.SUCCESS, '登录成功', {
+            return createRes(ERROR_CODES.SUCCESS, '登录成功', {
                 user: userInfo,
                 token
             });
         } else {
-            return createResponse(ERROR_CODES.UNAUTHORIZED, '用户名或密码错误');
+            return createRes(ERROR_CODES.UNAUTHORIZED, '用户名或密码错误');
         }
     }
 });

@@ -2,16 +2,16 @@
 
 ## 概述
 
-我们已经将 Bunfly 的 API 定义方式重构为更统一的插件化封装模式。新的模式使用单一的 `createAPI` 函数，通过配置对象来定义 API 的各个方面。
+我们已经将 Bunfly 的 API 定义方式重构为更统一的插件化封装模式。新的模式使用单一的 `createApi` 函数，通过配置对象来定义 API 的各个方面。
 
 ## 新的 API 定义语法
 
 ### 基本语法
 
 ```javascript
-import { createAPI } from 'bunfly';
+import { createApi } from 'bunfly';
 
-export default createAPI({
+export default createApi({
     name: '接口名称', // 必填：接口的描述性名称
     schema: validationRules, // 可选：参数验证规则对象
     method: 'post', // 可选：HTTP 方法，'get' 或 'post'，默认为 'post'
@@ -52,10 +52,10 @@ export default createAPI({
 ### 1. POST 接口（有参数验证）
 
 ```javascript
-import { createAPI, createResponse } from 'bunfly';
+import { createApi, createRes } from 'bunfly';
 import { user } from '../schema/index.js';
 
-export default createAPI({
+export default createApi({
     name: '用户登录',
     schema: user.login,
     method: 'post',
@@ -63,13 +63,13 @@ export default createAPI({
         const { username, password } = data;
 
         if (username === 'admin' && password === 'password') {
-            return createResponse(200, '登录成功', {
+            return createRes(200, '登录成功', {
                 user: { id: 1, username: 'admin' },
                 token: 'jwt-token'
             });
         }
 
-        return createResponse(401, '用户名或密码错误');
+        return createRes(401, '用户名或密码错误');
     }
 });
 ```
@@ -77,10 +77,10 @@ export default createAPI({
 ### 2. GET 接口（有参数验证）
 
 ```javascript
-import { createAPI, createResponse } from 'bunfly';
+import { createApi, createRes } from 'bunfly';
 import { user } from '../schema/index.js';
 
-export default createAPI({
+export default createApi({
     name: '用户详情',
     schema: user.detail,
     method: 'get',
@@ -93,7 +93,7 @@ export default createAPI({
             email: \`user\${id}@example.com\`
         };
 
-        return createResponse(200, '获取成功', userData);
+        return createRes(200, '获取成功', userData);
     }
 });
 ```
@@ -101,13 +101,13 @@ export default createAPI({
 ### 3. GET 接口（无参数）
 
 ```javascript
-import { createAPI, createResponse } from 'bunfly';
+import { createApi, createRes } from 'bunfly';
 
-export default createAPI({
+export default createApi({
     name: '健康检查',
     method: 'get',
     handler: async (data, context) => {
-        return createResponse(200, '服务正常', {
+        return createRes(200, '服务正常', {
             status: 'healthy',
             timestamp: new Date().toISOString(),
             uptime: process.uptime()
@@ -119,10 +119,10 @@ export default createAPI({
 ### 4. 分页查询接口
 
 ```javascript
-import { createAPI, createResponse } from 'bunfly';
+import { createApi, createRes } from 'bunfly';
 import { user } from '../schema/index.js';
 
-export default createAPI({
+export default createApi({
     name: '用户列表',
     schema: user.query,
     method: 'get',
@@ -132,7 +132,7 @@ export default createAPI({
         // 模拟分页查询
         const users = generateUserList(page, limit, keyword);
 
-        return createResponse(200, '获取成功', {
+        return createRes(200, '获取成功', {
             users,
             pagination: {
                 page,
@@ -146,7 +146,7 @@ export default createAPI({
 
 ## 向后兼容性
 
-为了保持向后兼容，旧的 `createGetAPI` 和 `createPostAPI` 函数仍然可用，它们内部调用新的 `createAPI` 函数：
+为了保持向后兼容，旧的 `createGetAPI` 和 `createPostAPI` 函数仍然可用，它们内部调用新的 `createApi` 函数：
 
 ```javascript
 // 旧语法仍然可用
@@ -155,7 +155,7 @@ export default createPostAPI(user.login, async (data, context) => {
 });
 
 // 等价于新语法
-export default createAPI({
+export default createApi({
     name: 'POST API (Legacy)',
     schema: user.login,
     method: 'post',
@@ -182,7 +182,7 @@ export default createAPI({
 export default createPostAPI(rules, handler);
 
 // 新代码
-export default createAPI({
+export default createApi({
     name: '接口名称',
     schema: rules,
     method: 'post',
@@ -197,7 +197,7 @@ export default createAPI({
 export default createGetAPI(rules, handler);
 
 // 新代码
-export default createAPI({
+export default createApi({
     name: '接口名称',
     schema: rules,
     method: 'get',
@@ -207,10 +207,10 @@ export default createAPI({
 
 ## API 元信息
 
-每个通过 `createAPI` 创建的处理器都会附带元信息：
+每个通过 `createApi` 创建的处理器都会附带元信息：
 
 ```javascript
-const api = createAPI({
+const api = createApi({
     /* config */
 });
 

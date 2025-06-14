@@ -1,13 +1,13 @@
 /**
  * 新的插件化 API 封装模式示例
- * 展示如何使用新的 createAPI 函数来定义接口
+ * 展示如何使用新的 createApi 函数来定义接口
  */
 
-import { createAPI, createResponse } from 'bunfly';
+import { createApi, createRes } from 'bunfly';
 import { user, common } from '../schema/index.js';
 
 // 示例 1: POST 接口（用户登录）
-export const userLoginAPI = createAPI({
+export const userLoginAPI = createApi({
     name: '用户登录',
     schema: user.login,
     method: 'post',
@@ -16,18 +16,18 @@ export const userLoginAPI = createAPI({
 
         // 模拟登录逻辑
         if (username === 'admin' && password === 'password') {
-            return createResponse(200, '登录成功', {
+            return createRes(200, '登录成功', {
                 user: { id: 1, username: 'admin', role: 'admin' },
                 token: 'fake-jwt-token'
             });
         }
 
-        return createResponse(401, '用户名或密码错误');
+        return createRes(401, '用户名或密码错误');
     }
 });
 
 // 示例 2: GET 接口（用户详情）
-export const userDetailAPI = createAPI({
+export const userDetailAPI = createApi({
     name: '用户详情',
     schema: user.detail,
     method: 'get',
@@ -43,17 +43,17 @@ export const userDetailAPI = createAPI({
             createdAt: new Date().toISOString()
         };
 
-        return createResponse(200, '获取成功', userData);
+        return createRes(200, '获取成功', userData);
     }
 });
 
 // 示例 3: GET 接口（无参数）
-export const healthCheckAPI = createAPI({
+export const healthCheckAPI = createApi({
     name: '健康检查',
     // schema: null, // 无需验证参数
     method: 'get',
     handler: async (data, context) => {
-        return createResponse(200, '服务正常', {
+        return createRes(200, '服务正常', {
             status: 'healthy',
             timestamp: new Date().toISOString(),
             uptime: process.uptime()
@@ -62,7 +62,7 @@ export const healthCheckAPI = createAPI({
 });
 
 // 示例 4: POST 接口（用户创建）
-export const userCreateAPI = createAPI({
+export const userCreateAPI = createApi({
     name: '创建用户',
     schema: user.register,
     method: 'post',
@@ -77,12 +77,12 @@ export const userCreateAPI = createAPI({
             createdAt: new Date().toISOString()
         };
 
-        return createResponse(201, '用户创建成功', newUser);
+        return createRes(201, '用户创建成功', newUser);
     }
 });
 
 // 示例 5: GET 接口（列表分页）
-export const userListAPI = createAPI({
+export const userListAPI = createApi({
     name: '用户列表',
     schema: user.query,
     method: 'get',
@@ -96,7 +96,7 @@ export const userListAPI = createAPI({
             email: `user${(page - 1) * limit + i + 1}@example.com`
         }));
 
-        return createResponse(200, '获取成功', {
+        return createRes(200, '获取成功', {
             users,
             pagination: {
                 page,

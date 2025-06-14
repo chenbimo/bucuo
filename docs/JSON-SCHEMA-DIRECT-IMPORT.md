@@ -52,7 +52,7 @@ packages/
 ### 在接口文件中导入
 
 ```javascript
-import { createAPI } from '../../libs/http.js';
+import { createApi } from '../../libs/http.js';
 import { loadSchema } from '../../libs/simple-schema.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -66,7 +66,7 @@ const userSchemaPath = join(__dirname, '../../schema/user.json');
 const { login, register, update } = loadSchema(userSchemaPath);
 
 // 使用预设规则
-export default createAPI({
+export default createApi({
     name: '用户登录',
     schema: login,
     method: 'post',

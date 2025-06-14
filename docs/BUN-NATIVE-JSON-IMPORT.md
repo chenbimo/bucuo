@@ -54,14 +54,14 @@ const { check } = processSchema(healthSchema, commonSchema.commonRules);
  * 健康检查 API - /core/health/check
  */
 
-import { createAPI } from '../../libs/http.js';
+import { createApi } from '../../libs/http.js';
 import { processSchema } from '../../libs/simple-schema.js';
 import healthSchema from '../../schema/health.json';
 import commonSchema from '../../schema/common.json';
 
 const { check } = processSchema(healthSchema, commonSchema.commonRules);
 
-export default createAPI({
+export default createApi({
     name: '健康检查',
     schema: check,
     method: 'get',
@@ -87,14 +87,14 @@ export default createAPI({
  * 用户登录 API - /user/auth/login
  */
 
-import { createAPI, createResponse, ERROR_CODES } from 'bunfly';
+import { createApi, createRes, ERROR_CODES } from 'bunfly';
 import { processSchema } from '../../../core/libs/simple-schema.js';
 import userSchema from '../../../schema/user.json';
 import commonSchema from '../../../core/schema/common.json';
 
 const { login } = processSchema(userSchema, commonSchema.commonRules);
 
-export default createAPI({
+export default createApi({
     name: '用户登录',
     schema: login,
     method: 'post',

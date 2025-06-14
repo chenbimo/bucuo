@@ -2,14 +2,14 @@
  * 健康检查 API - /core/health/check
  */
 
-import { createAPI } from '../../libs/http.js';
+import { createApi } from '../../libs/http.js';
 import { processSchema } from '../../libs/simple-schema.js';
 import healthSchema from '../../schema/health.json';
 import commonSchema from '../../schema/common.json';
 
 const { check } = processSchema(healthSchema, commonSchema.commonRules);
 
-export default createAPI({
+export default createApi({
     name: '健康检查',
     schema: check,
     method: 'get',

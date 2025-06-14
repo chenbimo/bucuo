@@ -2,7 +2,7 @@
  * 用户详情 API - /user/detail
  */
 
-import { createAPI, createResponse, ERROR_CODES } from 'bunfly';
+import { createApi, createRes, ERROR_CODES } from 'bunfly';
 import { loadSchema } from '../../core/libs/simple-schema.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 const userSchemaPath = join(__dirname, '../../schema/user.json');
 const { detail } = loadSchema(userSchemaPath);
 
-export default createAPI({
+export default createApi({
     name: '用户详情',
     schema: detail,
     method: 'post',
@@ -29,7 +29,7 @@ export default createAPI({
 
         // 模拟用户数据
         if (id > 50 && id < 1000) {
-            return createResponse(ERROR_CODES.FILE_NOT_FOUND, '用户未找到');
+            return createRes(ERROR_CODES.FILE_NOT_FOUND, '用户未找到');
         }
 
         const user = {
@@ -46,7 +46,7 @@ export default createAPI({
             }
         };
 
-        const result = createResponse(user, '用户详情获取成功');
+        const result = createRes(user, '用户详情获取成功');
 
         // 缓存结果
         await cache.set(cacheKey, result, 300); // 缓存5分钟
