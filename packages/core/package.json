@@ -1,0 +1,43 @@
+{
+    "name": "bunfly",
+    "version": "1.0.0",
+    "description": "Bunfly Core - Universal JS backend API framework core for Bun",
+    "type": "module",
+    "main": "main.js",
+    "exports": {
+        ".": "./main.js",
+        "./main.js": "./main.js"
+    },
+    "scripts": {
+        "test": "bun run test.js",
+        "test:unit": "bun test",
+        "lint": "echo 'Add your linting command here'"
+    },
+    "keywords": [
+        "bun",
+        "api",
+        "framework",
+        "core",
+        "javascript",
+        "backend",
+        "rest",
+        "http"
+    ],
+    "author": "Bunfly Team",
+    "license": "MIT",
+    "engines": {
+        "bun": ">=1.0.0"
+    },
+    "devDependencies": {},
+    "files": [
+        "main.js",
+        "util.js",
+        "apis/",
+        "plugins/",
+        "libs/",
+        "README.md"
+    ],
+    "dependencies": {
+        "zod": "^3.25.64"
+    }
+}

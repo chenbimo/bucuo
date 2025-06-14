@@ -1,0 +1,46 @@
+{
+    "name": "bunfly-api",
+    "version": "1.0.0",
+    "description": "Bunfly API - Business layer built on Bunfly Core",
+    "type": "module",
+    "main": "main.js",
+    "exports": {
+        ".": "./main.js",
+        "./main.js": "./main.js"
+    },
+    "scripts": {
+        "start": "bun run server.js",
+        "dev": "bun --watch server.js",
+        "test": "bun run test.js",
+        "build": "echo 'No build step required for Bun'",
+        "lint": "echo 'Add your linting command here'"
+    },
+    "keywords": [
+        "bun",
+        "api",
+        "framework",
+        "business",
+        "javascript",
+        "backend",
+        "rest",
+        "http"
+    ],
+    "author": "Bunfly Team",
+    "license": "MIT",
+    "engines": {
+        "bun": ">=1.0.0"
+    },
+    "dependencies": {
+        "bunfly": "workspace:*"
+    },
+    "files": [
+        "main.js",
+        "server.js",
+        "test.js",
+        "apis/",
+        "plugins/",
+        ".env.development",
+        ".env.production",
+        "README.md"
+    ]
+}

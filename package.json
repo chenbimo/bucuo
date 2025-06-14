@@ -1,0 +1,24 @@
+{
+    "name": "bunfly",
+    "version": "1.0.0",
+    "description": "bunfly - 为Bun专属打造的API接口框架",
+    "type": "module",
+    "publishConfig": {
+        "access": "restricted"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/chenbimo/bunfly.git"
+    },
+    "scripts": {
+        "r": "lerna publish"
+    },
+    "author": "chensuiyi <bimostyle@qq.com>",
+    "homepage": "https://chensuiyi.me",
+    "workspaces": [
+        "packages/*"
+    ],
+    "devDependencies": {
+        "lerna": "^8.2.2"
+    }
+}
