@@ -7,7 +7,7 @@
  * - 提供便捷的 createValidator() 函数
  * - 兼容性的验证器导出
  *
- * 注意：HTTP 相关功能在 http.js，纯验证工具在 validator.js
+ * 注意：HTTP 相关功能在 http.js，简单验证器在 simple-validator.js
  */
 
 import { z } from 'zod';
