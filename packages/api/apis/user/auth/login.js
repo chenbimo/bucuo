@@ -29,6 +29,6 @@ export default createPostAPI(user.login(), async (data, context) => {
             'Login successful'
         );
     } else {
-        throw new Error('Invalid username or password');
+        return createError('用户名或密码错误', 401);
     }
 });

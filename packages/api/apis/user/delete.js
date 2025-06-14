@@ -2,7 +2,7 @@
  * 用户删除 API - /user/delete/:id
  */
 
-import { createPostAPI, createResponse } from 'bunfly';
+import { createPostAPI, createResponse, createError } from 'bunfly';
 import { common } from '../../schema/index.js';
 
 export default createPostAPI(common.id(), async (data, context) => {
@@ -11,7 +11,7 @@ export default createPostAPI(common.id(), async (data, context) => {
 
     // 模拟检查用户是否存在
     if (id > 50 && id < 1000) {
-        throw new Error('用户未找到');
+        return createError('用户未找到', 404);
     }
 
     // 清除缓存

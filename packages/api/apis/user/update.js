@@ -10,7 +10,7 @@ export default createPostAPI(user.update(), async (data, context) => {
 
     // 模拟检查用户是否存在
     if (id > 50 && id < 1000) {
-        throw new Error('用户未找到');
+        return createError('用户未找到', 404);
     }
 
     // 模拟更新用户

@@ -18,7 +18,7 @@ export default createPostAPI(common.id(), async (data, context) => {
 
     // 模拟用户数据
     if (id > 50 && id < 1000) {
-        throw new Error('用户未找到');
+        return createError('用户未找到', 404);
     }
 
     const user = {

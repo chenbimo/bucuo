@@ -9,7 +9,7 @@ export default createPostAPI(user.profile(), async (data, context) => {
     const { user, isAuthenticated } = context;
 
     if (!isAuthenticated) {
-        throw new Error('需要身份验证');
+        return createError('需要身份验证', 401);
     }
 
     return createResponse(
