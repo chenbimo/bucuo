@@ -1,0 +1,7 @@
+{
+    "description": "调试相关验证规则",
+    "debugRules": {},
+    "presets": {
+        "routes": {}
+    }
+}

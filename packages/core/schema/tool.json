@@ -1,0 +1,29 @@
+{
+    "description": "工具相关验证规则",
+    "toolRules": {
+        "filename": "string,文件名,1,255",
+        "content": "string,内容,0,1000000",
+        "type": "string,类型,0,50",
+        "path": "string,路径,1,500"
+    },
+    "presets": {
+        "filename": {
+            "filename": "toolRules.filename"
+        },
+        "file": {
+            "filename": "toolRules.filename",
+            "content": "toolRules.content",
+            "type": "toolRules.type"
+        },
+        "upload": {
+            "filename": "toolRules.filename",
+            "content": "toolRules.content"
+        },
+        "download": {
+            "path": "toolRules.path"
+        },
+        "files": {
+            "path": "toolRules.path"
+        }
+    }
+}

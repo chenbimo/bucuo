@@ -7,6 +7,7 @@
 // 导出验证工具
 export * from './validation.js';
 export * from './simple-validator.js';
+export * from './schema-loader.js';
 
 // 导出 HTTP API 工具
 export * from './http.js';

@@ -1,0 +1,9 @@
+{
+    "description": "健康检查相关验证规则",
+    "healthRules": {},
+    "presets": {
+        "check": {},
+        "status": {},
+        "info": {}
+    }
+}
