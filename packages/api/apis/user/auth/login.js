@@ -2,9 +2,10 @@
  * 用户登录 API - /user/auth/login
  */
 
-import { createPostAPI, validators, createResponse, createError } from 'bunfly';
+import { createPostAPI, createResponse, createError } from 'bunfly';
+import { user } from '../../../validations/index.js';
 
-export default createPostAPI(validators.userLogin, async (data, context) => {
+export default createPostAPI(user.login, async (data, context) => {
     const { generateToken } = context;
     const { username, password } = data;
 

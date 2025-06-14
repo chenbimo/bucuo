@@ -1,5 +1,11 @@
 /**
- * 路径统计 API - /stats/paths
+ * 接口路径统计 API - /stats/paths
+ */
+
+import { createGetAPI, createResponse } from 'bunfly';
+import { stats } from '../../validations/index.js';
+
+export default createGetAPI(stats.paths, async (data, context) => {路径统计 API - /stats/paths
  */
 
 import { createGetAPI, validators } from 'bunfly';

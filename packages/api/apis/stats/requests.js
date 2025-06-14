@@ -2,6 +2,12 @@
  * 请求统计 API - /stats/requests
  */
 
+import { createGetAPI, createResponse } from 'bunfly';
+import { stats } from '../../validations/index.js';
+
+export default createGetAPI(stats.requests, async (data, context) => {请求统计 API - /stats/requests
+ */
+
 import { createGetAPI, validators } from 'bunfly';
 
 export default createGetAPI(validators.empty(), async (data, context) => {

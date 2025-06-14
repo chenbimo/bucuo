@@ -188,53 +188,20 @@ export function createValidator() {
 
 /**
  * 预定义的常用验证器
+ * 注意：业务相关的验证器已迁移到 api/validations 目录
  */
 export const validators = {
-    // ID 验证
-    id: () => createValidator().number('id', { int: true, positive: true }).build(),
+    // 空验证（无参数）
+    empty: () => z.object({}),
 
-    // 分页验证
-    pagination: () => createValidator()
-        .number('page', { int: true, min: 1, default: 1, optional: true })
-        .number('limit', { int: true, min: 1, max: 100, default: 10, optional: true })
-        .build(),
+    // 分页验证（核心功能）
+    pagination: () => createValidator().number('page', { int: true, min: 1, default: 1, optional: true }).number('limit', { int: true, min: 1, max: 100, default: 10, optional: true }).build(),
 
-    // 用户登录
-    userLogin: () => createValidator()
-        .string('username', { min: 1 })
-        .string('password', { min: 6 })
-        .build(),
-
-    // 用户创建
-    userCreate: () => createValidator()
-        .string('username', { min: 1 })
-        .string('password', { min: 6 })
-        .string('email', { email: true, optional: true })
-        .string('nickname', { optional: true })
-        .build(),
-
-    // 用户更新
-    userUpdate: () => createValidator()
-        .number('id', { int: true, positive: true })
-        .string('username', { min: 1, optional: true })
-        .string('email', { email: true, optional: true })
-        .string('nickname', { optional: true })
-        .build(),
-
-    // 用户资料
-    userProfile: () => createValidator()
-        .string('token', { optional: true })
-        .build(),
+    // 文件名验证（工具接口）
+    filename: () => createValidator().string('filename', { min: 1 }).build(),
 
     // 文件操作
-    file: () => createValidator()
-        .string('filename', { min: 1 })
-        .string('content', { optional: true })
-        .string('type', { optional: true })
-        .build(),
-
-    // 空验证（无参数）
-    empty: () => z.object({})
+    file: () => createValidator().string('filename', { min: 1 }).string('content', { optional: true }).string('type', { optional: true }).build()
 };
 
 /**

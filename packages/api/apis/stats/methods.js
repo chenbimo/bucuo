@@ -1,5 +1,11 @@
 /**
- * 方法统计 API - /stats/methods
+ * 请求方法统计 API - /stats/methods
+ */
+
+import { createGetAPI, createResponse } from 'bunfly';
+import { stats } from '../../validations/index.js';
+
+export default createGetAPI(stats.methods, async (data, context) => {方法统计 API - /stats/methods
  */
 
 import { createGetAPI, validators } from 'bunfly';

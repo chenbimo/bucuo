@@ -1,5 +1,11 @@
 /**
- * 用户详情 API - /user/detail/:id
+ * 用户详情 API - /user/detail
+ */
+
+import { createPostAPI, createResponse, createError } from 'bunfly';
+import { common } from '../../validations/index.js';
+
+export default createPostAPI(common.id, async (data, context) => {用户详情 API - /user/detail/:id
  */
 
 import { createPostAPI, validators, createResponse } from 'bunfly';

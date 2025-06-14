@@ -2,9 +2,10 @@
  * 用户列表 API - /user/lists
  */
 
-import { createPostAPI, validators, createResponse } from 'bunfly';
+import { createPostAPI, createResponse } from 'bunfly';
+import { common } from '../../validations/index.js';
 
-export default createPostAPI(validators.pagination, async (data, context) => {
+export default createPostAPI(common.pagination, async (data, context) => {
     const { page, limit } = data;
     const { cache } = context;
 
