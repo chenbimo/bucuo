@@ -11,6 +11,7 @@ import { util } from './util.js';
 export * from './libs/validator.js';
 export * from './libs/validation.js';
 export * from './libs/http.js';
+export * from './libs/error.js';
 
 class Bunfly {
     constructor(options = {}) {

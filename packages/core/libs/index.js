@@ -11,6 +11,9 @@ export * from './validator.js';
 // 导出 HTTP API 工具
 export * from './http.js';
 
+// 导出错误管理工具
+export * from './error.js';
+
 // 导出JWT工具
 export * from './jwt.js';
 

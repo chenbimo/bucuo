@@ -4,30 +4,46 @@
  */
 
 import { z } from 'zod';
+import { 
+    ERROR_CODES, 
+    createError as createErrorObject, 
+    createSuccess,
+    getHttpStatus
+} from './error.js';
 
 /**
  * 创建标准的 API 响应格式
+ * @param {any} data - 响应数据
+ * @param {string} message - 响应消息
+ * @param {number} code - 响应码（默认使用成功码）
  */
-export const createResponse = (data = null, message = '成功', code = 200) => {
-    return {
-        code,
-        message,
-        data,
-        timestamp: Date.now()
-    };
+export const createResponse = (data = null, message = '成功', code = ERROR_CODES.SUCCESS) => {
+    if (code === ERROR_CODES.SUCCESS) {
+        return createSuccess(data, message);
+    }
+    
+    return createErrorObject(code, message, data);
 };
 
 /**
  * 创建错误响应
+ * @param {string|number} messageOrCode - 错误信息或错误码
+ * @param {number|string} codeOrMessage - 错误码或错误信息
+ * @param {any} details - 错误详情
  */
-export const createError = (message = '错误', code = 400, details = null) => {
-    return {
-        code,
-        message,
-        error: true,
-        details,
-        timestamp: Date.now()
-    };
+export const createError = (messageOrCode = '错误', codeOrMessage = ERROR_CODES.GENERAL_ERROR, details = null) => {
+    // 兼容旧版本调用方式：createError(message, code, details)
+    if (typeof messageOrCode === 'string' && typeof codeOrMessage === 'number') {
+        return createErrorObject(codeOrMessage, messageOrCode, details);
+    }
+    
+    // 新版本调用方式：createError(code, message, details)
+    if (typeof messageOrCode === 'number') {
+        return createErrorObject(messageOrCode, codeOrMessage, details);
+    }
+    
+    // 默认处理
+    return createErrorObject(ERROR_CODES.GENERAL_ERROR, messageOrCode, codeOrMessage);
 };
 
 /**
@@ -43,7 +59,7 @@ export async function validateJsonParams(request, schema) {
         if (!contentType || !contentType.includes('application/json')) {
             return {
                 success: false,
-                error: createError('Content-Type 必须是 application/json', 400)
+                error: createError(ERROR_CODES.INVALID_PARAM_FORMAT, 'Content-Type 必须是 application/json')
             };
         }
 
@@ -54,7 +70,7 @@ export async function validateJsonParams(request, schema) {
         } catch (err) {
             return {
                 success: false,
-                error: createError('无效的 JSON 格式', 400, err.message)
+                error: createError(ERROR_CODES.INVALID_PARAM_FORMAT, '无效的 JSON 格式', err.message)
             };
         }
 
@@ -63,7 +79,7 @@ export async function validateJsonParams(request, schema) {
         if (!result.success) {
             return {
                 success: false,
-                error: createError('验证失败', 400, result.error.errors)
+                error: createError(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.error.errors)
             };
         }
 
@@ -74,7 +90,7 @@ export async function validateJsonParams(request, schema) {
     } catch (err) {
         return {
             success: false,
-            error: createError('验证错误', 500, err.message)
+            error: createError(ERROR_CODES.API_INTERNAL_ERROR, '验证过程中发生错误', err.message)
         };
     }
 }
