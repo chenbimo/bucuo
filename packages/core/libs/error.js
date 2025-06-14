@@ -145,87 +145,19 @@ export const ERROR_MESSAGES = {
 };
 
 /**
- * HTTP 状态码映射
- * 将内部错误码映射到合适的 HTTP 状态码
- */
-export const HTTP_STATUS_MAP = {
-    [ERROR_CODES.SUCCESS]: 200,
-    [ERROR_CODES.GENERAL_ERROR]: 400,
-
-    // 接口相关错误
-    [ERROR_CODES.API_NOT_FOUND]: 404,
-    [ERROR_CODES.API_METHOD_NOT_ALLOWED]: 405,
-    [ERROR_CODES.API_INTERNAL_ERROR]: 500,
-    [ERROR_CODES.API_TIMEOUT]: 408,
-    [ERROR_CODES.API_RATE_LIMITED]: 429,
-
-    // 参数验证错误
-    [ERROR_CODES.INVALID_PARAMS]: 400,
-    [ERROR_CODES.MISSING_REQUIRED_PARAMS]: 400,
-    [ERROR_CODES.INVALID_PARAM_TYPE]: 400,
-    [ERROR_CODES.PARAM_OUT_OF_RANGE]: 400,
-    [ERROR_CODES.INVALID_PARAM_FORMAT]: 400,
-
-    // 认证授权错误
-    [ERROR_CODES.UNAUTHORIZED]: 401,
-    [ERROR_CODES.TOKEN_EXPIRED]: 401,
-    [ERROR_CODES.TOKEN_INVALID]: 401,
-    [ERROR_CODES.PERMISSION_DENIED]: 403,
-    [ERROR_CODES.LOGIN_REQUIRED]: 401,
-
-    // 文件操作错误
-    [ERROR_CODES.FILE_NOT_FOUND]: 404,
-    [ERROR_CODES.FILE_READ_ERROR]: 500,
-    [ERROR_CODES.FILE_WRITE_ERROR]: 500,
-    [ERROR_CODES.FILE_UPLOAD_ERROR]: 400,
-    [ERROR_CODES.FILE_SIZE_EXCEEDED]: 413,
-    [ERROR_CODES.FILE_TYPE_NOT_ALLOWED]: 415,
-
-    // 数据库错误
-    [ERROR_CODES.DATABASE_ERROR]: 500,
-    [ERROR_CODES.DATABASE_CONNECTION_ERROR]: 500,
-    [ERROR_CODES.DATABASE_QUERY_ERROR]: 500,
-    [ERROR_CODES.DATABASE_TRANSACTION_ERROR]: 500,
-
-    // 缓存错误
-    [ERROR_CODES.CACHE_ERROR]: 500,
-    [ERROR_CODES.CACHE_CONNECTION_ERROR]: 500,
-    [ERROR_CODES.CACHE_SET_ERROR]: 500,
-    [ERROR_CODES.CACHE_GET_ERROR]: 500,
-
-    // 网络错误
-    [ERROR_CODES.NETWORK_ERROR]: 502,
-    [ERROR_CODES.REQUEST_TIMEOUT]: 408,
-    [ERROR_CODES.CONNECTION_REFUSED]: 502,
-
-    // 服务器错误
-    [ERROR_CODES.SERVER_ERROR]: 500,
-    [ERROR_CODES.SERVICE_UNAVAILABLE]: 503,
-    [ERROR_CODES.MAINTENANCE_MODE]: 503,
-
-    // 配置错误
-    [ERROR_CODES.CONFIG_ERROR]: 500,
-    [ERROR_CODES.INVALID_CONFIG]: 500,
-    [ERROR_CODES.MISSING_CONFIG]: 500
-};
-
-/**
  * 创建标准化错误对象
  * @param {number} code - 错误码
  * @param {string} [message] - 自定义错误信息，如果不提供则使用默认信息
  * @param {any} [data] - 附加数据
- * @param {number} [httpStatus] - 自定义 HTTP 状态码
  * @returns {Object} 错误对象
  */
-export function createErrorResponse(code, message, data = null, httpStatus = null) {
+export function createErrorResponse(code, message, data = null) {
     const defaultMessage = ERROR_MESSAGES[code] || '未知错误';
-    const defaultHttpStatus = HTTP_STATUS_MAP[code] || 500;
 
     return {
         code,
         message: message || defaultMessage,
         data,
-        httpStatus: httpStatus || defaultHttpStatus,
         timestamp: new Date().toISOString()
     };
 }
@@ -276,9 +208,8 @@ export function isUserDefinedError(code) {
  * 注册用户自定义错误码
  * @param {number} code - 错误码 (必须 >= 100)
  * @param {string} message - 错误信息
- * @param {number} [httpStatus=400] - HTTP 状态码
  */
-export function registerUserError(code, message, httpStatus = 400) {
+export function registerUserError(code, message) {
     if (code < ERROR_CODES.USER_DEFINED_START) {
         throw new Error(`用户自定义错误码必须大于等于 ${ERROR_CODES.USER_DEFINED_START}`);
     }
@@ -288,7 +219,6 @@ export function registerUserError(code, message, httpStatus = 400) {
     }
 
     ERROR_MESSAGES[code] = message;
-    HTTP_STATUS_MAP[code] = httpStatus;
 }
 
 /**
@@ -298,15 +228,6 @@ export function registerUserError(code, message, httpStatus = 400) {
  */
 export function getErrorMessage(code) {
     return ERROR_MESSAGES[code] || '未知错误';
-}
-
-/**
- * 获取 HTTP 状态码
- * @param {number} code - 错误码
- * @returns {number} HTTP 状态码
- */
-export function getHttpStatus(code) {
-    return HTTP_STATUS_MAP[code] || 500;
 }
 
 // 导出常用错误码以便快速使用

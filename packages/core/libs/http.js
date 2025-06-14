@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { ERROR_CODES, createErrorResponse as createErrorObject, createSuccess, getHttpStatus } from './error.js';
+import { ERROR_CODES, createErrorResponse as createErrorObject, createSuccess } from './error.js';
 
 /**
  * 创建标准的 API 响应格式
