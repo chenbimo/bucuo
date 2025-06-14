@@ -217,7 +217,7 @@ export const HTTP_STATUS_MAP = {
  * @param {number} [httpStatus] - 自定义 HTTP 状态码
  * @returns {Object} 错误对象
  */
-export function createError(code, message, data = null, httpStatus = null) {
+export function createErrorResponse(code, message, data = null, httpStatus = null) {
     const defaultMessage = ERROR_MESSAGES[code] || '未知错误';
     const defaultHttpStatus = HTTP_STATUS_MAP[code] || 500;
 
