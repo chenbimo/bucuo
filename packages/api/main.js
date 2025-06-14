@@ -130,9 +130,9 @@ class BunflyAPI extends Bunfly {
 
         return await this.listen((server) => {
             console.log('✅ Bunfly API server started successfully!');
-            console.log('📝 健康检查:', `http://${this.host}:${this.port}/health`);
-            console.log('📊 状态:', `http://${this.host}:${this.port}/status`);
-            console.log('ℹ️  信息:', `http://${this.host}:${this.port}/info`);
+            console.log('📝 健康检查:', `http://${this.host}:${this.port}/core/health/check`);
+            console.log('📊 状态:', `http://${this.host}:${this.port}/core/health/status`);
+            console.log('ℹ️  信息:', `http://${this.host}:${this.port}/core/health/info`);
         });
     }
 }
