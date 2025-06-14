@@ -10,7 +10,7 @@
     },
     "scripts": {
         "start": "bun run server.js",
-        "dev": "bun --watch server.js",
+        "dev": "bun run server.js",
         "test": "bun run test.js",
         "build": "echo 'No build step required for Bun'",
         "lint": "echo 'Add your linting command here'"

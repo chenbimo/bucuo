@@ -1,145 +1,198 @@
-# funpi 是什么？
+# Bunfly API
 
-中文名称 `放屁` 接口框架。
+基于 Bunfly Core 构建的业务层 API 项目。
 
-像放屁一样简单又自然的 `Node.js` 接口开发框架。
+## 特性
 
-> 注意：本项目 `v7` 为内测版，`v8` 才是公测版，谨慎使用。
->
-> 自 `v7.15.0` 版本开始，本项目仅支持 [Bun](https://bun.sh)，不再支持 `Node.js`。
+-   🏗️ 基于 Bunfly Core 框架构建
+-   👥 用户管理系统
+-   🔐 JWT 认证
+-   📊 请求统计
+-   📁 文件上传下载
+-   💾 缓存支持
+-   🔧 环境配置管理
 
-### 仓库地址
+## 项目结构
 
-[github - https://github.com/chenbimo/funpi](https://github.com/chenbimo/funpi)
+```
+api/
+├── main.js              # 业务入口文件
+├── server.js            # 服务器启动脚本
+├── test.js              # 测试文件
+├── apis/                # 业务接口目录
+│   ├── user.js          # 用户管理接口
+│   └── stats.js         # 统计信息接口
+├── plugins/             # 业务插件目录
+│   └── stats.js         # 请求统计插件
+├── .env.development     # 开发环境配置
+├── .env.production      # 生产环境配置
+├── package.json         # 项目配置
+└── README.md           # 说明文档
+```
 
-### 使用教程
+## 快速开始
 
-[funpi(放屁)使用文档](https://sourl.cn/bUq25t)
+### 安装依赖
 
-### 作者介绍
+```bash
+cd api
+bun install
+```
 
-[前端之虎陈随易 https://chensuiyi.me](https://chensuiyi.me)
+### 启动开发服务器
 
-### 演示地址
+```bash
+bun run dev
+```
 
-- [https://funpi-demo.yicode.tech](https://funpi-demo.yicode.tech)
+### 启动生产服务器
 
-### 功能特点
+```bash
+bun run start
+```
 
-- ✅ 只需 `简单配置`，即可快速上手开发。
-- ✅ 自动生成 `接口文档`，方便前后端对接。
-- ✅ 自带 `权限`、`角色`、`管理`、`日志`、`菜单`、`接口`、`字典` 等基础功能。
-- ✅ 自带 `邮件发送`，`文件上传` 等功能。
-- ✅ 自带 `日志打印` 和 `日志分割` 功能。
-- ✅ 自带 `jwt` 鉴权机制。
-- ✅ 自带 `登录日志`，`邮件日志` 等功能。
-- ✅ 自带配套的后台管理系统 `yiadmin`，30 分钟搭建一个后台管理系统。
-- ✅ 默认已处理 `跨域` 问题，无需再为跨域担心。
-- ✅ 优先使用 `缓存`，提高应用性能。
-- ✅ 默认提供 `静态文件托管` 功能。
-- ✅ 可以 `一键更新` 后台管理系统。
-- ✅ 全面的 `接口参数验证` 功能，极大减少安全隐患。
-- ✅ 提供 `数据库表字段设计` 和 `表结构同步` 功能。
+### 运行测试
 
-### 功能限制
+```bash
+bun run test
+```
 
-本框架做了很多约束，减少自由度，增加确定度，稳定度。
+## API 接口
 
-- ❎ 仅支持 `Bun`，不支持 `Node.js`，`Deno` 等。
-- ❎ 仅支持 `单机部署`，使用 `pm2` 管理。
-- ❎ 仅支持 `单角色权限`。
-- ❎ 仅支持 `Mysql` 关系数据库。
-- ❎ 仅支持 `Redis` 缓存数据库。
-- ❎ 仅支持 `POST` 和 `GET` 请求方法。
-- ❎ 仅支持 `整数`、`浮点数`、`文本`、`字符串` 这四种数据库字段类型。
-- ❎ 不支持 `分库分表`。
-- ❎ 不支持 `Docker` 部署，请自行研究。
-- ❎ 不支持 `分布式部署`。
-- ❎ 不支持 `Restful` 规范，不认同 `Restful` 规范，不使用 `Restful` 规范。
+### 首页
 
-### 付费插件
+-   `GET /` - API 欢迎页面
+-   `GET /api/docs` - API 文档
 
-- `微信扫码插件`，登录注册，需要提供微信公众号。
-- `在线人数统计插件`，提供 `踢人`，`拉黑` 等功能。
-- `微信支付插件`，支持 `多产品`、`折扣`、`优惠` 等功能。
+### 用户管理
 
-### 注意事项
+-   `GET /api/users` - 获取用户列表
+-   `GET /api/users/:id` - 获取用户详情
+-   `POST /api/users` - 创建用户
+-   `PUT /api/users/:id` - 更新用户
+-   `DELETE /api/users/:id` - 删除用户
 
-- 与本项目逻辑、BUG、建议相关的问题，请联系作者无偿 `免费处理`。
-- 与本项目无关的业务、功能、需求、部署相关的问题，请联系作者 `有偿咨询`。
+### 认证
 
-### 实际效果
+-   `POST /api/auth/login` - 用户登录
+-   `GET /api/auth/me` - 获取当前用户信息
+-   `GET /api/users/profile` - 受保护的路由示例
 
-使用 `funpi` + `yiadmin` 驱动的，免费且开源的后台管理系统。
+### 统计信息
 
-#### 📄 登录页面
+-   `GET /api/stats/requests` - 请求统计
+-   `GET /api/stats/methods` - HTTP 方法统计
+-   `GET /api/stats/system` - 系统统计
 
-![picture 0](https://static.yicode.tech/images/202311/20231126000719.png)
+### 文件操作
 
-#### 📄 菜单页面
+-   `POST /upload` - 上传文件
+-   `POST /upload/multiple` - 批量上传文件
+-   `GET /files` - 文件列表
+-   `GET /files/:filename` - 文件信息
+-   `GET /download/:filename` - 下载文件
+-   `DELETE /files/:filename` - 删除文件
 
-![picture 2](https://static.yicode.tech/images/202311/20231126000809.png)
+### 系统
 
-#### 📄 接口页面
+-   `GET /health` - 健康检查
+-   `GET /status` - 系统状态
+-   `GET /info` - 系统信息
 
-![picture 3](https://static.yicode.tech/images/202311/20231126000833.png)
+## 使用示例
 
-#### 📄 角色页面
+### 用户登录
 
-![picture 4](https://static.yicode.tech/images/202311/20231126000913.png)
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+```
 
-#### 📄 登录日志
+### 创建用户
 
-![picture 5](https://static.yicode.tech/images/202311/20231126000935.png)
+```bash
+curl -X POST http://localhost:3000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "newuser",
+    "email": "newuser@example.com",
+    "name": "New User",
+    "bio": "A new user"
+  }'
+```
 
-#### 📄 邮件日志
+### 上传文件
 
-![picture 6](https://static.yicode.tech/images/202311/20231126001012.png)
+```bash
+curl -X POST http://localhost:3000/upload \
+  -F "file=@example.txt"
+```
 
-### 版权说明
+### 获取统计信息
 
-`funpi(放屁)` 使用 `Apache 2.0` 协议开源
+```bash
+curl http://localhost:3000/api/stats/requests
+```
 
-> 一句话总结：开源不等于放弃版权，不可侵犯原作者版权，改动处要做说明，可以闭源使用。
+## 环境配置
 
-拥有版权（Copyright）意味着你对你开发的软件及其源代码拥有著作权，所有权和其他法定权利，使用一个开源协议并不意味着放弃版权。
+项目支持通过环境变量配置：
 
-在 `Apache 2.0` 协议许可下，您可以：
+### 开发环境 (.env.development)
 
-- **商业化使用**（这意味着，您可以出于商业目的使用这些源代码）
-- **再分发**（这意味着，您可以将源代码副本传输给其他任何人）
-- **修改**（这意味着，您可以修改源代码）
-- **专利使用**（这意味着，版权人明确声明授予您专利使用权）
-- **私人使用**（这意味着，您可以出于一切目的私下使用和修改源代码）
+```
+PORT=3000
+HOST=localhost
+JWT_SECRET=bunfly-dev-secret-key-2024
+JWT_EXPIRES_IN=24h
+REDIS_USE_MEMORY_CACHE=true
+CORS_ORIGIN=*
+LOG_LEVEL=debug
+```
 
-唯须遵守以下条款：
+### 生产环境 (.env.production)
 
-- **协议和版权通知**（这意味着，软件中必须包含许可证和版权声明的副本）
-- **状态更改说明**（如果您更改软件，您应当提供适当的说明）
+```
+PORT=8080
+HOST=0.0.0.0
+JWT_SECRET=your-production-secret-key-here
+JWT_EXPIRES_IN=7d
+REDIS_USE_MEMORY_CACHE=false
+CORS_ORIGIN=https://yourdomain.com
+LOG_LEVEL=info
+```
 
-除此之外，该软件：
+## 扩展开发
 
-- **提供责任限制**（版权人声明不对使用者造成的任何损失负责）
-- **限制商标使用** (不能使用版权人的商标)
-- **不提供任何担保**（版权人声明不为该软件的品质提供任何担保）
+### 添加新的 API
 
-进一步说明：
+在 `apis/` 目录下创建新的 API 文件：
 
-1. 本软件又叫本 **作品**，可以是源码，也可以是编译或转换后的其他形式。**衍生作品** 是在本作品的基础上修改后的有原创性的工作成果。本作品的 **贡献者** 包括许可人和其他提交了贡献的人，以下统称 **我**。
-2. 我授予你权利：你可以免费复制、使用、修改、再许可、分发本作品及衍生作品（可以不用公开源码）。
-3. 如果本软件涉及我的专利（或潜在专利），我在此授予你专利许可，你可以永久性地免费使用此专利，用于制作、使用、出售、转让本作品。如果你哪天居然告本作品侵权，你的专利许可在你告我那天被收回。
-4. 你在复制和分发本作品或衍生作品时，要满足以下条件。
+```javascript
+// apis/my-api.js
+export default function myApi(app) {
+    app.get('/api/my-endpoint', async (context) => {
+        return { message: 'My API endpoint' };
+    });
+}
+```
 
-    - 带一份本许可证。
-    - 如果你修改了什么，要在改动的文件中有明显的修改声明。
-    - 如果你以源码形式分发，你必须保留本作品的版权、专利、商标和归属声明。
-    - 如果本作品带了 **NOTICE** 文件，你就得带上 **NOTICE** 文件中包含的归属声明。即便你的发布是不带源码的，你也得带上此文件，并在作品某处予以展示。
-    - 你可以对自己的修改添加版权说明。对于你的修改或者整个衍生作品，你可以使用不同的许可，但你对本作品的使用、复制和分发等，必须符合本许可证规定。
+### 添加新的插件
 
-5. 你提交贡献就表明你默认遵守本许可的条款和条件。当然，你可以和我签订另外的专门的条款。
-6. 你不许使用我的商品名、商标、服务标志或产品名。
-7. 本作品是 **按原样**（AS IS）提供的，没有任何保证啊，你懂的。
-8. 我可不负任何责任。除非我书面同意，或者法律有这样的要求（例如对故意和重大过失行为负责）。
-9. 你可以向别人提供保证，你可以向别人收费，但那都是你的事，别给我惹麻烦。
+在 `plugins/` 目录下创建新的插件文件：
 
-注意以上的 **我**，既包含了许可人，也包含了每位 **贡献者**。
+```javascript
+// plugins/my-plugin.js
+export default {
+    name: 'my-plugin',
+    order: 10,
+    async handler(context) {
+        // 插件逻辑
+    }
+};
+```
+
+## 许可证
+
+MIT License

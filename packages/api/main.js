@@ -3,6 +3,7 @@
  */
 
 import { Bunfly } from 'bunfly';
+import { util } from '../core/util.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -29,7 +30,6 @@ class BunflyAPI extends Bunfly {
         await this.loadBusinessAPIs();
 
         this.initialized = true;
-        console.log('✅ BunflyAPI 初始化完成');
     }
 
     /**
@@ -79,8 +79,10 @@ class BunflyAPI extends Bunfly {
         const pluginDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'plugins');
 
         try {
-            const files = await this.util.readDir(pluginDir);
+            const files = await util.readDir(pluginDir);
             const pluginFiles = files.filter((file) => file.endsWith('.js'));
+
+            const loadedPlugins = [];
 
             for (const file of pluginFiles) {
                 try {
@@ -90,13 +92,17 @@ class BunflyAPI extends Bunfly {
                     const pluginInstance = plugin.default || plugin.corsPlugin || plugin.loggerPlugin || plugin.jwtPlugin || plugin.redisPlugin || plugin.uploadPlugin || plugin.statsPlugin;
 
                     if (pluginInstance) {
-                        this.use(pluginInstance);
-                        console.log(`✓ 已加载业务插件: ${file}`);
+                        loadedPlugins.push(pluginInstance);
+                        console.log(`✓ 已加载业务插件: ${file} [order: ${pluginInstance.order || 0}]`);
                     }
                 } catch (error) {
                     console.warn(`加载业务插件失败 ${file}:`, error.message);
                 }
             }
+
+            // 按 order 排序并注册插件
+            loadedPlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
+            loadedPlugins.forEach((plugin) => this.use(plugin));
         } catch (error) {
             console.warn('未找到业务插件目录，跳过');
         }
@@ -124,12 +130,7 @@ class BunflyAPI extends Bunfly {
         // 确保初始化完成
         await this.initPromise;
 
-        console.log('环境:', process.env.NODE_ENV || 'development');
-        console.log('端口:', this.port);
-        console.log('主机:', this.host);
-
         return await this.listen((server) => {
-            console.log('✅ Bunfly API server started successfully!');
             console.log('📝 健康检查:', `http://${this.host}:${this.port}/core/health/check`);
             console.log('📊 状态:', `http://${this.host}:${this.port}/core/health/status`);
             console.log('ℹ️  信息:', `http://${this.host}:${this.port}/core/health/info`);

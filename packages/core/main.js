@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import { util } from './util.js';
 
 // 导出验证工具给 API 使用
-export * from './libs/validation.js';
+export * from './libs/validator.js';
 
 class Bunfly {
     constructor(options = {}) {
@@ -53,6 +53,8 @@ class Bunfly {
             const files = await util.readDir(pluginDir);
             const pluginFiles = files.filter((file) => file.endsWith('.js'));
 
+            const loadedPlugins = [];
+
             for (const file of pluginFiles) {
                 try {
                     const pluginPath = path.join(pluginDir, file);
@@ -61,12 +63,17 @@ class Bunfly {
                     const pluginInstance = plugin.default || plugin.corsPlugin || plugin.loggerPlugin || plugin.jwtPlugin || plugin.redisPlugin || plugin.uploadPlugin || plugin.statsPlugin;
 
                     if (pluginInstance) {
-                        this.use(pluginInstance);
+                        loadedPlugins.push(pluginInstance);
+                        console.log(`✓ 已加载核心插件: ${file} [order: ${pluginInstance.order || 0}]`);
                     }
                 } catch (error) {
                     console.warn(`加载插件失败 ${file}:`, error.message);
                 }
             }
+
+            // 按 order 排序并注册插件
+            loadedPlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
+            loadedPlugins.forEach((plugin) => this.use(plugin));
         } catch (error) {
             console.warn('未找到插件目录，跳过插件加载');
         }
@@ -201,7 +208,14 @@ class Bunfly {
      * 执行插件链
      */
     async executePlugins(context) {
-        for (const plugin of this.plugins) {
+        // 每次执行时重新排序，确保顺序正确
+        const sortedPlugins = [...this.plugins].sort((a, b) => {
+            const orderA = typeof a === 'function' ? 0 : a.order || 0;
+            const orderB = typeof b === 'function' ? 0 : b.order || 0;
+            return orderA - orderB;
+        });
+
+        for (const plugin of sortedPlugins) {
             try {
                 if (typeof plugin === 'function') {
                     await plugin(context);

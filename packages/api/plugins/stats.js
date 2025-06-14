@@ -7,6 +7,7 @@ export const statsPlugin = {
     order: 10,
     async handler(context) {
         const { request, cache, util } = context;
+        console.log('请求统计插件已加载');
 
         if (!cache) return;
 
