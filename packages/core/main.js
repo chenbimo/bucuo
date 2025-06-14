@@ -10,8 +10,12 @@ import { util } from './util.js';
 // 导出验证工具给 API 使用
 export * from './libs/validator.js';
 export * from './libs/validation.js';
-export * from './libs/http.js';
-export * from './libs/error.js';
+
+// 从 http.js 导出 HTTP 相关工具（包含 createResponse, createError）
+export { createPostAPI, createGetAPI, createAPI, createResponse, createApiResponse, createError, validateJsonParams } from './libs/http.js';
+
+// 从 error.js 导出错误管理工具
+export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedError, registerUserError, getErrorMessage, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/error.js';
 
 class Bunfly {
     constructor(options = {}) {

@@ -4,16 +4,46 @@
  */
 
 import { z } from 'zod';
-import { ERROR_CODES, createResponse as createResponseObject } from './error.js';
+import { ERROR_CODES, ERROR_MESSAGES } from './error.js';
 
 /**
- * 创建标准的 API 响应格式
+ * 创建统一响应对象
+ * @param {number} code - 响应码
+ * @param {string} msg - 响应消息
+ * @param {any} data - 响应数据
+ * @param {any} detail - 详细信息
+ * @param {Object} options - 其他选项，会与前4个参数合并，但不能覆盖它们
+ * @returns {Object} 响应对象
+ */
+export function createResponse(code = ERROR_CODES.SUCCESS, msg = null, data = null, detail = null, options = {}) {
+    const defaultMessage = msg || ERROR_MESSAGES[code] || '未知状态';
+
+    // 基础响应对象
+    const response = {
+        code,
+        msg: defaultMessage,
+        data,
+        detail,
+        timestamp: new Date().toISOString()
+    };
+
+    // 合并 options，但不覆盖基础参数
+    const { code: _, msg: __, data: ___, detail: ____, ...safeOptions } = options;
+
+    return {
+        ...safeOptions,
+        ...response
+    };
+}
+
+/**
+ * 创建兼容的 API 响应格式（向后兼容）
  * @param {any} data - 响应数据
  * @param {string} message - 响应消息
  * @param {number} code - 响应码（默认使用成功码）
  */
-export const createResponse = (data = null, message = '成功', code = ERROR_CODES.SUCCESS) => {
-    return createResponseObject(code, message, data);
+export const createApiResponse = (data = null, message = '成功', code = ERROR_CODES.SUCCESS) => {
+    return createResponse(code, message, data);
 };
 
 /**
@@ -25,16 +55,16 @@ export const createResponse = (data = null, message = '成功', code = ERROR_COD
 export const createError = (messageOrCode = '错误', codeOrMessage = ERROR_CODES.GENERAL_ERROR, details = null) => {
     // 兼容旧版本调用方式：createError(message, code, details)
     if (typeof messageOrCode === 'string' && typeof codeOrMessage === 'number') {
-        return createResponseObject(codeOrMessage, messageOrCode, null, details);
+        return createResponse(codeOrMessage, messageOrCode, null, details);
     }
 
     // 新版本调用方式：createError(code, message, details)
     if (typeof messageOrCode === 'number') {
-        return createResponseObject(messageOrCode, codeOrMessage, null, details);
+        return createResponse(messageOrCode, codeOrMessage, null, details);
     }
 
     // 默认处理
-    return createResponseObject(ERROR_CODES.GENERAL_ERROR, messageOrCode, null, codeOrMessage);
+    return createResponse(ERROR_CODES.GENERAL_ERROR, messageOrCode, null, codeOrMessage);
 };
 
 /**
