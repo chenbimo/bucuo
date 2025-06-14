@@ -3,14 +3,10 @@
  * 使用 GET 请求查看所有已注册的路由
  */
 
-export default async (context) => {
-    const { request, response } = context;
+import { createGetAPI } from 'bunfly';
 
-    // 只支持 GET 请求
-    if (request.method !== 'GET') {
-        response.status = 405;
-        return { error: '不允许的请求方法', allowedMethods: ['GET'] };
-    }
+export default createGetAPI(async (data, context) => {
+    const { request } = context;
 
     // 获取当前 Bunfly 实例的路由信息
     // 由于我们在 API 处理器内部，需要通过 context 访问应用实例
@@ -59,12 +55,6 @@ export default async (context) => {
         }
     });
 
-    console.log('🔍 调试路由访问:', {
-        timestamp: new Date().toISOString(),
-        totalRoutes: routes.length,
-        requestedBy: request.headers.get('user-agent') || 'unknown'
-    });
-
     return {
         success: true,
         message: '路由调试信息',
@@ -78,4 +68,4 @@ export default async (context) => {
             routesType: app && app.routes ? typeof app.routes : 'undefined'
         }
     };
-};
+});
