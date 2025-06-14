@@ -4,12 +4,7 @@
  */
 
 import { z } from 'zod';
-import { 
-    ERROR_CODES, 
-    createError as createErrorObject, 
-    createSuccess,
-    getHttpStatus
-} from './error.js';
+import { ERROR_CODES, createError as createErrorObject, createSuccess, getHttpStatus } from './error.js';
 
 /**
  * 创建标准的 API 响应格式
@@ -21,7 +16,7 @@ export const createResponse = (data = null, message = '成功', code = ERROR_COD
     if (code === ERROR_CODES.SUCCESS) {
         return createSuccess(data, message);
     }
-    
+
     return createErrorObject(code, message, data);
 };
 
@@ -36,12 +31,12 @@ export const createError = (messageOrCode = '错误', codeOrMessage = ERROR_CODE
     if (typeof messageOrCode === 'string' && typeof codeOrMessage === 'number') {
         return createErrorObject(codeOrMessage, messageOrCode, details);
     }
-    
+
     // 新版本调用方式：createError(code, message, details)
     if (typeof messageOrCode === 'number') {
         return createErrorObject(messageOrCode, codeOrMessage, details);
     }
-    
+
     // 默认处理
     return createErrorObject(ERROR_CODES.GENERAL_ERROR, messageOrCode, codeOrMessage);
 };
