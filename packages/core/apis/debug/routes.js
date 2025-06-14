@@ -6,7 +6,7 @@
 import { createGetAPI } from '../../libs/http.js';
 import { debug } from '../../schema/index.js';
 
-export default createGetAPI(debug.routes(), async (data, context) => {
+export default createGetAPI(debug.routes, async (data, context) => {
     const { request } = context;
 
     // 获取当前 Bunfly 实例的路由信息

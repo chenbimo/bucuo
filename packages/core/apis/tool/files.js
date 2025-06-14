@@ -5,7 +5,7 @@
 import { createGetAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
 import { common } from '../../schema/index.js';
 
-export default createGetAPI(common.pagination(), async (data, context) => {
+export default createGetAPI(common.pagination, async (data, context) => {
     const { config, util } = context;
 
     const page = data.page || 1;

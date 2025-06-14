@@ -5,7 +5,7 @@
 import { createPostAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
 import { tool } from '../../schema/index.js';
 
-export default createPostAPI(tool.upload(), async (data, context) => {
+export default createPostAPI(tool.upload, async (data, context) => {
     const { request, files, fields } = context;
 
     if (!files || files.length === 0) {

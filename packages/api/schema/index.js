@@ -3,6 +3,6 @@
  * 将所有业务验证规则集中导出
  */
 
-export { common } from './common.js';
+export { common } from '../../core/schema/index.js';
 export { user } from './user.js';
 export { stats } from './stats.js';

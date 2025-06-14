@@ -3,8 +3,8 @@
  * 提供接口创建、验证、返回等功能
  */
 
-import { z } from 'zod';
 import { ERROR_CODES, ERROR_MESSAGES } from './error.js';
+import { validate } from './simple-validator.js';
 
 // 重新导出 ERROR_CODES，方便其他模块使用
 export { ERROR_CODES } from './error.js';
@@ -52,10 +52,10 @@ export const createApiResponse = (data = null, message = '成功', code = ERROR_
 /**
  * 验证 JSON 参数
  * @param {Request} request - 请求对象
- * @param {ZodSchema} schema - Zod 验证模式
+ * @param {Object} rules - 验证规则对象
  * @returns {Object} 验证结果
  */
-export async function validateJsonParams(request, schema) {
+export async function validateJsonParams(request, rules) {
     try {
         // 检查 Content-Type
         const contentType = request.headers.get('content-type');
@@ -77,12 +77,12 @@ export async function validateJsonParams(request, schema) {
             };
         }
 
-        // Zod 验证
-        const result = schema.safeParse(data);
+        // 使用简单验证器验证
+        const result = validate(data, rules);
         if (!result.success) {
             return {
                 success: false,
-                error: createResponse(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.error.errors)
+                error: createResponse(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.errors)
             };
         }
 
@@ -100,11 +100,11 @@ export async function validateJsonParams(request, schema) {
 
 /**
  * 创建标准的 POST API 处理器
- * @param {ZodSchema} schema - 验证模式
+ * @param {Object} rules - 验证规则对象
  * @param {Function} handler - 处理函数
  * @returns {Function} API 处理器
  */
-export function createPostAPI(schema, handler) {
+export function createPostAPI(rules, handler) {
     const apiHandler = async (context) => {
         const { request, response } = context;
 
@@ -114,7 +114,7 @@ export function createPostAPI(schema, handler) {
         }
 
         // 验证参数
-        const validation = await validateJsonParams(request, schema);
+        const validation = await validateJsonParams(request, rules);
         if (!validation.success) {
             return validation.error;
         }
@@ -137,15 +137,15 @@ export function createPostAPI(schema, handler) {
 
 /**
  * 创建标准的 GET API 处理器
- * @param {ZodSchema} schema - 验证模式（可选）
+ * @param {Object} rules - 验证规则对象（可选）
  * @param {Function} handler - 处理函数
  * @returns {Function} API 处理器
  */
-export function createGetAPI(schema, handler) {
-    // 如果只传了一个参数且是函数，说明没有 schema
-    if (typeof schema === 'function' && !handler) {
-        handler = schema;
-        schema = null;
+export function createGetAPI(rules, handler) {
+    // 如果只传了一个参数且是函数，说明没有 rules
+    if (typeof rules === 'function' && !handler) {
+        handler = rules;
+        rules = null;
     }
 
     const apiHandler = async (context) => {
@@ -158,32 +158,27 @@ export function createGetAPI(schema, handler) {
 
         let data = null;
 
-        // 如果有验证模式，验证查询参数
-        if (schema) {
+        // 如果有验证规则，验证查询参数
+        if (rules) {
             const url = new URL(request.url);
             const queryParams = {};
 
             // 提取 query 参数
             for (const [key, value] of url.searchParams) {
-                // 尝试转换数字
-                if (!isNaN(value) && value !== '') {
-                    queryParams[key] = Number(value);
-                } else {
-                    queryParams[key] = value;
-                }
+                queryParams[key] = value;
             }
 
             // 提取 URL 路径参数（如 /user/123 中的 123）
             const pathParts = url.pathname.split('/').filter(Boolean);
             const lastPart = pathParts[pathParts.length - 1];
             if (!isNaN(lastPart) && lastPart !== '') {
-                queryParams.id = Number(lastPart);
+                queryParams.id = lastPart;
             }
 
             // 验证参数
-            const result = schema.safeParse(queryParams);
+            const result = validate(queryParams, rules);
             if (!result.success) {
-                return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.error.errors);
+                return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.errors);
             }
             data = result.data;
         }
@@ -208,12 +203,12 @@ export function createGetAPI(schema, handler) {
  * 创建支持多种 HTTP 方法的 API 处理器
  * @param {Object} config - 配置对象
  * @param {string|string[]} config.methods - 支持的 HTTP 方法
- * @param {ZodSchema} config.schema - 验证模式（可选）
+ * @param {Object} config.rules - 验证规则（可选）
  * @param {Function} config.handler - 处理函数
  * @returns {Function} API 处理器
  */
 export function createAPI(config) {
-    const { methods, schema, handler } = config;
+    const { methods, rules, handler } = config;
     const allowedMethods = Array.isArray(methods) ? methods : [methods];
 
     const apiHandler = async (context) => {
@@ -227,10 +222,10 @@ export function createAPI(config) {
         let data = null;
 
         // 如果需要验证参数
-        if (schema) {
+        if (rules) {
             if (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH') {
                 // 对于有 body 的请求，验证 JSON 参数
-                const validation = await validateJsonParams(request, schema);
+                const validation = await validateJsonParams(request, rules);
                 if (!validation.success) {
                     return validation.error;
                 }
@@ -242,12 +237,7 @@ export function createAPI(config) {
 
                 // 提取 query 参数
                 for (const [key, value] of url.searchParams) {
-                    // 尝试转换数字
-                    if (!isNaN(value) && value !== '') {
-                        queryParams[key] = Number(value);
-                    } else {
-                        queryParams[key] = value;
-                    }
+                    queryParams[key] = value;
                 }
 
                 // 提取 URL 路径参数（如 /user/123 中的 123）
@@ -257,10 +247,14 @@ export function createAPI(config) {
                     queryParams.id = Number(lastPart);
                 }
 
+                if (!isNaN(lastPart) && lastPart !== '') {
+                    queryParams.id = lastPart;
+                }
+
                 // 验证参数
-                const result = schema.safeParse(queryParams);
+                const result = validate(queryParams, rules);
                 if (!result.success) {
-                    return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.error.errors);
+                    return createResponse(ERROR_CODES.INVALID_PARAMS, '验证失败', result.errors);
                 }
                 data = result.data;
             }

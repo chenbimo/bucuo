@@ -7,11 +7,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { util } from './util.js';
 
-// 导出验证工具给 API 使用
-export * from './libs/validator.js';
-export * from './libs/validation.js';
+// 导出验证工具
+export * from './libs/simple-validator.js';
 
-// 从 http.js 导出 HTTP 相关工具（只保留 createResponse）
+// 从 http.js 导出 HTTP 相关工具
 export { createPostAPI, createGetAPI, createAPI, createResponse, createApiResponse, validateJsonParams } from './libs/http.js';
 
 // 从 error.js 导出错误管理工具

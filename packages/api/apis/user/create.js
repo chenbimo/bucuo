@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
-import { user } from '../../schema/index.js';
+import { user } from '../../schema/user.js';
 
-export default createPostAPI(user.create(), async (data, context) => {
+export default createPostAPI(user.register, async (data, context) => {
     const { username, password, email, nickname } = data;
 
     // 模拟创建用户
@@ -19,5 +19,5 @@ export default createPostAPI(user.create(), async (data, context) => {
     };
 
     context.response.status = 201;
-    return createResponse(newUser, '用户创建成功');
+    return createResponse(ERROR_CODES.SUCCESS, '用户创建成功', newUser);
 });

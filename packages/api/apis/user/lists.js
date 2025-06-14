@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse } from 'bunfly';
-import { common } from '../../schema/index.js';
+import { user } from '../../schema/index.js';
 
-export default createPostAPI(common.pagination(), async (data, context) => {
+export default createPostAPI(user.query, async (data, context) => {
     const { page, limit } = data;
     const { cache } = context;
 

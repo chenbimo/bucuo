@@ -5,7 +5,7 @@
 import { createGetAPI, createResponse, ERROR_CODES } from 'bunfly';
 import { user } from '../../schema/index.js';
 
-export default createGetAPI(user.profile(), async (data, context) => {
+export default createGetAPI(user.profile, async (data, context) => {
     const { user, requireAuth } = context;
 
     // 这里可以根据需要进行认证检查

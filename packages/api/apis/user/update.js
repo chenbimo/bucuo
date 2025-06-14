@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
-import { user } from '../../schema/index.js';
+import { user } from '../../schema/user.js';
 
-export default createPostAPI(user.update(), async (data, context) => {
+export default createPostAPI(user.update, async (data, context) => {
     const { id, username, email, nickname } = data;
 
     // 模拟检查用户是否存在

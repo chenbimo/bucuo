@@ -5,7 +5,7 @@
 import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
 import { user } from '../../../schema/index.js';
 
-export default createPostAPI(user.profile(), async (data, context) => {
+export default createPostAPI(user.profile, async (data, context) => {
     const { user, isAuthenticated } = context;
 
     if (!isAuthenticated) {

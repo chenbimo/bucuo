@@ -6,7 +6,7 @@ import path from 'path';
 import { createGetAPI, createResponse, ERROR_CODES } from '../../libs/http.js';
 import { tool } from '../../schema/index.js';
 
-export default createGetAPI(tool.filename(), async (data, context) => {
+export default createGetAPI(tool.filename, async (data, context) => {
     const { request, response, config, util } = context;
 
     const url = new URL(request.url);

@@ -5,7 +5,7 @@
 import { createGetAPI } from '../../libs/http.js';
 import { health } from '../../schema/index.js';
 
-export default createGetAPI(health.check(), async (data, context) => {
+export default createGetAPI(health.check, async (data, context) => {
     return {
         status: 'ok',
         timestamp: new Date().toISOString(),

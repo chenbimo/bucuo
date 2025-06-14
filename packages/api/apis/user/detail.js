@@ -3,9 +3,9 @@
  */
 
 import { createPostAPI, createResponse, ERROR_CODES } from 'bunfly';
-import { common } from '../../schema/index.js';
+import { user } from '../../schema/index.js';
 
-export default createPostAPI(common.id(), async (data, context) => {
+export default createPostAPI(user.detail, async (data, context) => {
     const { id } = data;
     const { cache } = context;
 
