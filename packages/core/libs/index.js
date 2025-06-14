@@ -8,6 +8,9 @@
 export * from './validation.js';
 export * from './validator.js';
 
+// 导出 HTTP API 工具
+export * from './http.js';
+
 // 导出JWT工具
 export * from './jwt.js';
 

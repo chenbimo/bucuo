@@ -2,7 +2,7 @@
  * 健康检查 API - /core/health/check
  */
 
-import { createGetAPI } from '../../libs/validation.js';
+import { createGetAPI } from '../../libs/http.js';
 import { health } from '../../schema/index.js';
 
 export default createGetAPI(health.check(), async (data, context) => {基础健康检查 API - /core/health/check

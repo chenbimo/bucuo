@@ -3,7 +3,7 @@
  */
 
 import path from 'path';
-import { createGetAPI } from '../../libs/validation.js';
+import { createGetAPI } from '../../libs/http.js';
 import { tool } from '../../schema/index.js';
 
 export default createGetAPI(tool.filename(), async (data, context) => {

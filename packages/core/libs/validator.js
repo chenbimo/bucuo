@@ -1,69 +1,23 @@
 /**
  * Zod 验证工具库
- * 提供通用的参数验证功能
+ * 专注于数据验证功能
  */
 
 import { z } from 'zod';
 
 /**
- * 创建标准的 API 响应格式
- */
-export const createResponse = (data = null, message = '成功', code = 200) => {
-    return {
-        code,
-        message,
-        data,
-        timestamp: Date.now()
-    };
-};
-
-/**
- * 创建错误响应
- */
-export const createError = (message = '错误', code = 400, details = null) => {
-    return {
-        code,
-        message,
-        error: true,
-        details,
-        timestamp: Date.now()
-    };
-};
-
-/**
- * 验证 JSON 参数
- * @param {Request} request - 请求对象
+ * 验证数据
+ * @param {any} data - 要验证的数据
  * @param {ZodSchema} schema - Zod 验证模式
  * @returns {Object} 验证结果
  */
-export async function validateJsonParams(request, schema) {
+export function validateData(data, schema) {
     try {
-        // 检查 Content-Type
-        const contentType = request.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            return {
-                success: false,
-                error: createError('Content-Type 必须是 application/json', 400)
-            };
-        }
-
-        // 解析 JSON 数据
-        let data;
-        try {
-            data = await request.json();
-        } catch (err) {
-            return {
-                success: false,
-                error: createError('无效的 JSON 格式', 400, err.message)
-            };
-        }
-
-        // Zod 验证
         const result = schema.safeParse(data);
         if (!result.success) {
             return {
                 success: false,
-                error: createError('验证失败', 400, result.error.errors)
+                errors: result.error.errors
             };
         }
 
@@ -74,201 +28,36 @@ export async function validateJsonParams(request, schema) {
     } catch (err) {
         return {
             success: false,
-            error: createError('验证错误', 500, err.message)
+            errors: [{ message: err.message, path: [] }]
         };
     }
 }
 
 /**
- * 创建标准的 POST API 处理器
- * @param {ZodSchema} schema - 验证模式
- * @param {Function} handler - 处理函数
- * @returns {Function} API 处理器
+ * 批量验证数据
+ * @param {Array} items - 要验证的数据数组
+ * @param {ZodSchema} schema - Zod 验证模式
+ * @returns {Object} 验证结果
  */
-export function createPostAPI(schema, handler) {
-    const apiHandler = async (context) => {
-        const { request, response } = context;
+export function validateBatch(items, schema) {
+    const results = [];
+    const errors = [];
 
-        // 检查请求方法
-        if (request.method !== 'POST') {
-            response.status = 405;
-            return createError('不允许的请求方法，仅支持 POST', 405);
+    items.forEach((item, index) => {
+        const result = validateData(item, schema);
+        if (result.success) {
+            results.push(result.data);
+        } else {
+            errors.push({
+                index,
+                errors: result.errors
+            });
         }
+    });
 
-        // 验证参数
-        const validation = await validateJsonParams(request, schema);
-        if (!validation.success) {
-            response.status = validation.error.code;
-            return validation.error;
-        }
-
-        try {
-            // 调用处理函数
-            const result = await handler(validation.data, context);
-            return result || createResponse();
-        } catch (error) {
-            response.status = 500;
-            return createError('内部服务器错误', 500, error.message);
-        }
+    return {
+        success: errors.length === 0,
+        results,
+        errors
     };
-
-    // 添加标记表示这是通过 createPostAPI 包裹的 API
-    apiHandler.__isBunflyAPI__ = true;
-    apiHandler.__apiType__ = 'POST';
-
-    return apiHandler;
-}
-
-/**
- * 创建支持多种 HTTP 方法的 API 处理器
- * @param {Object} config - 配置对象
- * @param {string|string[]} config.methods - 支持的 HTTP 方法
- * @param {ZodSchema} config.schema - 验证模式（可选）
- * @param {Function} config.handler - 处理函数
- * @returns {Function} API 处理器
- */
-export function createAPI(config) {
-    const { methods, schema, handler } = config;
-    const allowedMethods = Array.isArray(methods) ? methods : [methods];
-
-    const apiHandler = async (context) => {
-        const { request, response } = context;
-
-        // 检查请求方法
-        if (!allowedMethods.includes(request.method)) {
-            response.status = 405;
-            return createError(`不允许的请求方法，支持的方法: ${allowedMethods.join(', ')}`, 405);
-        }
-
-        let data = null;
-
-        // 如果需要验证参数
-        if (schema) {
-            if (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH') {
-                // 对于有 body 的请求，验证 JSON 参数
-                const validation = await validateJsonParams(request, schema);
-                if (!validation.success) {
-                    response.status = validation.error.code;
-                    return validation.error;
-                }
-                data = validation.data;
-            } else {
-                // 对于 GET/DELETE 等请求，验证 query 参数或 URL 参数
-                const url = new URL(request.url);
-                const queryParams = {};
-
-                // 提取 query 参数
-                for (const [key, value] of url.searchParams) {
-                    // 尝试转换数字
-                    if (!isNaN(value) && value !== '') {
-                        queryParams[key] = Number(value);
-                    } else {
-                        queryParams[key] = value;
-                    }
-                }
-
-                // 提取 URL 路径参数（如 /user/123 中的 123）
-                const pathParts = url.pathname.split('/').filter(Boolean);
-                const lastPart = pathParts[pathParts.length - 1];
-                if (!isNaN(lastPart) && lastPart !== '') {
-                    queryParams.id = Number(lastPart);
-                }
-
-                // 验证参数
-                const result = schema.safeParse(queryParams);
-                if (!result.success) {
-                    response.status = 400;
-                    return createError('验证失败', 400, result.error.errors);
-                }
-                data = result.data;
-            }
-        }
-
-        try {
-            // 调用处理函数
-            const result = await handler(data, context);
-            return result || createResponse();
-        } catch (error) {
-            response.status = 500;
-            return createError('内部服务器错误', 500, error.message);
-        }
-    };
-
-    // 添加标记表示这是通过 createAPI 包裹的 API
-    apiHandler.__isBunflyAPI__ = true;
-    apiHandler.__apiType__ = allowedMethods.join(',');
-
-    return apiHandler;
-}
-
-/**
- * 创建标准的 GET API 处理器
- * @param {ZodSchema} schema - 验证模式（可选）
- * @param {Function} handler - 处理函数
- * @returns {Function} API 处理器
- */
-export function createGetAPI(schema, handler) {
-    // 如果只传了一个参数且是函数，说明没有 schema
-    if (typeof schema === 'function' && !handler) {
-        handler = schema;
-        schema = null;
-    }
-
-    const apiHandler = async (context) => {
-        const { request, response } = context;
-
-        // 检查请求方法
-        if (request.method !== 'GET') {
-            response.status = 405;
-            return createError('不允许的请求方法，仅支持 GET', 405);
-        }
-
-        let data = null;
-
-        // 如果有验证模式，验证查询参数
-        if (schema) {
-            const url = new URL(request.url);
-            const queryParams = {};
-
-            // 提取 query 参数
-            for (const [key, value] of url.searchParams) {
-                // 尝试转换数字
-                if (!isNaN(value) && value !== '') {
-                    queryParams[key] = Number(value);
-                } else {
-                    queryParams[key] = value;
-                }
-            }
-
-            // 提取 URL 路径参数（如 /user/123 中的 123）
-            const pathParts = url.pathname.split('/').filter(Boolean);
-            const lastPart = pathParts[pathParts.length - 1];
-            if (!isNaN(lastPart) && lastPart !== '') {
-                queryParams.id = Number(lastPart);
-            }
-
-            // 验证参数
-            const result = schema.safeParse(queryParams);
-            if (!result.success) {
-                response.status = 400;
-                return createError('验证失败', 400, result.error.errors);
-            }
-            data = result.data;
-        }
-
-        try {
-            // 调用处理函数
-            const result = await handler(data, context);
-            return result || createResponse();
-        } catch (error) {
-            response.status = 500;
-            return createError('内部服务器错误', 500, error.message);
-        }
-    };
-
-    // 添加标记表示这是通过 createGetAPI 包裹的 API
-    apiHandler.__isBunflyAPI__ = true;
-    apiHandler.__apiType__ = 'GET';
-
-    return apiHandler;
 }

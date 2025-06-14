@@ -3,7 +3,7 @@
  * 使用 GET 请求查看所有已注册的路由
  */
 
-import { createGetAPI } from '../../libs/validation.js';
+import { createGetAPI } from '../../libs/http.js';
 import { debug } from '../../schema/index.js';
 
 export default createGetAPI(debug.routes(), async (data, context) => {

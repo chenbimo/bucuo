@@ -2,7 +2,7 @@
  * 健康状态 API - /core/health/status
  */
 
-import { createGetAPI } from '../../libs/validation.js';
+import { createGetAPI } from '../../libs/http.js';
 import { health } from '../../schema/index.js';
 
 export default createGetAPI(health.status(), async (data, context) => {详细状态检查 API - /core/health/status
