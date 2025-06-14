@@ -6,6 +6,9 @@
 import { z } from 'zod';
 import { ERROR_CODES, ERROR_MESSAGES } from './error.js';
 
+// 重新导出 ERROR_CODES，方便其他模块使用
+export { ERROR_CODES } from './error.js';
+
 /**
  * 创建统一响应对象
  * @param {number} code - 响应码
