@@ -6,17 +6,6 @@ const app = new Bunfly({
     host: process.env.HOST || 'localhost'
 });
 
-// 添加一些自定义路由
-app.get('/', async (context) => {
-    return {
-        message: '欢迎使用 Bunfly API',
-        version: '1.0.0',
-        docs: '/api/docs',
-        health: '/health',
-        status: '/status'
-    };
-});
-
 // 错误处理
 app.onError(async (context) => {
     const { error, response, logger } = context;
@@ -48,7 +37,6 @@ process.on('SIGTERM', () => {
 });
 
 // 启动服务器
-app.start().catch((error) => {
-    console.error('❌ 服务器启动失败:', error);
-    process.exit(1);
+app.listen((server) => {
+    console.log(`🚀 服务器已启动: http://${server.host}:${server.port}`);
 });

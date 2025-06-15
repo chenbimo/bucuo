@@ -27,6 +27,8 @@ export const Env = {
     MYSQL_DB: process.env.MYSQL_DB,
     MYSQL_USERNAME: process.env.MYSQL_USERNAME,
     MYSQL_PASSWORD: process.env.MYSQL_PASSWORD,
+    MYSQL_POOL_TIMEOUT: Number(process.env.MYSQL_POOL_TIMEOUT),
+    MYSQL_POOL_MAX: Number(process.env.MYSQL_POOL_MAX),
     // Redis配置
     REDIS_HOST: process.env.REDIS_HOST,
     REDIS_PORT: Number(process.env.REDIS_PORT),

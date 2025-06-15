@@ -1,36 +1,25 @@
-/**
- * 数据库连接插件 - 使用 Kysely 查询构建器
- * 专为 MySQL 数据库优化
- */
-
-import { Plugin } from '../libs/plugin.js';
 import { Kysely, MysqlDialect } from 'kysely';
-import mysql from 'mysql2';
+import { createPool } from 'mysql2/promise';
+import { Plugin } from '../libs/plugin.js';
+import { Env } from '../libs/env.js';
 
 export default Plugin({
     name: 'database',
-    order: 0, // 数据库连接应该最早初始化
+    order: 0,
     async onInit(context) {
-        const { config } = context;
-        const dbConfig = config.database;
-
-        if (!dbConfig || !dbConfig.enabled) {
-            console.log('📦 数据库插件已禁用');
-            return null;
-        }
-
         try {
             // 创建 MySQL 连接池
-            const pool = mysql.createPool({
-                host: dbConfig.host || 'localhost',
-                port: dbConfig.port || 3306,
-                database: dbConfig.database,
-                user: dbConfig.user || dbConfig.username,
-                password: dbConfig.password,
-                connectionLimit: dbConfig.pool?.max || 10,
-                acquireTimeout: dbConfig.pool?.acquireTimeout || 60000,
-                timeout: dbConfig.pool?.timeout || 60000,
-                charset: dbConfig.charset || 'utf8mb4'
+            const pool = createPool({
+                host: Env.MYSQL_HOST || '127.0.0.1',
+                port: Env.MYSQL_PORT || 3306,
+                database: Env.MYSQL_DATABASE || 'test',
+                user: Env.MYSQL_USER || 'root',
+                password: Env.MYSQL_PASSWORD || 'root',
+                connectionLimit: Env.MYSQL_POOL_MAX || 10,
+                timeout: Env.MYSQL_POOL_TIMEOUT || 60000,
+                charset: 'utf8mb4',
+                timezone: Env.TIMEZONE,
+                debug: Env.MYSQL_DEBUG || false
             });
 
             // 创建 Kysely 实例
@@ -38,45 +27,32 @@ export default Plugin({
                 dialect: new MysqlDialect({
                     pool: pool
                 }),
-                log: dbConfig.logging ? ['query', 'error'] : ['error']
+                onCreateConnection: (connection) => {
+                    connection.on('error', (error) => {
+                        console.error('❌ 数据库连接错误:', error.message);
+                    });
+                },
+                onReserveConnection: (connection) => {
+                    connection.on('error', (error) => {
+                        console.error('❌ 数据库连接保留错误:', error.message);
+                    });
+                }
             });
 
-            console.log('🐬 MySQL 数据库连接已建立');
-
             // 测试数据库连接
-            if (dbConfig.testConnection !== false) {
-                await this.testConnection(db);
-            }
+            await this.testConnection(db);
 
             // 将数据库实例添加到全局上下文，供其他插件使用
-            context.db = db;
-            context.dbPool = pool;
-            context.dbConfig = dbConfig;
-
-            // 返回数据库实例供后续使用
-            return {
-                db,
-                pool,
-                config: dbConfig
-            };
+            context.Db = db;
         } catch (error) {
             console.error('❌ 数据库连接失败:', error.message);
             throw error;
         }
     },
 
-    async onRequest(context, initData) {
-        // 将数据库实例添加到请求上下文中
-        if (initData && initData.db) {
-            context.db = initData.db;
-            context.dbPool = initData.pool;
-            context.dbConfig = initData.config;
-        }
-    },
-
     async testConnection(db) {
         try {
-            const result = await db.selectFrom(db.raw('(SELECT 1 as test_value) as test_table')).select('test_value').executeTakeFirst();
+            const result = await db.selectFrom(db.raw('SELECT 1')).select('test_value').execute();
 
             if (result && result.test_value === 1) {
                 console.log('✅ MySQL 数据库连接测试成功');

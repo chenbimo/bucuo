@@ -9,11 +9,8 @@
         "./main.js": "./main.js"
     },
     "scripts": {
-        "start": "bun run server.js",
-        "dev": "bun run server.js",
-        "test": "bun run test.js",
-        "build": "echo 'No build step required for Bun'",
-        "lint": "echo 'Add your linting command here'"
+        "start": "bun run main.js",
+        "dev": "bun run main.js"
     },
     "keywords": [
         "bun",

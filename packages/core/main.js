@@ -386,8 +386,6 @@ class Bunfly {
             fetch: (request) => this.handleRequest(request)
         });
 
-        console.log(`🚀 Bunfly 运行中 http://${Env.APP_HOST}:${Env.APP_PORT}`);
-
         if (callback) {
             callback(server);
         }
