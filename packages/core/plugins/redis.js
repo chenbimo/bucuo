@@ -1,8 +1,4 @@
-/**
- * Redis 插件
- */
-
-import { Cache } from '../libs/cache.js';
+import { createClient } from '@redis/client';
 import { Plugin } from '../libs/plugin.js';
 
 export default Plugin({
@@ -10,44 +6,30 @@ export default Plugin({
     order: -1, // 优先加载
 
     async onInit(context) {
-        const { config } = context;
-        const redisConfig = config.redis || {};
-
-        if (!redisConfig.enabled) {
-            console.log('Redis 插件已禁用');
-            return null;
-        }
-
         console.log('🔧 正在初始化 Redis 连接...');
-        const cache = new Cache(redisConfig);
-        await cache.connect();
-        console.log('✅ Redis 连接初始化完成');
 
-        // 定期清理过期缓存
-        if (cache.useMemoryCache) {
-            setInterval(() => cache.cleanup(), 60000); // 每分钟清理一次
+        // 使用 Bun 自带的 redis 连接
+        const redis = createClient({
+            username: process.env.REDIS_USERNAME || 'root',
+            password: process.env.REDIS_PASSWORD || 'root',
+            database: process.env.REDIS_DB || 0,
+            socket: {
+                host: process.env.REDIS_HOST || '127.0.0.1',
+                port: process.env.REDIS_PORT || 6379
+            }
+        });
+
+        // 测试连接
+        try {
+            await redis.ping();
+            console.log('✅ Redis 连接初始化完成');
+        } catch (error) {
+            console.error('❌ Redis 连接失败:', error);
+            throw error;
         }
 
-        return { cache };
+        context.Redis = redis;
     },
 
-    async onRequest(context, initData) {
-        if (!initData || !initData.cache) {
-            return;
-        }
-
-        const cache = initData.cache;
-        context.redis = cache;
-
-        // 添加缓存辅助方法
-        context.cache = {
-            set: (key, value, ttl) => cache.set(key, value, ttl),
-            get: (key) => cache.get(key),
-            del: (key) => cache.del(key),
-            exists: (key) => cache.exists(key),
-            expire: (key, ttl) => cache.expire(key, ttl),
-            ttl: (key) => cache.ttl(key),
-            clear: () => cache.clear()
-        };
-    }
+    async onRequest(context, initData) {}
 });
