@@ -9,15 +9,8 @@ export default Plugin({
     name: 'jwt',
     order: 4,
     async onInit(context) {
-        const { config } = context;
-        const jwtConfig = config.jwt || {};
-
-        if (!jwtConfig.enabled) {
-            console.log('JWT 插件已禁用');
-            return null;
-        }
-
         console.log('🔧 正在初始化 JWT...');
+        const config = {};
         const jwt = new JWT(jwtConfig.secret, jwtConfig);
         console.log('✅ JWT 初始化完成');
 
