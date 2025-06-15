@@ -26,7 +26,7 @@ export class Logger {
         // 文件输出配置
         this.enableFile = config.enableFile !== false; // 默认启用文件输出
         this.enableConsole = config.enableConsole !== false; // 默认启用控制台输出
-        this.logDir = config.logDir || 'api/logs';
+        this.logDir = config.logDir || 'logs';
         this.maxFileSize = config.maxFileSize || 50 * 1024 * 1024; // 50MB
 
         // 写入队列和当前文件状态

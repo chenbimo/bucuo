@@ -60,7 +60,7 @@ class Bunfly {
 
                     if (pluginInstance && typeof pluginInstance.handleInit === 'function') {
                         loadedPlugins.push(pluginInstance);
-                        console.log(`✓ 已加载核心插件: ${file} [${pluginInstance.name}] [order: ${pluginInstance.order || 0}]`);
+                        console.log(`✅ 已加载核心插件: ${file} [${pluginInstance.name}] [order: ${pluginInstance.order || 0}]`);
                     } else {
                         console.warn(`插件 ${file} 没有正确的 default 导出或缺少 handleInit 方法`);
                     }

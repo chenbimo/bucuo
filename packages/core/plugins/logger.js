@@ -11,7 +11,10 @@ export default Plugin({
 
     async onInit(context) {
         console.log('🔧 正在初始化 Logger...');
-        const logger = new Logger(loggerConfig);
+        const logger = new Logger({
+            enableFile: true,
+            enableConsole: true
+        });
         console.log('✅ Logger 初始化完成');
         context.Logger = logger;
     },

@@ -6,7 +6,7 @@ import { Plugin } from '../libs/plugin.js';
 
 export default Plugin({
     name: 'cors',
-    order: 1,
+    order: 3,
     async onRequest(context) {
         const { request, response, config } = context;
         const corsConfig = config.cors;

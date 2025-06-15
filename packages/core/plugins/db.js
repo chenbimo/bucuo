@@ -5,7 +5,7 @@ import { Env } from '../config/env.js';
 
 export default Plugin({
     name: 'db',
-    order: 0,
+    order: 2,
     async onInit(context) {
         try {
             // 创建 MySQL 连接池
@@ -16,7 +16,6 @@ export default Plugin({
                 user: Env.MYSQL_USER || 'root',
                 password: Env.MYSQL_PASSWORD || 'root',
                 connectionLimit: Env.MYSQL_POOL_MAX || 10,
-                timeout: Env.MYSQL_POOL_TIMEOUT || 60000,
                 charset: 'utf8mb4',
                 timezone: Env.TIMEZONE,
                 debug: Env.MYSQL_DEBUG || false
@@ -53,7 +52,7 @@ export default Plugin({
     async testConnection(db) {
         try {
             // 查询 MySQL 版本来测试连接
-            const result = await db.selectFrom(db.raw('DUAL')).select(db.raw('VERSION() as version')).executeTakeFirst();
+            const result = await db.select('VERSION() as version').executeTakeFirst();
 
             if (result && result.version) {
                 console.log(`✅ MySQL 数据库连接测试成功，版本: ${result.version}`);

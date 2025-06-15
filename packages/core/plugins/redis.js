@@ -3,15 +3,12 @@ import { Plugin } from '../libs/plugin.js';
 
 export default Plugin({
     name: 'redis',
-    order: -1, // 优先加载
-
+    order: 1,
     async onInit(context) {
         console.log('🔧 正在初始化 Redis 连接...');
-
-        // 使用 Bun 自带的 redis 连接
-        const redis = createClient({
-            username: process.env.REDIS_USERNAME || 'root',
-            password: process.env.REDIS_PASSWORD || 'root',
+        const config = {
+            username: process.env.REDIS_USERNAME || '',
+            password: process.env.REDIS_PASSWORD || '',
             database: process.env.REDIS_DB || 0,
             socket: {
                 host: process.env.REDIS_HOST || '127.0.0.1',
@@ -23,12 +20,12 @@ export default Plugin({
                     return delay + jitter;
                 }
             }
-        })
+        };
+
+        // 使用 Bun 自带的 redis 连接
+        const redis = createClient(config)
             .on('error', (err) => {
-                console.error('❌ Redis Client Error:', err);
-            })
-            .on('connect', () => {
-                console.log('🔌 Redis 客户端已连接');
+                console.error('❌ Redis 客户端错误');
             })
             .on('ready', () => {
                 console.log('✅ Redis 客户端就绪');

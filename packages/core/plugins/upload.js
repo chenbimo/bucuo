@@ -8,7 +8,7 @@ import { Plugin } from '../libs/plugin.js';
 
 export default Plugin({
     name: 'upload',
-    order: 3,
+    order: 5,
 
     async onRequest(context) {
         const { request, config } = context;
