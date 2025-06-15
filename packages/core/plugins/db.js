@@ -10,7 +10,6 @@ import mysql from 'mysql2';
 export default Plugin({
     name: 'database',
     order: 0, // 数据库连接应该最早初始化
-
     async onInit(context) {
         const { config } = context;
         const dbConfig = config.database;

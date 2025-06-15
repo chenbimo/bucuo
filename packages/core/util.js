@@ -71,28 +71,6 @@ export function md5(str) {
 }
 
 /**
- * 获取嵌套对象属性
- */
-export const getNestedProperty = (obj, path) => {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
-};
-
-/**
- * 设置嵌套对象属性
- */
-export const setNestedProperty = (obj, path, value) => {
-    const keys = path.split('.');
-    const lastKey = keys.pop();
-    const target = keys.reduce((current, key) => {
-        if (!(key in current)) {
-            current[key] = {};
-        }
-        return current[key];
-    }, obj);
-    target[lastKey] = value;
-};
-
-/**
  * 合并对象
  */
 export const merge = (target, ...sources) => {

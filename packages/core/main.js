@@ -1,42 +1,22 @@
 import { serve } from 'bun';
 import path from 'path';
-import { Res, readDir, setNestedProperty, getNestedProperty } from './util.js';
-import { Code } from './libs/code.js';
+import { Res, readDir } from './util.js';
+import { Code } from './config/code.js';
+import { Env } from './config/env.js';
 
 export { Api } from './libs/api.js';
-export { Code } from './libs/code.js';
+export { Code } from './config/code.js';
 export { Plugin } from './libs/plugin.js';
 export { Res } from './util.js';
 
 class Bunfly {
     constructor(options = {}) {
-        this.port = options.port || 3000;
-        this.host = options.host || 'localhost';
         this.routes = new Map();
         this.plugins = [];
         this.middlewares = [];
         this.beforeHooks = [];
         this.afterHooks = [];
         this.errorHandlers = [];
-
-        // 初始化默认配置
-        this.config = {
-            cors: {
-                enabled: true,
-                origin: '*',
-                methods: ['GET', 'POST', 'OPTIONS'],
-                headers: ['Content-Type', 'Authorization']
-            },
-            upload: {
-                maxSize: 10 * 1024 * 1024, // 10MB
-                allowedTypes: ['image/*', 'text/*', 'application/json'],
-                uploadDir: './uploads'
-            },
-            logger: {
-                enabled: true,
-                level: 'info'
-            }
-        };
 
         // 标记初始化状态
         this.initialized = false;
@@ -268,11 +248,8 @@ class Bunfly {
      * 处理请求
      */
     async handleRequest(request) {
-        const startTime = Date.now();
-        let response = new Response();
-
         const context = {
-            request,
+            request: request,
             response: {
                 status: 200,
                 headers: new Headers(),
@@ -305,8 +282,7 @@ class Bunfly {
             query: {},
             body: null,
             config: this.config,
-            util,
-            startTime
+            startTime: Date.now()
         };
 
         try {
@@ -315,7 +291,7 @@ class Bunfly {
             context.query = Object.fromEntries(url.searchParams);
 
             // 解析请求体
-            if (request.body && ['POST', 'PUT', 'PATCH'].includes(request.method)) {
+            if (request.body && ['POST'].includes(request.method)) {
                 const contentType = request.headers.get('content-type') || '';
                 if (contentType.includes('application/json')) {
                     context.body = await request.json();
@@ -352,7 +328,7 @@ class Bunfly {
                     context.response.json(result);
                 }
             } else {
-                const notFoundResponse = Res(Code.API_NOT_FOUND, `路由 ${request.method} ${new URL(request.url).pathname} 未找到`);
+                const notFoundResponse = Res(Code.API_NOT_FOUND);
                 context.response.json(notFoundResponse);
             }
 
@@ -405,12 +381,12 @@ class Bunfly {
         await this.initPromise;
 
         const server = serve({
-            port: this.port,
-            hostname: this.host,
+            port: Env.APP_PORT,
+            hostname: Env.APP_HOST,
             fetch: (request) => this.handleRequest(request)
         });
 
-        console.log(`🚀 Bunfly 运行中 http://${this.host}:${this.port}`);
+        console.log(`🚀 Bunfly 运行中 http://${Env.APP_HOST}:${Env.APP_PORT}`);
 
         if (callback) {
             callback(server);
@@ -492,21 +468,6 @@ class Bunfly {
         } catch (error) {
             console.warn(`读取目录失败 ${currentDir}:`, error.message);
         }
-    }
-
-    /**
-     * 设置配置
-     */
-    setConfig(key, value) {
-        setNestedProperty(this.config, key, value);
-        return this;
-    }
-
-    /**
-     * 获取配置
-     */
-    getConfig(key) {
-        return getNestedProperty(this.config, key);
     }
 }
 

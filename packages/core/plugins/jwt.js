@@ -8,7 +8,6 @@ import { Plugin } from '../libs/plugin.js';
 export default Plugin({
     name: 'jwt',
     order: 2,
-
     async onInit(context) {
         const { config } = context;
         const jwtConfig = config.jwt || {};

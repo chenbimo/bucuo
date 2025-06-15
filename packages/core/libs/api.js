@@ -1,5 +1,5 @@
 import { Code } from '../config/code.js';
-import { validate } from './validator.js';
+import { Validate } from './validator.js';
 
 // 重新导出 Code，方便其他模块使用
 export { Code } from '../config/code.js';
