@@ -1,6 +1,6 @@
 {
-    "filename": "string,文件名,1,255",
-    "content": "string,内容,0,1000000",
-    "type": "string,类型,0,50",
-    "path": "string,路径,1,500"
+    "filename": "文件名,string,1,255",
+    "content": "内容,string,0,1000000",
+    "type": "类型,string,0,50",
+    "path": "路径,string,1,500"
 }

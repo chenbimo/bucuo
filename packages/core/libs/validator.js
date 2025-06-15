@@ -6,7 +6,7 @@
 /**
  * 验证单个字段
  * @param {any} value - 要验证的值
- * @param {string} rule - 验证规则，格式：'type,name,min,max,regex,separator'
+ * @param {string} rule - 验证规则，格式：'name,type,min,max,regex,separator'
  * @param {string} fieldName - 字段名
  * @returns {Object} { success: boolean, error?: string }
  */
@@ -20,7 +20,7 @@ function validateField(value, rule, fieldName) {
         return { success: false, error: `字段 ${fieldName} 的验证规则参数不足` };
     }
 
-    const [type, name, minStr, maxStr, regex, separator] = parts;
+    const [name, type, minStr, maxStr, regex, separator] = parts;
     const min = parseInt(minStr) || 0;
     const max = parseInt(maxStr) || 0;
 
@@ -181,7 +181,7 @@ export function validate(data, rules) {
             errors.push(result.error);
         } else {
             // 转换数据类型
-            const ruleType = rule.split(',')[0].toLowerCase();
+            const ruleType = rule.split(',')[1].toLowerCase();
             switch (ruleType) {
                 case 'number':
                     validatedData[fieldName] = Number(value);

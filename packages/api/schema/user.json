@@ -1,15 +1,15 @@
 {
-    "username": "string,用户名,3,20,^[a-zA-Z0-9_]+$",
-    "password": "string,密码,6,100",
-    "email": "string,邮箱,5,100,^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
-    "nickname": "string,昵称,2,50",
-    "avatar": "string,头像,5,500,^https?://",
-    "bio": "string,个人简介,0,200",
-    "gender": "string,性别,4,6,^(male|female|other)$",
-    "birthdate": "string,生日,10,10,^\\d{4}-\\d{2}-\\d{2}$",
-    "role": "string,角色,4,5,^(admin|user|guest)$",
-    "status": "string,状态,6,8,^(active|inactive|banned)$",
-    "tags": "array,标签,0,10,[a-z]+,null",
-    "interests": "array,兴趣爱好,0,20,[a-z]+,;",
-    "skills": "array,技能,0,50,[a-zA-Z0-9+#]+,|"
+    "username": "用户名,string,3,20,^[a-zA-Z0-9_]+$",
+    "password": "密码,string,6,100",
+    "email": "邮箱,string,5,100,^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+    "nickname": "昵称,string,2,50",
+    "avatar": "头像,string,5,500,^https?://",
+    "bio": "个人简介,string,0,200",
+    "gender": "性别,string,4,6,^(male|female|other)$",
+    "birthdate": "生日,string,10,10,^\\d{4}-\\d{2}-\\d{2}$",
+    "role": "角色,string,4,5,^(admin|user|guest)$",
+    "status": "状态,string,6,8,^(active|inactive|banned)$",
+    "tags": "标签,array,0,10,[a-z]+,null",
+    "interests": "兴趣爱好,array,0,20,[a-z]+,;",
+    "skills": "技能,array,0,50,[a-zA-Z0-9+#]+,|"
 }
