@@ -49,6 +49,11 @@ export default createPlugin({
                 await this.testConnection(db);
             }
 
+            // 将数据库实例添加到全局上下文，供其他插件使用
+            context.db = db;
+            context.dbPool = pool;
+            context.dbConfig = dbConfig;
+
             // 返回数据库实例供后续使用
             return {
                 db,
@@ -66,6 +71,7 @@ export default createPlugin({
         if (initData && initData.db) {
             context.db = initData.db;
             context.dbPool = initData.pool;
+            context.dbConfig = initData.config;
         }
     },
 
