@@ -58,11 +58,11 @@ class Bunfly {
                     // 统一使用 default 导出
                     const pluginInstance = plugin.default;
 
-                    if (pluginInstance && typeof pluginInstance.handler === 'function') {
+                    if (pluginInstance && typeof pluginInstance.handleInit === 'function') {
                         loadedPlugins.push(pluginInstance);
                         console.log(`✓ 已加载核心插件: ${file} [${pluginInstance.name}] [order: ${pluginInstance.order || 0}]`);
                     } else {
-                        console.warn(`插件 ${file} 没有正确的 default 导出或缺少 handler 方法`);
+                        console.warn(`插件 ${file} 没有正确的 default 导出或缺少 handleInit 方法`);
                     }
                 } catch (error) {
                     console.warn(`加载插件失败 ${file}:`, error.message);
@@ -86,20 +86,22 @@ class Bunfly {
     async initializePlugins(plugins) {
         console.log('🔌 正在初始化插件...');
 
+        // 按 order 排序插件
+        const sortedPlugins = [...plugins].sort((a, b) => (a.order || 0) - (b.order || 0));
+
         // 创建一个临时的上下文来初始化插件
         const tempContext = {
             config: this.config,
-            util,
             request: null,
             response: null
         };
 
-        for (const plugin of plugins) {
+        for (const plugin of sortedPlugins) {
             try {
-                if (plugin.handler && typeof plugin.handler === 'function') {
-                    await plugin.handler(tempContext);
-                    console.log(`✓ 插件 ${plugin.name} 初始化完成`);
+                if (plugin.handleInit && typeof plugin.handleInit === 'function') {
+                    await plugin.handleInit(tempContext);
                 }
+                console.log(`✓ 插件 ${plugin.name} 初始化完成`);
             } catch (error) {
                 console.warn(`插件 ${plugin.name} 初始化失败:`, error.message);
             }
@@ -107,8 +109,8 @@ class Bunfly {
 
         // 保存已初始化的核心组件，供业务插件使用
         this.coreComponents = {
-            redis: this.plugins.find((p) => p.name === 'redis')?._cache,
-            logger: this.plugins.find((p) => p.name === 'logger')?._logger
+            redis: this.plugins.find((p) => p.name === 'redis')?._initData,
+            logger: this.plugins.find((p) => p.name === 'logger')?._initData
         };
     }
 
@@ -118,10 +120,10 @@ class Bunfly {
     use(plugin) {
         if (typeof plugin === 'function') {
             this.plugins.push(plugin);
-        } else if (plugin && typeof plugin.handler === 'function') {
+        } else if (plugin && typeof plugin.handleInit === 'function') {
             this.plugins.push(plugin);
         } else {
-            throw new Error('插件必须是一个函数或具有 handler 方法');
+            throw new Error('插件必须是一个函数或具有 handleInit 方法的插件对象');
         }
         return this;
     }
@@ -215,10 +217,10 @@ class Bunfly {
     }
 
     /**
-     * 执行插件链
+     * 执行插件的请求处理钩子
      */
-    async executePlugins(context) {
-        // 每次执行时重新排序，确保顺序正确
+    async executeRequestPlugins(context) {
+        // 按 order 排序插件
         const sortedPlugins = [...this.plugins].sort((a, b) => {
             const orderA = typeof a === 'function' ? 0 : a.order || 0;
             const orderB = typeof b === 'function' ? 0 : b.order || 0;
@@ -229,8 +231,8 @@ class Bunfly {
             try {
                 if (typeof plugin === 'function') {
                     await plugin(context);
-                } else if (plugin.handler) {
-                    await plugin.handler(context);
+                } else if (plugin.handleRequest && typeof plugin.handleRequest === 'function') {
+                    await plugin.handleRequest(context);
                 }
 
                 // 如果响应已经发送，停止执行后续插件
@@ -240,6 +242,34 @@ class Bunfly {
             } catch (error) {
                 context.error = error;
                 throw error;
+            }
+        }
+    }
+
+    /**
+     * 执行插件的响应处理钩子
+     */
+    async executeResponsePlugins(context) {
+        // 按 order 排序插件（响应阶段可能需要反向执行某些插件）
+        const sortedPlugins = [...this.plugins].sort((a, b) => {
+            const orderA = typeof a === 'function' ? 0 : a.order || 0;
+            const orderB = typeof b === 'function' ? 0 : b.order || 0;
+            return orderA - orderB;
+        });
+
+        for (const plugin of sortedPlugins) {
+            try {
+                if (plugin.handleResponse && typeof plugin.handleResponse === 'function') {
+                    await plugin.handleResponse(context);
+                }
+
+                // 如果响应已经发送，停止执行后续插件
+                if (context.response.sent) {
+                    break;
+                }
+            } catch (error) {
+                console.error(`插件 ${plugin.name} 响应处理失败:`, error.message);
+                // 响应阶段的错误不应该中断流程，只记录日志
             }
         }
     }
@@ -291,7 +321,7 @@ class Bunfly {
             context.query = Object.fromEntries(url.searchParams);
 
             // 解析请求体
-            if (request.body && ['POST'].includes(request.method)) {
+            if (request.body && ['POST', 'PUT', 'PATCH'].includes(request.method)) {
                 const contentType = request.headers.get('content-type') || '';
                 if (contentType.includes('application/json')) {
                     context.body = await request.json();
@@ -309,28 +339,29 @@ class Bunfly {
                 await hook(context);
             }
 
-            // 执行插件
-            await this.executePlugins(context);
+            // 执行插件的请求处理钩子
+            await this.executeRequestPlugins(context);
 
-            // 如果插件已经处理了响应，直接返回
-            if (context.response.sent) {
-                return context.response.send();
-            }
+            // 如果插件已经处理了响应，跳过路由处理
+            if (!context.response.sent) {
+                // 路由匹配
+                const match = this.matchRoute(request.method, request.url);
+                if (match) {
+                    context.params = match.params;
+                    const result = await match.handler(context);
 
-            // 路由匹配
-            const match = this.matchRoute(request.method, request.url);
-            if (match) {
-                context.params = match.params;
-                const result = await match.handler(context);
-
-                // 如果处理器返回了结果且响应未发送，自动发送JSON响应
-                if (result !== undefined && !context.response.sent) {
-                    context.response.json(result);
+                    // 如果处理器返回了结果且响应未发送，自动发送JSON响应
+                    if (result !== undefined && !context.response.sent) {
+                        context.response.json(result);
+                    }
+                } else {
+                    const notFoundResponse = Res(Code.API_NOT_FOUND);
+                    context.response.json(notFoundResponse);
                 }
-            } else {
-                const notFoundResponse = Res(Code.API_NOT_FOUND);
-                context.response.json(notFoundResponse);
             }
+
+            // 执行插件的响应处理钩子
+            await this.executeResponsePlugins(context);
 
             // 执行后置钩子
             for (const hook of this.afterHooks) {
@@ -386,46 +417,39 @@ class Bunfly {
             fetch: (request) => this.handleRequest(request)
         });
 
-        if (callback) {
+        if (callback && typeof callback === 'function') {
             callback(server);
         }
 
-        return server;
-    }
-    /**
-     * 自动加载 APIs 目录下的路由文件
-     * 新规则：文件路径即路由路径，支持嵌套目录
-     * core/apis/health/check.js -> /core/health/check
-     * api/apis/user/detail.js -> /user/detail (不带 /api 前缀)
-     */
-    async loadApiRoutes(apiDir, routePrefix = '') {
-        try {
-            await this.loadApiRoutesRecursive(apiDir, routePrefix, '');
-        } catch (error) {
-            console.warn(`API 目录 ${apiDir} 未找到，跳过`);
-        }
+        console.log(`🚀 服务器已启动: http://${Env.APP_HOST}:${Env.APP_PORT}`);
     }
 
     /**
-     * 递归加载 API 路由
+     * 注册路由
      */
-    async loadApiRoutesRecursive(baseDir, routePrefix, subPath) {
-        const currentDir = path.join(baseDir, subPath);
+    route(method, path, handler) {
+        const key = `${method}:${path}`;
+        this.routes.set(key, handler);
+        return this;
+    }
+
+    /**
+     * 加载 API 路由
+     */
+    async loadApiRoutes(baseDir = './src/pages', routePrefix = '') {
+        const currentDir = path.resolve(import.meta.dir, baseDir);
 
         try {
             const items = await readDir(currentDir);
 
             for (const item of items) {
                 const itemPath = path.join(currentDir, item);
-                const relativePath = path.join(subPath, item);
 
                 try {
-                    // 检查是否是目录
-                    const stats = await Bun.file(itemPath).stat();
-
-                    if (stats.isDirectory && stats.isDirectory()) {
-                        // 递归处理子目录
-                        await this.loadApiRoutesRecursive(baseDir, routePrefix, relativePath);
+                    const stats = await Bun.fileStats(itemPath);
+                    if (stats.isDirectory()) {
+                        // 递归加载子目录
+                        await this.loadApiRoutes(path.join(baseDir, item), path.join(routePrefix, item));
                     } else if (item.endsWith('.js')) {
                         // 处理 JS 文件
                         const fileName = path.basename(item, '.js');

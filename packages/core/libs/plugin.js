@@ -10,10 +10,16 @@
  * @param {number} [config.order=0] - 插件执行顺序
  * @param {Function} [config.onInit] - 初始化函数，在服务器启动时执行一次
  * @param {Function} [config.onRequest] - 请求处理函数，在每个请求时执行
+ * @param {Function} [config.onResponse] - 响应处理函数，在每次返回数据之前执行
  * @param {boolean} [config.enabled=true] - 是否启用插件
  * @returns {Object} 标准化的插件对象
  */
 export const Plugin = (config) => {
+    // 验证必需参数
+    if (!config || !config.name) {
+        throw new Error('插件配置缺少必需的 name 属性');
+    }
+
     const plugin = {
         name: config.name,
         order: config.order || 0,
@@ -21,40 +27,67 @@ export const Plugin = (config) => {
         _initialized: false,
         _initData: null,
 
-        async handler(context) {
-            // 如果插件被禁用，直接返回
-            if (!this.enabled) {
+        // 初始化钩子
+        async handleInit(context) {
+            if (!this.enabled || this._initialized) {
                 return;
             }
 
-            // 初始化阶段（没有 request 时）
-            if (!context.request && !this._initialized) {
-                console.log(`🔧 正在初始化插件: ${this.name}`);
+            console.log(`🔧 正在初始化插件: ${this.name}`);
 
-                try {
-                    if (config.onInit && typeof config.onInit === 'function') {
-                        this._initData = await config.onInit(context);
-                    }
-                    this._initialized = true;
-                    console.log(`✅ 插件 ${this.name} 初始化完成`);
-                } catch (error) {
-                    console.error(`❌ 插件 ${this.name} 初始化失败:`, error.message);
-                    throw error;
+            try {
+                if (config.onInit && typeof config.onInit === 'function') {
+                    this._initData = await config.onInit(context);
                 }
+                this._initialized = true;
+                console.log(`✅ 插件 ${this.name} 初始化完成`);
+            } catch (error) {
+                console.error(`❌ 插件 ${this.name} 初始化失败:`, error.message);
+                throw error;
+            }
+        },
+
+        // 请求处理钩子
+        async handleRequest(context) {
+            if (!this.enabled || !this._initialized) {
                 return;
             }
 
-            // 请求处理阶段（有 request 时）
-            if (this._initialized && context.request) {
-                try {
-                    if (config.onRequest && typeof config.onRequest === 'function') {
-                        return await config.onRequest(context, this._initData);
-                    }
-                } catch (error) {
-                    console.error(`❌ 插件 ${this.name} 请求处理失败:`, error.message);
-                    throw error;
+            try {
+                if (config.onRequest && typeof config.onRequest === 'function') {
+                    return await config.onRequest(context, this._initData);
                 }
+            } catch (error) {
+                console.error(`❌ 插件 ${this.name} 请求处理失败:`, error.message);
+                throw error;
             }
+        },
+
+        // 响应处理钩子
+        async handleResponse(context) {
+            if (!this.enabled || !this._initialized) {
+                return;
+            }
+
+            try {
+                if (config.onResponse && typeof config.onResponse === 'function') {
+                    return await config.onResponse(context, this._initData);
+                }
+            } catch (error) {
+                console.error(`❌ 插件 ${this.name} 响应处理失败:`, error.message);
+                throw error;
+            }
+        }
+    };
+
+    return plugin;
+};
+            if (!context.request) {
+                return await this.handleInit(context);
+            }
+
+            // 请求处理阶段
+            return await this.handleRequest(context);
         }
     };
 
