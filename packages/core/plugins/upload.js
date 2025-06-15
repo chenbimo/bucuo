@@ -4,13 +4,13 @@
 
 import path from 'path';
 import { util } from '../util.js';
-import { createSimplePlugin } from '../libs/plugin.js';
+import { createPlugin } from '../libs/plugin.js';
 
-export default createSimplePlugin({
+export default createPlugin({
     name: 'upload',
     order: 3,
 
-    async handler(context) {
+    async onRequest(context) {
         const { request, config } = context;
         const uploadConfig = config.upload;
 

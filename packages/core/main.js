@@ -16,7 +16,7 @@ export { createPostAPI, createGetAPI, createApi, createRes, createApiResponse, v
 export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedError, registerUserError, getErrorMessage, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/error.js';
 
 // 导出插件创建工具
-export { createPlugin, createSimplePlugin } from './libs/plugin.js';
+export { createPlugin } from './libs/plugin.js';
 
 // 内部使用的导入
 import { createRes } from './libs/http.js';

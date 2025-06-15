@@ -2,13 +2,13 @@
  * 业务插件示例 - 请求统计
  */
 
-import { createSimplePlugin } from '../../core/libs/plugin.js';
+import { createPlugin } from '../../core/libs/plugin.js';
 
-export default createSimplePlugin({
+export default createPlugin({
     name: 'request-stats',
     order: 10,
 
-    async handler(context) {
+    async onRequest(context) {
         const { request, cache, util } = context;
 
         console.log(' 请求统计插件处理请求');

@@ -64,19 +64,3 @@ export function createPlugin(config) {
 
     return plugin;
 }
-
-/**
- * 创建简单插件（只有请求处理逻辑，无需初始化）
- * @param {Object} config - 插件配置
- * @param {string} config.name - 插件名称
- * @param {number} [config.order=0] - 插件执行顺序
- * @param {Function} config.handler - 请求处理函数
- * @returns {Object} 插件对象
- */
-export function createSimplePlugin(config) {
-    return createPlugin({
-        name: config.name,
-        order: config.order,
-        onRequest: config.handler
-    });
-}

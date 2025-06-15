@@ -2,13 +2,13 @@
  * CORS 跨域插件
  */
 
-import { createSimplePlugin } from '../libs/plugin.js';
+import { createPlugin } from '../libs/plugin.js';
 
-export default createSimplePlugin({
+export default createPlugin({
     name: 'cors',
     order: 1,
 
-    async handler(context) {
+    async onRequest(context) {
         const { request, response, config } = context;
         const corsConfig = config.cors;
 
