@@ -446,42 +446,41 @@ class Bunfly {
                 const itemPath = path.join(currentDir, item);
 
                 try {
-                    const stats = await Bun.fileStats(itemPath);
-                    if (stats.isDirectory()) {
+                    const stats = await Bun.file(itemPath).stat();
+                    if (stats.isDirectory && stats.isDirectory()) {
                         // 递归加载子目录
-                        await this.loadApiRoutes(path.join(baseDir, item), path.join(routePrefix, item));
+                        const newRoutePrefix = routePrefix ? `${routePrefix}/${item}` : item;
+                        await this.loadApiRoutes(path.join(baseDir, item), newRoutePrefix);
                     } else if (item.endsWith('.js')) {
                         // 处理 JS 文件
                         const fileName = path.basename(item, '.js');
-                        const dirPath = path.dirname(relativePath).replace(/\\/g, '/');
 
                         // 构建路由路径
                         let routePath;
-                        if (dirPath === '.') {
-                            // 根目录下的文件
-                            routePath = routePrefix ? `/${routePrefix}/${fileName}` : `/${fileName}`;
+                        if (routePrefix) {
+                            routePath = `/${routePrefix}/${fileName}`;
                         } else {
-                            // 子目录下的文件
-                            routePath = routePrefix ? `/${routePrefix}/${dirPath}/${fileName}` : `/${dirPath}/${fileName}`;
+                            routePath = `/${fileName}`;
                         }
 
                         const api = await import(itemPath);
                         if (api.default && typeof api.default === 'function') {
                             // 检查 API 是否被正确包裹
                             if (!api.default.__isBunflyAPI__) {
-                                console.error(`\n❌ 错误：API 文件 ${relativePath} 没有使用 Api 包裹！`);
+                                console.error(`\n❌ 错误：API 文件 ${item} 没有使用 Api 包裹！`);
                                 process.exit(1);
                             }
 
                             // 注册精确路由
                             this.route('*', routePath, api.default);
-                            console.log(`✓ 已加载 API 路由: ${relativePath} -> ${routePath} [${api.default.__apiMethod__ || '未知'}]`);
+                            console.log(`✓ 已加载 API 路由: ${item} -> ${routePath} [${api.default.__apiMethod__ || '未知'}]`);
                         }
                     }
                 } catch (error) {
                     // 如果无法获取统计信息，尝试作为目录处理
                     if (error.code === 'EISDIR' || !item.includes('.')) {
-                        await this.loadApiRoutesRecursive(baseDir, routePrefix, relativePath);
+                        const newRoutePrefix = routePrefix ? `${routePrefix}/${item}` : item;
+                        await this.loadApiRoutes(path.join(baseDir, item), newRoutePrefix);
                     } else {
                         console.warn(`加载 API 失败 ${item}:`, error.message);
                     }
@@ -493,4 +492,5 @@ class Bunfly {
     }
 }
 
+export { Bunfly };
 export { Bunfly };
