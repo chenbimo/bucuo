@@ -17,7 +17,5 @@ export default Plugin({
         });
         console.log('✅ Logger 初始化完成');
         context.Logger = logger;
-    },
-
-    async onRequest(context, initData) {}
+    }
 });

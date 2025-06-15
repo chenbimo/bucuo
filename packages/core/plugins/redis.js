@@ -49,7 +49,5 @@ export default Plugin({
         }
 
         context.Redis = redis;
-    },
-
-    async onRequest(context, initData) {}
+    }
 });

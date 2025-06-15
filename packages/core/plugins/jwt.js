@@ -1,8 +1,8 @@
 /**
- * JWT 插件 - 使用 Bun 的加密 API
+ * JWT 插件 - 使用 fast-jwt 第三方库
  */
 
-import { JWT } from '../libs/jwt.js';
+import { createSigner, createVerifier } from 'fast-jwt';
 import { Plugin } from '../libs/plugin.js';
 
 export default Plugin({
@@ -10,57 +10,36 @@ export default Plugin({
     order: 4,
     async onInit(context) {
         console.log('🔧 正在初始化 JWT...');
-        const config = {};
-        const jwt = new JWT(jwtConfig.secret, jwtConfig);
+
+        // 获取 JWT 配置
+        const jwtConfig = context.config?.jwt || {};
+        const secret = jwtConfig.secret || process.env.JWT_SECRET;
+
+        if (!secret) {
+            throw new Error('JWT secret 未配置');
+        }
+
+        // 创建签名器和验证器
+        const signer = createSigner({
+            key: secret,
+            expiresIn: jwtConfig.expiresIn || '7d',
+            algorithm: jwtConfig.algorithm || 'HS256',
+            ...jwtConfig.signerOptions
+        });
+
+        const verifier = createVerifier({
+            key: secret,
+            algorithms: [jwtConfig.algorithm || 'HS256'],
+            ...jwtConfig.verifierOptions
+        });
+
         console.log('✅ JWT 初始化完成');
 
-        return { jwt };
-    },
-
-    async onRequest(context, initData) {
-        if (!initData || !initData.jwt) {
-            return;
-        }
-
-        const { request } = context;
-        const jwt = initData.jwt;
-        context.jwt = jwt;
-
-        // 解析 Authorization 头部
-        const authHeader = request.headers.get('authorization');
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            const token = authHeader.substring(7);
-
-            try {
-                const payload = jwt.verify(token);
-                context.user = payload;
-                context.isAuthenticated = true;
-            } catch (error) {
-                context.user = null;
-                context.isAuthenticated = false;
-                context.authError = error.message;
+        return {
+            jwt: {
+                sign: signer,
+                verify: verifier
             }
-        } else {
-            context.user = null;
-            context.isAuthenticated = false;
-        }
-
-        // 添加辅助方法到上下文
-        context.requireAuth = () => {
-            if (!context.isAuthenticated) {
-                context.response.status = 401;
-                context.response.json({
-                    error: '未授权',
-                    message: context.authError || '需要身份验证'
-                });
-                context.response.sent = true;
-                return false;
-            }
-            return true;
-        };
-
-        context.generateToken = (payload, options) => {
-            return jwt.sign(payload, options);
         };
     }
 });

@@ -25,7 +25,6 @@ export const Plugin = (config) => {
         order: config.order || 0,
         enabled: config.enabled !== false,
         _initialized: false,
-        _initData: null,
 
         // 初始化钩子
         async handleInit(context) {
@@ -37,7 +36,7 @@ export const Plugin = (config) => {
 
             try {
                 if (config.onInit && typeof config.onInit === 'function') {
-                    this._initData = await config.onInit(context);
+                    await config.onInit(context);
                 }
                 this._initialized = true;
                 console.log(`✅ 插件 ${this.name} 初始化完成`);
@@ -55,7 +54,7 @@ export const Plugin = (config) => {
 
             try {
                 if (config.onRequest && typeof config.onRequest === 'function') {
-                    return await config.onRequest(context, this._initData);
+                    return await config.onRequest(context);
                 }
             } catch (error) {
                 console.error(`❌ 插件 ${this.name} 请求处理失败:`, error.message);
@@ -71,7 +70,7 @@ export const Plugin = (config) => {
 
             try {
                 if (config.onResponse && typeof config.onResponse === 'function') {
-                    return await config.onResponse(context, this._initData);
+                    return await config.onResponse(context);
                 }
             } catch (error) {
                 console.error(`❌ 插件 ${this.name} 响应处理失败:`, error.message);

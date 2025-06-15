@@ -106,12 +106,6 @@ class Bunfly {
                 console.warn(`插件 ${plugin.name} 初始化失败:`, error.message);
             }
         }
-
-        // 保存已初始化的核心组件，供业务插件使用
-        this.coreComponents = {
-            redis: this.plugins.find((p) => p.name === 'redis')?._initData,
-            logger: this.plugins.find((p) => p.name === 'logger')?._initData
-        };
     }
 
     /**
