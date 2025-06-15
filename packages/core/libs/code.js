@@ -12,7 +12,7 @@
 /**
  * 错误码常量定义
  */
-export const ERROR_CODES = {
+export const code = {
     // 成功状态
     SUCCESS: 0,
 
@@ -143,59 +143,3 @@ export const ERROR_MESSAGES = {
     [ERROR_CODES.INVALID_CONFIG]: '配置格式无效',
     [ERROR_CODES.MISSING_CONFIG]: '缺少必需配置'
 };
-
-/**
- * 检查是否为成功状态
- * @param {number} code - 错误码
- * @returns {boolean} 是否成功
- */
-export function isSuccess(code) {
-    return code === ERROR_CODES.SUCCESS;
-}
-
-/**
- * 检查是否为内部系统错误
- * @param {number} code - 错误码
- * @returns {boolean} 是否为内部错误
- */
-export function isInternalError(code) {
-    return code >= 10 && code <= 99;
-}
-
-/**
- * 检查是否为用户自定义错误
- * @param {number} code - 错误码
- * @returns {boolean} 是否为用户自定义错误
- */
-export function isUserDefinedError(code) {
-    return code >= ERROR_CODES.USER_DEFINED_START;
-}
-
-/**
- * 注册用户自定义错误码
- * @param {number} code - 错误码 (必须 >= 100)
- * @param {string} message - 错误信息
- */
-export function registerUserError(code, message) {
-    if (code < ERROR_CODES.USER_DEFINED_START) {
-        throw new Error(`用户自定义错误码必须大于等于 ${ERROR_CODES.USER_DEFINED_START}`);
-    }
-
-    if (ERROR_MESSAGES[code]) {
-        console.warn(`错误码 ${code} 已存在，将被覆盖`);
-    }
-
-    ERROR_MESSAGES[code] = message;
-}
-
-/**
- * 获取错误信息
- * @param {number} code - 错误码
- * @returns {string} 错误信息
- */
-export function getErrorMessage(code) {
-    return ERROR_MESSAGES[code] || '未知错误';
-}
-
-// 导出常用错误码以便快速使用
-export const { SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } = ERROR_CODES;

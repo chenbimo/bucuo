@@ -16,14 +16,14 @@ export * from './libs/validator.js';
 export { createApi, createRes } from './libs/http.js';
 
 // 从 error.js 导出错误管理工具
-export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedError, registerUserError, getErrorMessage, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/error.js';
+export { ERROR_CODES, ERROR_MESSAGES, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/code.js';
 
 // 导出插件创建工具
 export { createPlugin } from './libs/plugin.js';
 
 // 内部使用的导入
 import { createRes } from './libs/http.js';
-import { ERROR_CODES } from './libs/error.js';
+import { ERROR_CODES } from './libs/code.js';
 
 class Bunfly {
     constructor(options = {}) {

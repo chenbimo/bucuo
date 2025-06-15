@@ -3,11 +3,11 @@
  * 提供接口创建、验证、返回等功能
  */
 
-import { ERROR_CODES, ERROR_MESSAGES } from './error.js';
+import { ERROR_CODES, ERROR_MESSAGES } from './code.js';
 import { validate } from './validator.js';
 
 // 重新导出 ERROR_CODES，方便其他模块使用
-export { ERROR_CODES } from './error.js';
+export { ERROR_CODES } from './code.js';
 
 /**
  * 创建统一响应对象
