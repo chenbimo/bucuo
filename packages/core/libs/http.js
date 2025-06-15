@@ -40,16 +40,6 @@ export function createRes(code = ERROR_CODES.SUCCESS, msg = null, data = null, d
 }
 
 /**
- * 创建兼容的 API 响应格式（向后兼容）
- * @param {any} data - 响应数据
- * @param {string} message - 响应消息
- * @param {number} code - 响应码（默认使用成功码）
- */
-export const createApiResponse = (data = null, message = '成功', code = ERROR_CODES.SUCCESS) => {
-    return createRes(code, message, data);
-};
-
-/**
  * 验证 JSON 参数
  * @param {Request} request - 请求对象
  * @param {Object} rules - 验证规则对象
@@ -181,40 +171,4 @@ export function createApi(config) {
     apiHandler.__apiSchema__ = schema;
 
     return apiHandler;
-}
-
-/**
- * 创建 GET API 处理器（向后兼容）
- * @param {Object} schema - 验证规则对象（可选）
- * @param {Function} handler - 处理函数
- * @returns {Function} API 处理器
- */
-export function createGetAPI(schema, handler) {
-    // 如果只传了一个参数且是函数，说明没有 schema
-    if (typeof schema === 'function' && !handler) {
-        handler = schema;
-        schema = null;
-    }
-
-    return createApi({
-        name: 'GET API (Legacy)',
-        schema,
-        method: 'get',
-        handler
-    });
-}
-
-/**
- * 创建 POST API 处理器（向后兼容）
- * @param {Object} schema - 验证规则对象
- * @param {Function} handler - 处理函数
- * @returns {Function} API 处理器
- */
-export function createPostAPI(schema, handler) {
-    return createApi({
-        name: 'POST API (Legacy)',
-        schema,
-        method: 'post',
-        handler
-    });
 }

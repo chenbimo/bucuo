@@ -10,7 +10,7 @@ import { util } from './util.js';
 export * from './libs/simple-validator.js';
 
 // 从 http.js 导出 HTTP 相关工具
-export { createPostAPI, createGetAPI, createApi, createRes, createApiResponse, validateJsonParams } from './libs/http.js';
+export { createApi, createRes, validateJsonParams } from './libs/http.js';
 
 // 从 error.js 导出错误管理工具
 export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedError, registerUserError, getErrorMessage, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/error.js';
@@ -508,13 +508,13 @@ class Bunfly {
                         if (api.default && typeof api.default === 'function') {
                             // 检查 API 是否被正确包裹
                             if (!api.default.__isBunflyAPI__) {
-                                console.error(`\n❌ 错误：API 文件 ${relativePath} 没有使用 createGetAPI 或 createPostAPI 包裹！`);
+                                console.error(`\n❌ 错误：API 文件 ${relativePath} 没有使用 createApi 包裹！`);
                                 process.exit(1);
                             }
 
                             // 注册精确路由
                             this.route('*', routePath, api.default);
-                            console.log(`✓ 已加载 API 路由: ${relativePath} -> ${routePath} [${api.default.__apiType__ || '未知'}]`);
+                            console.log(`✓ 已加载 API 路由: ${relativePath} -> ${routePath} [${api.default.__apiMethod__ || '未知'}]`);
                         }
                     }
                 } catch (error) {

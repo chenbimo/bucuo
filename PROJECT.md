@@ -5,7 +5,7 @@
 3. 尽快使用 Bun 的原生 api，减少使用 nodejs 的 api。
 4. 所有测试文件放到 packages/tests 目录下，并且使用 Bun 来进行测试，不要用 nodejs。
 5. 所有注释，提示都用中文。
-6. 所有的接口文件都要被 createGetAPI 或 createPostAPI 包裹。
+6. 所有的接口文件都要被 createApi 包裹。
 7. 其中 packages/core 是核心驱动，提供了通用的 api 接口框架的功能。
 
     1. packages/core/apis 是所有内置的接口所在目录。
@@ -19,7 +19,7 @@
     4. packages/core/main.js 是入口文件。
 
 8. 其中 packages/api 是业务目录，在 packages/core 的基础上，提供对外业务功能。
-    1. bunlfy/api/apis 是业务接口目录。
+    1. packages/api/apis 是业务接口目录。
     2. packages/api/plugins 是业务插件目录。
     3. packages/api/main.js 是业务入口文件。
     4. packages/api/.env.development 是开发环境变量。
