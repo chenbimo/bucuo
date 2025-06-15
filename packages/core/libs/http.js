@@ -68,7 +68,7 @@ export async function validateJsonParams(request, rules) {
         }
 
         // 使用简单验证器验证
-        const result = validate(data, rules);
+        const result = createValidator(data, rules);
         if (!result.success) {
             return {
                 success: false,
@@ -147,7 +147,7 @@ export function createApi(config) {
                 }
 
                 // 验证参数
-                const result = validate(queryParams, schema);
+                const result = createValidator(queryParams, schema);
                 if (!result.success) {
                     return createRes(ERROR_CODES.INVALID_PARAMS, `${name}: 验证失败`, result.errors);
                 }

@@ -13,7 +13,7 @@ const util = utilFunctions;
 export * from './libs/validator.js';
 
 // 从 http.js 导出 HTTP 相关工具
-export { createApi, createRes, validateJsonParams } from './libs/http.js';
+export { createApi, createRes } from './libs/http.js';
 
 // 从 error.js 导出错误管理工具
 export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedError, registerUserError, getErrorMessage, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/error.js';

@@ -155,12 +155,12 @@ function validateArray(value, name, min, max, regex, separator, fieldName) {
 }
 
 /**
- * 验证对象
+ * 创建验证器函数（主要验证函数）
  * @param {Object} data - 要验证的数据对象
  * @param {Object} rules - 验证规则对象
  * @returns {Object} { success: boolean, errors?: Array, data?: Object }
  */
-export function validate(data, rules) {
+export function createValidator(data, rules) {
     if (!data || typeof data !== 'object') {
         return { success: false, errors: ['数据必须是对象格式'] };
     }
@@ -211,15 +211,4 @@ export function validate(data, rules) {
     }
 
     return { success: true, data: validatedData };
-}
-
-/**
- * 创建验证器函数
- * @param {Object} rules - 验证规则
- * @returns {Function} 验证函数
- */
-export function createValidator(rules) {
-    return function (data) {
-        return validate(data, rules);
-    };
 }
