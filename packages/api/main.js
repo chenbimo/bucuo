@@ -3,8 +3,11 @@
  */
 
 import { Bunfly } from 'bunfly';
-import { util } from '../core/util.js';
+import * as utilFunctions from '../core/util.js';
 import path from 'path';
+
+// 创建 util 对象以保持向后兼容性
+const util = utilFunctions;
 
 class BunflyAPI extends Bunfly {
     constructor(options = {}) {

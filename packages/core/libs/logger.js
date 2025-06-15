@@ -2,7 +2,7 @@
  * Logger 日志库
  */
 
-import { util } from '../util.js';
+import { formatDate, parseRequest } from '../util.js';
 
 export class Logger {
     constructor(config = {}) {
@@ -27,7 +27,7 @@ export class Logger {
     }
 
     formatMessage(level, message, meta = {}) {
-        const timestamp = util.formatDate();
+        const timestamp = formatDate();
         const levelStr = level.toUpperCase().padStart(5);
         const color = this.colors[level] || '';
         const reset = this.colors.reset;
@@ -65,7 +65,7 @@ export class Logger {
 
     request(context) {
         const { request } = context;
-        const requestInfo = util.parseRequest(request);
+        const requestInfo = parseRequest(request);
 
         this.info(`${requestInfo.method} ${requestInfo.pathname}`, {
             ip: requestInfo.ip,
@@ -77,7 +77,7 @@ export class Logger {
     response(context) {
         const { request, response, startTime } = context;
         const duration = Date.now() - startTime;
-        const requestInfo = util.parseRequest(request);
+        const requestInfo = parseRequest(request);
 
         const level = response.status >= 400 ? 'error' : 'info';
         this.log(level, `${requestInfo.method} ${requestInfo.pathname} ${response.status} ${duration}ms`, {
@@ -89,7 +89,7 @@ export class Logger {
 
     error_handler(context) {
         const { request, error } = context;
-        const requestInfo = util.parseRequest(request);
+        const requestInfo = parseRequest(request);
 
         this.error(`${requestInfo.method} ${requestInfo.pathname} ERROR`, {
             ip: requestInfo.ip,

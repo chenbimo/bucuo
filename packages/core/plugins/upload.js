@@ -3,7 +3,7 @@
  */
 
 import path from 'path';
-import { util } from '../util.js';
+import { uuid, ensureDir } from '../util.js';
 import { createPlugin } from '../libs/plugin.js';
 
 export default createPlugin({
@@ -64,11 +64,11 @@ export default createPlugin({
 
                     // 生成唯一文件名
                     const ext = path.extname(value.name);
-                    const filename = `${util.uuid()}${ext}`;
+                    const filename = `${uuid()}${ext}`;
                     const filePath = path.join(uploadConfig.uploadDir, filename);
 
                     // 确保上传目录存在
-                    await util.ensureDir(uploadConfig.uploadDir);
+                    await ensureDir(uploadConfig.uploadDir);
 
                     // 保存文件 - 使用 Bun 的文件 API
                     const buffer = await value.arrayBuffer();

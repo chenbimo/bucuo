@@ -4,7 +4,10 @@
 
 import { serve } from 'bun';
 import path from 'path';
-import { util } from './util.js';
+import * as utilFunctions from './util.js';
+
+// 创建 util 对象以保持向后兼容性
+const util = utilFunctions;
 
 // 导出验证工具
 export * from './libs/validator.js';
