@@ -82,14 +82,3 @@ export const Plugin = (config) => {
 
     return plugin;
 };
-            if (!context.request) {
-                return await this.handleInit(context);
-            }
-
-            // 请求处理阶段
-            return await this.handleRequest(context);
-        }
-    };
-
-    return plugin;
-};
