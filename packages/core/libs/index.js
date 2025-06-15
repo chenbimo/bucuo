@@ -24,9 +24,6 @@ export * from './logger.js';
 // 导出缓存工具
 export * from './cache.js';
 
-// 导出 SQL 构造器
-export * from './sql.js';
-
 // 导出 schema 中的通用验证模式
 export { commonSchemas } from '../schema/common.js';
 

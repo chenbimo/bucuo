@@ -4,7 +4,10 @@ import userSchema from '../../schema/user.json';
 export default createApi({
     name: '用户登录',
     schema: {
-        fields: [userSchema.username, userSchema.password],
+        fields: {
+            username: userSchema.username,
+            password: userSchema.password
+        },
         required: ['username', 'password']
     },
     handler: async (data, context) => {

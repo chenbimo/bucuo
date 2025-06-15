@@ -18,9 +18,6 @@ export { ERROR_CODES, ERROR_MESSAGES, isSuccess, isInternalError, isUserDefinedE
 // 导出插件创建工具
 export { createPlugin, createSimplePlugin } from './libs/plugin.js';
 
-// 导出 SQL 构造器
-export { SQL, QueryBuilder, createSQL, table } from './libs/sql.js';
-
 // 内部使用的导入
 import { createRes } from './libs/http.js';
 import { ERROR_CODES } from './libs/error.js';

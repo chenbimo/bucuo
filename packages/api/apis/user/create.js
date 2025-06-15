@@ -8,7 +8,12 @@ import userSchema from '../../schema/user.json';
 export default createApi({
     name: '创建用户',
     schema: {
-        fields: [userSchema.username, userSchema.password],
+        fields: {
+            username: userSchema.username,
+            password: userSchema.password,
+            email: userSchema.email,
+            nickname: userSchema.nickname
+        },
         required: ['username', 'password']
     },
     handler: async (data, context) => {
