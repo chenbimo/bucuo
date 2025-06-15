@@ -7,7 +7,7 @@ import path from 'path';
 import { util } from './util.js';
 
 // 导出验证工具
-export * from './libs/simple-validator.js';
+export * from './libs/validator.js';
 
 // 从 http.js 导出 HTTP 相关工具
 export { createApi, createRes, validateJsonParams } from './libs/http.js';

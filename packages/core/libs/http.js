@@ -4,7 +4,7 @@
  */
 
 import { ERROR_CODES, ERROR_MESSAGES } from './error.js';
-import { validate } from './simple-validator.js';
+import { validate } from './validator.js';
 
 // 重新导出 ERROR_CODES，方便其他模块使用
 export { ERROR_CODES } from './error.js';
