@@ -14,10 +14,6 @@
  * @returns {Object} 标准化的插件对象
  */
 export const Plugin = (config) => {
-    if (!config.name) {
-        throw new Error('插件必须有名称');
-    }
-
     const plugin = {
         name: config.name,
         order: config.order || 0,

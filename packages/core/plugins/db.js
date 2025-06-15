@@ -1,10 +1,10 @@
 import { Kysely, MysqlDialect } from 'kysely';
 import { createPool } from 'mysql2/promise';
 import { Plugin } from '../libs/plugin.js';
-import { Env } from '../libs/env.js';
+import { Env } from '../config/env.js';
 
 export default Plugin({
-    name: 'database',
+    name: 'db',
     order: 0,
     async onInit(context) {
         try {
@@ -52,12 +52,15 @@ export default Plugin({
 
     async testConnection(db) {
         try {
-            const result = await db.selectFrom(db.raw('SELECT 1')).select('test_value').execute();
+            // 查询 MySQL 版本来测试连接
+            const result = await db.selectFrom(db.raw('DUAL')).select(db.raw('VERSION() as version')).executeTakeFirst();
 
-            if (result && result.test_value === 1) {
-                console.log('✅ MySQL 数据库连接测试成功');
+            if (result && result.version) {
+                console.log(`✅ MySQL 数据库连接测试成功，版本: ${result.version}`);
+                return true;
             } else {
                 console.warn('⚠️ MySQL 数据库连接测试无结果，但连接可能正常');
+                return false;
             }
         } catch (error) {
             console.error('❌ MySQL 数据库连接测试失败:', error.message);
