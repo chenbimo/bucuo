@@ -160,7 +160,7 @@ function validateArray(value, name, min, max, regex, separator, fieldName) {
  * @param {Object} rules - 验证规则对象
  * @returns {Object} { success: boolean, errors?: Array, data?: Object }
  */
-export function createValidator(data, rules) {
+export function Validator(data, rules) {
     if (!data || typeof data !== 'object') {
         return { success: false, errors: ['数据必须是对象格式'] };
     }

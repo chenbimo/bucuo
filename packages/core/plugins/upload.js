@@ -4,9 +4,9 @@
 
 import path from 'path';
 import { uuid, ensureDir } from '../util.js';
-import { createPlugin } from '../libs/plugin.js';
+import { Plugin } from '../libs/plugin.js';
 
-export default createPlugin({
+export default Plugin({
     name: 'upload',
     order: 3,
 

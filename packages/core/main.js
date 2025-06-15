@@ -1,29 +1,12 @@
-/**
- * Bunfly Core - 基于 Bun 的通用 JS 后端 API 框架核心
- */
-
 import { serve } from 'bun';
 import path from 'path';
-import * as utilFunctions from './util.js';
+import { Res, readDir, setNestedProperty, getNestedProperty } from './util.js';
+import { Code } from './libs/code.js';
 
-// 创建 util 对象以保持向后兼容性
-const util = utilFunctions;
-
-// 导出验证工具
-export * from './libs/validator.js';
-
-// 从 http.js 导出 HTTP 相关工具
-export { createApi, createRes } from './libs/http.js';
-
-// 从 error.js 导出错误管理工具
-export { ERROR_CODES, ERROR_MESSAGES, SUCCESS, GENERAL_ERROR, API_NOT_FOUND, INVALID_PARAMS, UNAUTHORIZED, FILE_NOT_FOUND, SERVER_ERROR } from './libs/code.js';
-
-// 导出插件创建工具
-export { createPlugin } from './libs/plugin.js';
-
-// 内部使用的导入
-import { createRes } from './libs/http.js';
-import { ERROR_CODES } from './libs/code.js';
+export { Api } from './libs/api.js';
+export { Code } from './libs/code.js';
+export { Plugin } from './libs/plugin.js';
+export { Res } from './util.js';
 
 class Bunfly {
     constructor(options = {}) {
@@ -82,7 +65,7 @@ class Bunfly {
         const pluginDir = path.join(import.meta.dir, 'plugins');
 
         try {
-            const files = await util.readDir(pluginDir);
+            const files = await readDir(pluginDir);
             const pluginFiles = files.filter((file) => file.endsWith('.js'));
 
             const loadedPlugins = [];
@@ -161,29 +144,6 @@ class Bunfly {
             throw new Error('插件必须是一个函数或具有 handler 方法');
         }
         return this;
-    }
-
-    /**
-     * 注册路由
-     */
-    route(method, path, handler) {
-        const key = `${method.toUpperCase()}:${path}`;
-        this.routes.set(key, handler);
-        return this;
-    }
-
-    /**
-     * GET 路由
-     */
-    get(path, handler) {
-        return this.route('GET', path, handler);
-    }
-
-    /**
-     * POST 路由
-     */
-    post(path, handler) {
-        return this.route('POST', path, handler);
     }
 
     /**
@@ -392,7 +352,7 @@ class Bunfly {
                     context.response.json(result);
                 }
             } else {
-                const notFoundResponse = createRes(ERROR_CODES.API_NOT_FOUND, `路由 ${request.method} ${new URL(request.url).pathname} 未找到`);
+                const notFoundResponse = Res(Code.API_NOT_FOUND, `路由 ${request.method} ${new URL(request.url).pathname} 未找到`);
                 context.response.json(notFoundResponse);
             }
 
@@ -479,7 +439,7 @@ class Bunfly {
         const currentDir = path.join(baseDir, subPath);
 
         try {
-            const items = await util.readDir(currentDir);
+            const items = await readDir(currentDir);
 
             for (const item of items) {
                 const itemPath = path.join(currentDir, item);
@@ -511,7 +471,7 @@ class Bunfly {
                         if (api.default && typeof api.default === 'function') {
                             // 检查 API 是否被正确包裹
                             if (!api.default.__isBunflyAPI__) {
-                                console.error(`\n❌ 错误：API 文件 ${relativePath} 没有使用 createApi 包裹！`);
+                                console.error(`\n❌ 错误：API 文件 ${relativePath} 没有使用 Api 包裹！`);
                                 process.exit(1);
                             }
 
@@ -538,7 +498,7 @@ class Bunfly {
      * 设置配置
      */
     setConfig(key, value) {
-        util.setNestedProperty(this.config, key, value);
+        setNestedProperty(this.config, key, value);
         return this;
     }
 
@@ -546,7 +506,7 @@ class Bunfly {
      * 获取配置
      */
     getConfig(key) {
-        return util.getNestedProperty(this.config, key);
+        return getNestedProperty(this.config, key);
     }
 }
 

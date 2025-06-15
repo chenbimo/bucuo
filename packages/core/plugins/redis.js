@@ -3,9 +3,9 @@
  */
 
 import { Cache } from '../libs/cache.js';
-import { createPlugin } from '../libs/plugin.js';
+import { Plugin } from '../libs/plugin.js';
 
-export default createPlugin({
+export default Plugin({
     name: 'redis',
     order: -1, // 优先加载
 

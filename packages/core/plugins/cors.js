@@ -2,9 +2,9 @@
  * CORS 跨域插件
  */
 
-import { createPlugin } from '../libs/plugin.js';
+import { Plugin } from '../libs/plugin.js';
 
-export default createPlugin({
+export default Plugin({
     name: 'cors',
     order: 1,
 

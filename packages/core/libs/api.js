@@ -1,43 +1,8 @@
-/**
- * HTTP API 处理工具库
- * 提供接口创建、验证、返回等功能
- */
-
-import { ERROR_CODES, ERROR_MESSAGES } from './code.js';
+import { Code } from '../config/code.js';
 import { validate } from './validator.js';
 
-// 重新导出 ERROR_CODES，方便其他模块使用
-export { ERROR_CODES } from './code.js';
-
-/**
- * 创建统一响应对象
- * @param {number} code - 响应码
- * @param {string} msg - 响应消息
- * @param {any} data - 响应数据
- * @param {any} detail - 详细信息
- * @param {Object} options - 其他选项，会与前4个参数合并，但不能覆盖它们
- * @returns {Object} 响应对象
- */
-export function createRes(code = ERROR_CODES.SUCCESS, msg = null, data = null, detail = null, options = {}) {
-    const defaultMessage = msg || ERROR_MESSAGES[code] || '未知状态';
-
-    // 基础响应对象
-    const response = {
-        code,
-        msg: defaultMessage,
-        data,
-        detail,
-        timestamp: new Date().toISOString()
-    };
-
-    // 合并 options，但不覆盖基础参数
-    const { code: _, msg: __, data: ___, detail: ____, ...safeOptions } = options;
-
-    return {
-        ...safeOptions,
-        ...response
-    };
-}
+// 重新导出 Code，方便其他模块使用
+export { Code } from '../config/code.js';
 
 /**
  * 验证 JSON 参数
@@ -52,7 +17,7 @@ export async function validateJsonParams(request, rules) {
         if (!contentType || !contentType.includes('application/json')) {
             return {
                 success: false,
-                error: createRes(ERROR_CODES.INVALID_PARAM_FORMAT, 'Content-Type 必须是 application/json')
+                error: Res(Code.INVALID_PARAM_FORMAT, 'Content-Type 必须是 application/json')
             };
         }
 
@@ -63,16 +28,16 @@ export async function validateJsonParams(request, rules) {
         } catch (err) {
             return {
                 success: false,
-                error: createRes(ERROR_CODES.INVALID_PARAM_FORMAT, '无效的 JSON 格式', err.message)
+                error: Res(Code.INVALID_PARAM_FORMAT, '无效的 JSON 格式', err.message)
             };
         }
 
         // 使用简单验证器验证
-        const result = createValidator(data, rules);
+        const result = Validator(data, rules);
         if (!result.success) {
             return {
                 success: false,
-                error: createRes(ERROR_CODES.INVALID_PARAMS, '参数验证失败', result.errors)
+                error: Res(Code.INVALID_PARAMS, '参数验证失败', result.errors)
             };
         }
 
@@ -83,7 +48,7 @@ export async function validateJsonParams(request, rules) {
     } catch (err) {
         return {
             success: false,
-            error: createRes(ERROR_CODES.API_INTERNAL_ERROR, '验证过程中发生错误', err.message)
+            error: Res(Code.API_INTERNAL_ERROR, '验证过程中发生错误', err.message)
         };
     }
 }
@@ -97,7 +62,7 @@ export async function validateJsonParams(request, rules) {
  * @param {Function} config.handler - 处理函数
  * @returns {Function} API 处理器
  */
-export function createApi(config) {
+export function Api(config) {
     const { name, schema, method = 'post', handler } = config;
 
     if (!name || typeof name !== 'string') {
@@ -115,14 +80,14 @@ export function createApi(config) {
 
         // 检查请求方法
         if (request.method !== httpMethod) {
-            return createRes(ERROR_CODES.API_METHOD_NOT_ALLOWED, `${name}: 不允许的请求方法，仅支持 ${httpMethod}`);
+            return Res(Code.API_METHOD_NOT_ALLOWED);
         }
 
         let data = null;
 
         // 如果有验证规则，进行参数验证
         if (schema) {
-            if (httpMethod === 'POST' || httpMethod === 'PUT' || httpMethod === 'PATCH') {
+            if (httpMethod === 'POST') {
                 // 对于有 body 的请求，验证 JSON 参数
                 const validation = await validateJsonParams(request, schema);
                 if (!validation.success) {
@@ -147,9 +112,9 @@ export function createApi(config) {
                 }
 
                 // 验证参数
-                const result = createValidator(queryParams, schema);
+                const result = Validator(queryParams, schema);
                 if (!result.success) {
-                    return createRes(ERROR_CODES.INVALID_PARAMS, `${name}: 验证失败`, result.errors);
+                    return Res(Code.INVALID_PARAMS, `${name}: 验证失败`, result.errors);
                 }
                 data = result.data;
             }
@@ -158,9 +123,9 @@ export function createApi(config) {
         try {
             // 调用处理函数
             const result = await handler(data, context);
-            return result || createRes();
+            return result || Res();
         } catch (error) {
-            return createRes(ERROR_CODES.API_INTERNAL_ERROR, `${name}: 内部服务器错误`, error.message);
+            return Res(Code.API_INTERNAL_ERROR, `${name}: 内部服务器错误`, error.message);
         }
     };
 

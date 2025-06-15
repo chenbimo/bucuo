@@ -2,10 +2,10 @@
  * 健康信息 API - /core/health/info
  */
 
-import { createApi, createRes, ERROR_CODES } from '../../libs/http.js';
+import { Api, Res, Code } from '../../libs/api.js';
 import healthSchema from '../../schema/health.json';
 
-export default createApi({
+export default Api({
     name: '系统信息',
     method: 'get',
     schema: {
@@ -13,7 +13,7 @@ export default createApi({
         required: []
     },
     handler: async (data, context) => {
-        return createRes(ERROR_CODES.SUCCESS, '系统信息获取成功', {
+        return Res(Code.SUCCESS, '系统信息获取成功', {
             name: 'Bunfly',
             description: 'A universal JS backend API framework for Bun',
             version: '1.0.0',

@@ -2,10 +2,10 @@
  * 健康检查 API - /core/health/check
  */
 
-import { createApi, createRes, ERROR_CODES } from '../../libs/http.js';
+import { Api, Res, Code } from '../../libs/api.js';
 import healthSchema from '../../schema/health.json';
 
-export default createApi({
+export default Api({
     name: '健康检查',
     schema: {
         fields: [],
@@ -13,7 +13,7 @@ export default createApi({
     },
     method: 'get',
     handler: async (data, context) => {
-        return createRes(ERROR_CODES.SUCCESS, '健康检查成功', {
+        return Res(Code.SUCCESS, '健康检查成功', {
             status: 'ok',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),

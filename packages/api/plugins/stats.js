@@ -2,9 +2,9 @@
  * 业务插件示例 - 请求统计
  */
 
-import { createPlugin } from '../../core/libs/plugin.js';
+import { Plugin } from '../../core/libs/plugin.js';
 
-export default createPlugin({
+export default Plugin({
     name: 'request-stats',
     order: 10,
 

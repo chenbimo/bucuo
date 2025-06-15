@@ -2,10 +2,10 @@
  * 健康状态 API - /core/health/status
  */
 
-import { createApi, createRes, ERROR_CODES } from '../../libs/http.js';
+import { Api, Res, Code } from '../../libs/api.js';
 import healthSchema from '../../schema/health.json';
 
-export default createApi({
+export default Api({
     name: '系统状态',
     schema: {
         fields: [],
@@ -46,6 +46,6 @@ export default createApi({
             status.redis = 'disabled';
         }
 
-        return createRes(ERROR_CODES.SUCCESS, '系统状态获取成功', status);
+        return Res(Code.SUCCESS, '系统状态获取成功', status);
     }
 });

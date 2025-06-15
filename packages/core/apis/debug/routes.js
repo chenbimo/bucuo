@@ -3,10 +3,10 @@
  * 使用 GET 请求查看所有已注册的路由
  */
 
-import { createApi, createRes, ERROR_CODES } from '../../libs/http.js';
+import { Api, Res, Code } from '../../libs/api.js';
 import debugSchema from '../../schema/debug.json';
 
-export default createApi({
+export default Api({
     name: '调试路由',
     schema: {
         fields: [],
@@ -22,7 +22,7 @@ export default createApi({
 
         // 如果无法直接访问应用实例，我们需要从全局或其他方式获取
         if (!app || !app.routes) {
-            return createRes(ERROR_CODES.INTERNAL_SERVER_ERROR, '无法访问路由信息', {
+            return Res(Code.INTERNAL_SERVER_ERROR, '无法访问路由信息', {
                 error: '应用实例不可用',
                 timestamp: new Date().toISOString()
             });
@@ -62,7 +62,7 @@ export default createApi({
             }
         });
 
-        return createRes(ERROR_CODES.SUCCESS, '路由调试信息', {
+        return Res(Code.SUCCESS, '路由调试信息', {
             timestamp: new Date().toISOString(),
             stats: stats,
             routes: routes,

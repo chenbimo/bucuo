@@ -3,11 +3,11 @@
  * 专为 MySQL 数据库优化
  */
 
-import { createPlugin } from '../libs/plugin.js';
+import { Plugin } from '../libs/plugin.js';
 import { Kysely, MysqlDialect } from 'kysely';
 import mysql from 'mysql2';
 
-export default createPlugin({
+export default Plugin({
     name: 'database',
     order: 0, // 数据库连接应该最早初始化
 
@@ -116,7 +116,7 @@ export default createPlugin({
  * 使用示例：
  *
  * // 在 API 处理器中使用
- * export default createApi({
+ * export default Api({
  *   name: '获取用户列表',
  *   handler: async (data, context) => {
  *     const { db } = context;
@@ -128,7 +128,7 @@ export default createPlugin({
  *       .orderBy('created_at', 'desc')
  *       .execute();
  *
- *     return createRes(ERROR_CODES.SUCCESS, '获取成功', users);
+ *     return Res(Code.SUCCESS, '获取成功', users);
  *   }
  * });
  *

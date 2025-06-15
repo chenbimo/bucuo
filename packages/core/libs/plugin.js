@@ -13,7 +13,7 @@
  * @param {boolean} [config.enabled=true] - 是否启用插件
  * @returns {Object} 标准化的插件对象
  */
-export function createPlugin(config) {
+export function Plugin(config) {
     if (!config.name) {
         throw new Error('插件必须有名称');
     }
