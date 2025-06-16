@@ -1,4 +1,5 @@
 import { Plugin } from '../libs/plugin.js';
+import { signer, verifier } from '../libs/jwt.js';
 
 export default Plugin({
     name: 'auth',
@@ -12,7 +13,7 @@ export default Plugin({
             const token = authHeader.substring(7);
 
             try {
-                const payload = context.Jwt.verify(token);
+                const payload = verifier(token);
                 context.user = payload;
                 context.isAuthenticated = true;
             } catch (error) {
@@ -24,31 +25,5 @@ export default Plugin({
             context.user = null;
             context.isAuthenticated = false;
         }
-
-        // 添加辅助方法到上下文
-        context.requireAuth = () => {
-            if (!context.isAuthenticated) {
-                context.response.status = 401;
-                context.response.json({
-                    error: '未授权',
-                    message: context.authError || '需要身份验证'
-                });
-                context.response.sent = true;
-                return false;
-            }
-            return true;
-        };
-
-        context.generateToken = (payload, options) => {
-            if (options) {
-                // 如果需要自定义选项，创建临时签名器
-                const customSigner = createSigner({
-                    key: context.Jwt.verify.key || process.env.JWT_SECRET,
-                    ...options
-                });
-                return customSigner(payload);
-            }
-            return context.Jwt.sign(payload);
-        };
     }
 });
