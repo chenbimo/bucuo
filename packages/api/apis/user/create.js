@@ -2,10 +2,10 @@
  * 创建用户 API - /user/create
  */
 
-import { Api, Res, Code } from 'bunfly';
+import { Code } from 'bunfly';
 import userSchema from '../../schema/user.json';
 
-export default Api({
+export default {
     name: '创建用户',
     schema: {
         fields: {
@@ -30,6 +30,10 @@ export default Api({
         };
 
         context.response.status = 201;
-        return Res(Code.SUCCESS, '用户创建成功', newUser);
+        return {
+            ...Code.SUCCESS,
+            msg: '用户创建成功',
+            data: newUser
+        };
     }
-});
+};

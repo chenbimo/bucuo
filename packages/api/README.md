@@ -4,13 +4,13 @@
 
 ## 特性
 
-- 🏗️ 基于 Bunfly Core 框架构建
-- 👥 用户管理系统
-- 🔐 JWT 认证
-- 📊 请求统计
-- 📁 文件上传下载
-- 💾 缓存支持
-- 🔧 环境配置管理
+-   🏗️ 基于 Bunfly Core 框架构建
+-   👥 用户管理系统
+-   🔐 JWT 认证
+-   📊 请求统计
+-   📁 文件上传下载
+-   💾 缓存支持
+-   🔧 环境配置管理
 
 ## 项目结构
 
@@ -61,43 +61,43 @@ bun run test
 
 ### 首页
 
-- `GET /` - API 欢迎页面
-- `GET /api/docs` - API 文档
+-   `GET /` - API 欢迎页面
+-   `GET /api/docs` - API 文档
 
 ### 用户管理
 
-- `GET /api/users` - 获取用户列表
-- `GET /api/users/:id` - 获取用户详情
-- `POST /api/users` - 创建用户
-- `PUT /api/users/:id` - 更新用户
-- `DELETE /api/users/:id` - 删除用户
+-   `GET /api/users` - 获取用户列表
+-   `GET /api/users/:id` - 获取用户详情
+-   `POST /api/users` - 创建用户
+-   `PUT /api/users/:id` - 更新用户
+-   `DELETE /api/users/:id` - 删除用户
 
 ### 认证
 
-- `POST /api/auth/login` - 用户登录
-- `GET /api/auth/me` - 获取当前用户信息
-- `GET /api/users/profile` - 受保护的路由示例
+-   `POST /api/auth/login` - 用户登录
+-   `GET /api/auth/me` - 获取当前用户信息
+-   `GET /api/users/profile` - 受保护的路由示例
 
 ### 统计信息
 
-- `GET /api/stats/requests` - 请求统计
-- `GET /api/stats/methods` - HTTP 方法统计
-- `GET /api/stats/system` - 系统统计
+-   `GET /api/stats/requests` - 请求统计
+-   `GET /api/stats/methods` - HTTP 方法统计
+-   `GET /api/stats/system` - 系统统计
 
 ### 文件操作
 
-- `POST /upload` - 上传文件
-- `POST /upload/multiple` - 批量上传文件
-- `GET /files` - 文件列表
-- `GET /files/:filename` - 文件信息
-- `GET /download/:filename` - 下载文件
-- `DELETE /files/:filename` - 删除文件
+-   `POST /upload` - 上传文件
+-   `POST /upload/multiple` - 批量上传文件
+-   `GET /files` - 文件列表
+-   `GET /files/:filename` - 文件信息
+-   `GET /download/:filename` - 下载文件
+-   `DELETE /files/:filename` - 删除文件
 
 ### 系统
 
-- `GET /health` - 健康检查
-- `GET /status` - 系统状态
-- `GET /info` - 系统信息
+-   `GET /health` - 健康检查
+-   `GET /status` - 系统状态
+-   `GET /info` - 系统信息
 
 ## 使用示例
 

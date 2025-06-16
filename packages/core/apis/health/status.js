@@ -1,17 +1,13 @@
-/**
- * 健康状态 API - /core/health/status
- */
-
-import { Api, Res, Code } from '../../libs/api.js';
+import { Code } from '../../config/code.js';
 import healthSchema from '../../schema/health.json';
 
-export default Api({
+export default {
     name: '系统状态',
+    method: 'get',
     schema: {
         fields: [],
         required: []
     },
-    method: 'get',
     handler: async (data, context) => {
         const { redis } = context;
 
@@ -46,6 +42,10 @@ export default Api({
             status.redis = 'disabled';
         }
 
-        return Res(Code.SUCCESS, '系统状态获取成功', status);
+        return {
+            ...Code.SUCCESS,
+            msg: '系统状态获取成功',
+            data: status
+        };
     }
-});
+};

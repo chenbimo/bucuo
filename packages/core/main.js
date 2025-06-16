@@ -1,27 +1,18 @@
 import { serve } from 'bun';
 import path from 'path';
-import { Res, readDir } from './util.js';
 import { Code } from './config/code.js';
 import { Env } from './config/env.js';
 
-export { Api } from './libs/api.js';
 export { Code } from './config/code.js';
-export { Plugin } from './libs/plugin.js';
-export { Res } from './util.js';
 
 class Bunfly {
     constructor(options = {}) {
-        this.routes = new Map();
+        this.apiRoutes = new Map();
         this.pluginLists = [];
         this.pluginContext = {};
         this.errorHandlers = [];
     }
 
-    /**
-     * 加载插件（核心插件和用户插件）
-     * @param {string} pluginDir - 插件目录路径
-     * @param {string} type - 插件类型 ('core' | 'user')
-     */
     async loadPlugins() {
         try {
             const glob = new Bun.Glob('*.js');
@@ -56,6 +47,28 @@ class Bunfly {
         }
     }
 
+    async loadApis() {
+        try {
+            const glob = new Bun.Glob('**/*.js');
+            const coreApisDir = path.join(import.meta.dir, 'apis');
+            const coreApis = [];
+
+            // 扫描指定目录
+            for await (const file of glob.scan({
+                cwd: coreApisDir,
+                onlyFiles: true,
+                absolute: true
+            })) {
+                const api = await import(file);
+                const apiInstance = api.default;
+                apiInstance.route = path.relative(coreApisDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
+                coreApis.push(apiInstance);
+            }
+        } catch (error) {
+            console.error('加载 API 时发生错误:', error);
+        }
+    }
+
     /**
      * 注册错误处理器
      */
@@ -72,12 +85,12 @@ class Bunfly {
 
         // 精确匹配
         const exactKey = `${method}:${pathname}`;
-        if (this.routes.has(exactKey)) {
-            return { handler: this.routes.get(exactKey), params: {} };
+        if (this.apiRoutes.has(exactKey)) {
+            return { handler: this.apiRoutes.get(exactKey), params: {} };
         }
 
         // 参数匹配
-        for (const [key, handler] of this.routes) {
+        for (const [key, handler] of this.apiRoutes) {
             const [routeMethod, routePath] = key.split(':');
 
             // 支持 * 方法（匹配所有方法）
@@ -126,27 +139,6 @@ class Bunfly {
         }
 
         return params;
-    }
-
-    /**
-     * 执行插件的请求处理钩子
-     */
-    async executeRequestPlugins(context) {
-        for (const plugin of this.pluginLists) {
-            try {
-                if (plugin.handleRequest && typeof plugin.handleRequest === 'function') {
-                    await plugin.handleRequest(context);
-                }
-
-                // 如果响应已经发送，停止执行后续插件
-                if (context.response.sent) {
-                    break;
-                }
-            } catch (error) {
-                context.error = error;
-                throw error;
-            }
-        }
     }
 
     /**
@@ -209,7 +201,19 @@ class Bunfly {
             }
 
             // 执行插件的请求处理钩子
-            await this.executeRequestPlugins(context);
+            for await (const plugin of this.pluginLists) {
+                try {
+                    await plugin?.onGet(context);
+
+                    // 如果响应已经发送，停止执行后续插件
+                    if (context.response.sent) {
+                        break;
+                    }
+                } catch (error) {
+                    context.error = error;
+                    throw error;
+                }
+            }
 
             // 如果插件已经处理了响应，跳过路由处理
             if (!context.response.sent) {
@@ -224,8 +228,7 @@ class Bunfly {
                         context.response.json(result);
                     }
                 } else {
-                    const notFoundResponse = Res(Code.API_NOT_FOUND);
-                    context.response.json(notFoundResponse);
+                    context.response.json({ ...Code.API_NOT_FOUND });
                 }
             }
 
@@ -270,6 +273,7 @@ class Bunfly {
      */
     async listen(callback) {
         await this.loadPlugins();
+        await this.loadApis();
 
         const server = serve({
             port: Env.APP_PORT,
@@ -279,73 +283,6 @@ class Bunfly {
 
         if (callback && typeof callback === 'function') {
             callback(server);
-        }
-    }
-
-    /**
-     * 注册路由
-     */
-    route(method, path, handler) {
-        const key = `${method}:${path}`;
-        this.routes.set(key, handler);
-        return this;
-    }
-
-    /**
-     * 加载 API 路由
-     */
-    async loadApiRoutes(baseDir = './api/apis', routePrefix = '') {
-        const currentDir = path.resolve(import.meta.dir, baseDir);
-
-        try {
-            const items = await readDir(currentDir);
-
-            for (const item of items) {
-                const itemPath = path.join(currentDir, item);
-
-                try {
-                    const stats = await Bun.file(itemPath).stat();
-                    if (stats.isDirectory && stats.isDirectory()) {
-                        // 递归加载子目录
-                        const newRoutePrefix = routePrefix ? `${routePrefix}/${item}` : item;
-                        await this.loadApiRoutes(path.join(baseDir, item), newRoutePrefix);
-                    } else if (item.endsWith('.js')) {
-                        // 处理 JS 文件
-                        const fileName = path.basename(item, '.js');
-
-                        // 构建路由路径
-                        let routePath;
-                        if (routePrefix) {
-                            routePath = `/${routePrefix}/${fileName}`;
-                        } else {
-                            routePath = `/${fileName}`;
-                        }
-
-                        const api = await import(itemPath);
-                        if (api.default && typeof api.default === 'function') {
-                            // 检查 API 是否被正确包裹
-                            if (!api.default.__isBunflyAPI__) {
-                                console.error(`\n❌ 错误：API 文件 ${item} 没有使用 Api 包裹！`);
-                                process.exit(1);
-                            }
-
-                            // 注册精确路由
-                            this.route('*', routePath, api.default);
-                            console.log(`✓ 已加载 API 路由: ${item} -> ${routePath} [${api.default.__apiMethod__ || '未知'}]`);
-                        }
-                    }
-                } catch (error) {
-                    // 如果无法获取统计信息，尝试作为目录处理
-                    if (error.code === 'EISDIR' || !item.includes('.')) {
-                        const newRoutePrefix = routePrefix ? `${routePrefix}/${item}` : item;
-                        await this.loadApiRoutes(path.join(baseDir, item), newRoutePrefix);
-                    } else {
-                        console.warn(`加载 API 失败 ${item}:`, error.message);
-                    }
-                }
-            }
-        } catch (error) {
-            console.warn(`读取目录失败 ${currentDir}:`, error.message);
         }
     }
 }

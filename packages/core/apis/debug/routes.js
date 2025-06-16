@@ -3,10 +3,10 @@
  * 使用 GET 请求查看所有已注册的路由
  */
 
-import { Api, Res, Code } from '../../libs/api.js';
+import { Code } from './config/code.js';
 import debugSchema from '../../schema/debug.json';
 
-export default Api({
+export default {
     name: '调试路由',
     schema: {
         fields: [],
@@ -22,10 +22,11 @@ export default Api({
 
         // 如果无法直接访问应用实例，我们需要从全局或其他方式获取
         if (!app || !app.routes) {
-            return Res(Code.INTERNAL_SERVER_ERROR, '无法访问路由信息', {
+            return {
+                ...Code.INTERNAL_SERVER_ERROR,
                 error: '应用实例不可用',
                 timestamp: new Date().toISOString()
-            });
+            };
         }
 
         // 收集所有路由信息
@@ -62,16 +63,20 @@ export default Api({
             }
         });
 
-        return Res(Code.SUCCESS, '路由调试信息', {
-            timestamp: new Date().toISOString(),
-            stats: stats,
-            routes: routes,
-            debug: {
-                contextKeys: Object.keys(context),
-                hasApp: !!app,
-                hasRoutes: !!(app && app.routes),
-                routesType: app && app.routes ? typeof app.routes : 'undefined'
+        return {
+            ...Code.SUCCESS,
+            msg: '路由调试信息',
+            data: {
+                timestamp: new Date().toISOString(),
+                stats: stats,
+                routes: routes,
+                debug: {
+                    contextKeys: Object.keys(context),
+                    hasApp: !!app,
+                    hasRoutes: !!(app && app.routes),
+                    routesType: app && app.routes ? typeof app.routes : 'undefined'
+                }
             }
-        });
+        };
     }
-});
+};

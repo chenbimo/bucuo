@@ -3,7 +3,6 @@
  */
 
 import { createSigner, createVerifier } from 'fast-jwt';
-import { Plugin } from '../libs/plugin.js';
 import { Env } from '../config/env.js';
 
 // 创建签名器和验证器

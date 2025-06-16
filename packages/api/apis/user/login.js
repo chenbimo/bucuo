@@ -1,4 +1,4 @@
-import { Api, Res, Code } from 'bunfly';
+import { Code } from 'bunfly';
 import userSchema from '../../schema/user.json';
 
 export default Api({
@@ -26,12 +26,16 @@ export default Api({
 
             const token = generateToken ? await generateToken(userInfo) : 'mock-jwt-token';
 
-            return Res(Code.SUCCESS, '登录成功', {
-                user: userInfo,
-                token
-            });
+            return {
+                ...Code.SUCCESS,
+                msg: '登录成功',
+                data: {
+                    user: userInfo,
+                    token
+                }
+            };
         } else {
-            return Res(Code.UNAUTHORIZED, '用户名或密码错误');
+            return { ...Code.UNAUTHORIZED, msg: '用户名或密码错误' };
         }
     }
 });

@@ -1,4 +1,4 @@
-import { Res, Code, Bunfly } from 'bunfly';
+import { Code, Bunfly } from 'bunfly';
 
 // 配置服务器
 const app = new Bunfly({
@@ -14,15 +14,12 @@ app.onError(async (context) => {
         logger.error('未处理的错误:', { error: error.message, stack: error.stack });
     }
 
-    response.json(
-        Res(
-            //
-            Code.SERVER_ERROR,
-            process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误',
-            {},
-            process.env.NODE_ENV === 'development' ? error.stack : ''
-        )
-    );
+    response.json({
+        ...Code.SERVER_ERROR,
+        msg: process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误',
+        data: {},
+        stack: process.env.NODE_ENV === 'development' ? error.stack : ''
+    });
 });
 
 // 优雅关闭

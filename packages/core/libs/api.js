@@ -1,9 +1,6 @@
 import { Code } from '../config/code.js';
 import { Validator } from './validator.js';
 
-// 重新导出 Code，方便其他模块使用
-export { Code } from '../config/code.js';
-
 /**
  * 验证 JSON 参数
  * @param {Request} request - 请求对象

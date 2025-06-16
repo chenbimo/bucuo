@@ -7,27 +7,6 @@ import path from 'path';
 import { Code } from './config/code.js';
 
 /**
- * 读取目录 - 使用 Bun 原生 API
- */
-export const readDir = async (dirPath) => {
-    try {
-        // 使用 Bun.Glob 与正确的 cwd 选项
-        const glob = new Bun.Glob('*');
-        const entries = [];
-
-        // 扫描指定目录
-        for await (const entry of glob.scan({ cwd: dirPath, onlyFiles: false })) {
-            entries.push(entry);
-        }
-
-        return entries;
-    } catch (error) {
-        console.warn(`读取目录失败 ${dirPath}:`, error.message);
-        return [];
-    }
-};
-
-/**
  * 确保目录存在
  */
 export const ensureDir = async (dirPath) => {
@@ -129,31 +108,3 @@ export const parseRequest = (request) => {
         timestamp: new Date().toISOString()
     };
 };
-
-/**
- * 创建统一响应对象
- * @param {number} code - 响应码
- * @param {string} msg - 响应消息
- * @param {any} data - 响应数据
- * @param {any} detail - 详细信息
- * @param {Object} options - 其他选项，会与前4个参数合并，但不能覆盖它们
- * @returns {Object} 响应对象
- */
-export function Res(config, msg, data = {}, detail = '', options = {}) {
-    // 基础响应对象
-    const response = {
-        code: config.code || 1,
-        msg: msg || config.msg || '未知错误',
-        data: data,
-        detail: detail,
-        timestamp: new Date().toISOString()
-    };
-
-    // 合并 options，但不覆盖基础参数
-    const { code: _, msg: __, data: ___, detail: ____, ...safeOptions } = options;
-
-    return {
-        ...safeOptions,
-        ...response
-    };
-}
