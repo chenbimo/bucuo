@@ -1,9 +1,8 @@
 import { Kysely, MysqlDialect, sql } from 'kysely';
 import { createPool } from 'mysql2';
-import { Plugin } from '../libs/plugin.js';
 import { Env } from '../config/env.js';
 
-export default Plugin({
+export default {
     order: 2,
     async onInit(context) {
         try {
@@ -41,4 +40,4 @@ export default Plugin({
             throw error;
         }
     }
-});
+};

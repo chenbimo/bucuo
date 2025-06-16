@@ -1,14 +1,6 @@
-/**
- * 业务插件示例 - 请求统计
- */
-
-import { Plugin } from '../../core/libs/plugin.js';
-
-export default Plugin({
-    name: 'request-stats',
+export default {
     order: 10,
-
-    async onRequest(context) {
+    async onGet(context) {
         const { request, cache, util } = context;
 
         console.log(' 请求统计插件处理请求');
@@ -45,4 +37,4 @@ export default Plugin({
             console.warn('请求统计插件错误:', error.message);
         }
     }
-});
+};

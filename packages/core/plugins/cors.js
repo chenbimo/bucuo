@@ -2,11 +2,9 @@
  * CORS 跨域插件
  */
 
-import { Plugin } from '../libs/plugin.js';
-
-export default Plugin({
+export default {
     order: 3,
-    async onRequest(context) {
+    async onGet(context) {
         const { request, response, config } = context;
 
         const origin = request.headers.get('origin');
@@ -25,4 +23,4 @@ export default Plugin({
             response.sent = true;
         }
     }
-});
+};

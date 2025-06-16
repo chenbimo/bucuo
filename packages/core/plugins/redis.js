@@ -1,7 +1,6 @@
 import { createClient } from '@redis/client';
-import { Plugin } from '../libs/plugin.js';
 
-export default Plugin({
+export default {
     order: 1,
     async onInit(context) {
         console.log('🔧 正在初始化 Redis 连接...');
@@ -49,4 +48,4 @@ export default Plugin({
 
         context.Redis = redis;
     }
-});
+};

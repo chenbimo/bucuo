@@ -14,8 +14,6 @@ class Bunfly {
         this.routes = new Map();
         this.pluginLists = [];
         this.pluginContext = {};
-        this.beforeHooks = [];
-        this.afterHooks = [];
         this.errorHandlers = [];
     }
 
@@ -56,22 +54,6 @@ class Bunfly {
         } catch (error) {
             console.log('🔥[ error ]-83', error);
         }
-    }
-
-    /**
-     * 注册前置钩子
-     */
-    beforeRequest(hook) {
-        this.beforeHooks.push(hook);
-        return this;
-    }
-
-    /**
-     * 注册后置钩子
-     */
-    afterRequest(hook) {
-        this.afterHooks.push(hook);
-        return this;
     }
 
     /**
@@ -168,27 +150,6 @@ class Bunfly {
     }
 
     /**
-     * 执行插件的响应处理钩子
-     */
-    async executeResponsePlugins(context) {
-        for (const plugin of this.pluginLists) {
-            try {
-                if (plugin.handleResponse && typeof plugin.handleResponse === 'function') {
-                    await plugin.handleResponse(context);
-                }
-
-                // 如果响应已经发送，停止执行后续插件
-                if (context.response.sent) {
-                    break;
-                }
-            } catch (error) {
-                console.error(`插件 ${plugin.name} 响应处理失败:`, error.message);
-                // 响应阶段的错误不应该中断流程，只记录日志
-            }
-        }
-    }
-
-    /**
      * 处理请求
      */
     async handleRequest(request) {
@@ -247,11 +208,6 @@ class Bunfly {
                 }
             }
 
-            // 执行前置钩子
-            for (const hook of this.beforeHooks) {
-                await hook(context);
-            }
-
             // 执行插件的请求处理钩子
             await this.executeRequestPlugins(context);
 
@@ -271,14 +227,6 @@ class Bunfly {
                     const notFoundResponse = Res(Code.API_NOT_FOUND);
                     context.response.json(notFoundResponse);
                 }
-            }
-
-            // 执行插件的响应处理钩子
-            await this.executeResponsePlugins(context);
-
-            // 执行后置钩子
-            for (const hook of this.afterHooks) {
-                await hook(context);
             }
 
             return context.response.send();

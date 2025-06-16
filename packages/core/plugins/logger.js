@@ -3,9 +3,8 @@
  */
 
 import { Logger } from '../libs/logger.js';
-import { Plugin } from '../libs/plugin.js';
 
-export default Plugin({
+export default {
     order: 0,
 
     async onInit(context) {
@@ -17,4 +16,4 @@ export default Plugin({
         console.log('✅ Logger 初始化完成');
         context.Logger = logger;
     }
-});
+};

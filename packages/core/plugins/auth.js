@@ -1,9 +1,8 @@
-import { Plugin } from '../libs/plugin.js';
 import { signer, verifier } from '../libs/jwt.js';
 
-export default Plugin({
+export default {
     order: 6,
-    async onRequest(context) {
+    async onGet(context) {
         // 解析 Authorization 头部
         const authHeader = context.request.headers.get('authorization');
         if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -23,4 +22,4 @@ export default Plugin({
             context.isAuthenticated = false;
         }
     }
-});
+};

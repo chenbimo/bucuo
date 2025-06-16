@@ -4,11 +4,10 @@
 
 import path from 'path';
 import { uuid, ensureDir } from '../util.js';
-import { Plugin } from '../libs/plugin.js';
 
-export default Plugin({
+export default {
     order: 5,
-    async onRequest(context) {
+    async onGet(context) {
         const { request, config } = context;
 
         // 只处理文件上传请求
@@ -104,4 +103,4 @@ export default Plugin({
             context.response.sent = true;
         }
     }
-});
+};
