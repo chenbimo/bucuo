@@ -3,7 +3,7 @@
  */
 
 export default {
-    order: 3,
+    order: 4,
     async onGet(context) {
         const { request, response, config } = context;
 

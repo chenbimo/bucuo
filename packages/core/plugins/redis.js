@@ -1,7 +1,7 @@
 import { createClient } from '@redis/client';
 
 export default {
-    order: 1,
+    order: 2,
     async onInit(context) {
         const config = {
             username: process.env.REDIS_USERNAME || '',
@@ -25,7 +25,7 @@ export default {
                 console.error('❌ Redis 客户端错误');
             })
             .on('ready', () => {
-                console.log('✅ Redis 客户端就绪');
+                // console.log('✅ Redis 客户端就绪');
             })
             .on('end', () => {
                 console.log('🔚 Redis 连接已结束');
@@ -39,7 +39,6 @@ export default {
             await redis.connect();
             // 测试连接
             const result = await redis.ping();
-            console.log('✅ Redis 连接初始化完成, PING 响应:', result);
         } catch (error) {
             console.error('❌ Redis 连接失败:', error);
             throw error;

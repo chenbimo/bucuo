@@ -3,7 +3,7 @@ import { createPool } from 'mysql2';
 import { Env } from '../config/env.js';
 
 export default {
-    order: 2,
+    order: 3,
     async onInit(context) {
         try {
             // 创建 MySQL 连接池

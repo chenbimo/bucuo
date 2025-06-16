@@ -37,7 +37,7 @@ class Bunfly {
                 try {
                     this.pluginContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.pluginContext) : {};
                     this.pluginLists.push(plugin);
-                    console.log(`✓ 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
+                    console.log(`✅ 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
                 } catch (error) {
                     console.warn(`插件 ${plugin.pluginName} 初始化失败:`, error.message);
                 }
