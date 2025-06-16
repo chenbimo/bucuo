@@ -2,7 +2,6 @@ import { Plugin } from '../libs/plugin.js';
 import { signer, verifier } from '../libs/jwt.js';
 
 export default Plugin({
-    name: 'auth',
     order: 6,
     async onRequest(context) {
         // 解析 Authorization 头部

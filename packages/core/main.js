@@ -12,8 +12,8 @@ export { Res } from './util.js';
 class Bunfly {
     constructor(options = {}) {
         this.routes = new Map();
-        this.plugins = [];
-        this.middlewares = [];
+        this.pluginLists = [];
+        this.pluginContext = {};
         this.beforeHooks = [];
         this.afterHooks = [];
         this.errorHandlers = [];
@@ -45,10 +45,6 @@ class Bunfly {
                 try {
                     const plugin = await import(file);
                     const pluginInstance = plugin.default;
-                    if (!pluginInstance?.name) {
-                        console.warn(`插件 ${file} 缺少 name 属性`);
-                        continue;
-                    }
                     if (!pluginInstance?.order) {
                         console.warn(`插件 ${file} 缺少 order 属性`);
                         continue;
@@ -65,15 +61,8 @@ class Bunfly {
 
             for (const plugin of loadedPlugins) {
                 try {
-                    // 初始化插件
-                    const tempContext = {
-                        config: this.config,
-                        request: null,
-                        response: null
-                    };
-                    await plugin?.handleInit(tempContext);
-                    plugin.__initData = tempContext;
-                    this.plugins.push(plugin);
+                    this.pluginContext[plugin.name] = await plugin?.handleInit(this.pluginContext);
+                    this.pluginLists.push(plugin);
                     console.log(`✓ 插件 ${plugin.name} - ${plugin.order} 初始化完成`);
                 } catch (error) {
                     console.warn(`插件 ${plugin.name} 初始化失败:`, error.message);
@@ -176,7 +165,7 @@ class Bunfly {
      * 执行插件的请求处理钩子
      */
     async executeRequestPlugins(context) {
-        for (const plugin of this.plugins) {
+        for (const plugin of this.pluginLists) {
             try {
                 if (plugin.handleRequest && typeof plugin.handleRequest === 'function') {
                     await plugin.handleRequest(context);
@@ -197,14 +186,7 @@ class Bunfly {
      * 执行插件的响应处理钩子
      */
     async executeResponsePlugins(context) {
-        // 按 order 排序插件（响应阶段可能需要反向执行某些插件）
-        const sortedPlugins = [...this.plugins].sort((a, b) => {
-            const orderA = typeof a === 'function' ? 0 : a.order || 0;
-            const orderB = typeof b === 'function' ? 0 : b.order || 0;
-            return orderA - orderB;
-        });
-
-        for (const plugin of sortedPlugins) {
+        for (const plugin of this.pluginLists) {
             try {
                 if (plugin.handleResponse && typeof plugin.handleResponse === 'function') {
                     await plugin.handleResponse(context);

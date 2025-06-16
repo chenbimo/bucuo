@@ -4,7 +4,6 @@ import { Plugin } from '../libs/plugin.js';
 import { Env } from '../config/env.js';
 
 export default Plugin({
-    name: 'db',
     order: 2,
     async onInit(context) {
         try {

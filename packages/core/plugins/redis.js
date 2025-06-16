@@ -2,7 +2,6 @@ import { createClient } from '@redis/client';
 import { Plugin } from '../libs/plugin.js';
 
 export default Plugin({
-    name: 'redis',
     order: 1,
     async onInit(context) {
         console.log('🔧 正在初始化 Redis 连接...');

@@ -6,7 +6,6 @@ import { Logger } from '../libs/logger.js';
 import { Plugin } from '../libs/plugin.js';
 
 export default Plugin({
-    name: 'logger',
     order: 0,
 
     async onInit(context) {
