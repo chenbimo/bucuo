@@ -6,7 +6,7 @@ export default defineConfig({
         environment: 'node',
 
         // 测试文件匹配模式
-        include: ['packages/test/**/*.{test,spec}.{js,ts}'],
+        include: ['packages/test/**/*{.,-}{test,spec}.{js,ts}'],
 
         // 排除的文件
         exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.{idea,git,cache,output,temp}/**'],
