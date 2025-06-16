@@ -85,9 +85,9 @@ class Bunpi {
                 '/': async (request) => {
                     return Response.json({
                         ...Code.SUCCESS,
-                        msg: 'Bunpi API Server is running',
+                        msg: 'BunPI API 服务已启动',
                         data: {
-                            environment: Env.NODE_ENV,
+                            mode: Env.NODE_ENV,
                             host: Env.APP_HOST,
                             port: Env.APP_PORT
                         }
@@ -111,7 +111,11 @@ class Bunpi {
                                 }
                             }
                             const result = await api.handler(request, this.pluginContext);
-                            return Response.json(result);
+                            if (result && typeof result === 'object' && 'code' in result) {
+                                return Response.json(result);
+                            } else {
+                                return new Response(result);
+                            }
                         } else {
                             return Response.json(Code.API_NOT_FOUND);
                         }
