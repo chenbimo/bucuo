@@ -125,9 +125,7 @@ class Bunpi {
                 },
                 '/*': async (request) => {
                     const url = new URL(request.url);
-                    console.log('🔥[ url ]-143', url);
                     const filePath = path.join(process.cwd(), 'public', url.pathname);
-                    console.log('🔥[ filePath ]-145', filePath);
 
                     try {
                         const file = await Bun.file(filePath);
@@ -138,22 +136,16 @@ class Bunpi {
                                 }
                             });
                         } else {
-                            return new Response('File not found', { status: 404 });
+                            return Response.json(Code.FILE_NOT_FOUND);
                         }
                     } catch (error) {
-                        console.error('Error serving static file:', error);
-                        return new Response('Internal Server Error', { status: 500 });
+                        return Response.json(Code.INTERNAL_SERVER_ERROR);
                     }
                 }
             },
             error(error) {
                 console.error(error);
-                return new Response(`Internal Error: ${error.message}`, {
-                    status: 500,
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    }
-                });
+                return Response.json(Code.INTERNAL_SERVER_ERROR);
             }
         });
 
