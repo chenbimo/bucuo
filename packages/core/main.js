@@ -27,39 +27,25 @@ class Bunfly {
     async loadPlugins() {
         try {
             const glob = new Bun.Glob('*.js');
-            const scanPlugins = [];
-            const corePlugins = await glob.scan({
+            const corePlugins = [];
+
+            // 扫描指定目录
+            for await (const file of glob.scan({
                 cwd: path.join(import.meta.dir, 'plugins'),
                 onlyFiles: true,
                 absolute: true
-            });
-
-            // 扫描指定目录
-            for await (const entry of corePlugins) {
-                scanPlugins.push(entry);
+            })) {
+                const plugin = await import(file);
+                const pluginInstance = plugin.default;
+                pluginInstance.pluginName = path.basename(file, '.js');
+                corePlugins.push(pluginInstance);
             }
             const loadedPlugins = [];
 
-            // 加载所有插件文件
-            for (const file of scanPlugins) {
-                try {
-                    const plugin = await import(file);
-                    const pluginInstance = plugin.default;
-                    if (!pluginInstance?.order) {
-                        console.warn(`插件 ${file} 缺少 order 属性`);
-                        continue;
-                    }
-
-                    loadedPlugins.push(pluginInstance);
-                } catch (error) {
-                    console.warn(`加载插件失败 ${file}:`, error.message);
-                }
-            }
-
             // 按 order 排序
-            loadedPlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
+            corePlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
 
-            for (const plugin of loadedPlugins) {
+            for (const plugin of corePlugins) {
                 try {
                     this.pluginContext[plugin.name] = await plugin?.handleInit(this.pluginContext);
                     this.pluginLists.push(plugin);
