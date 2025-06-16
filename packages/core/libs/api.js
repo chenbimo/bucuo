@@ -127,7 +127,7 @@ export function Api(config) {
     };
 
     // 添加 API 元信息
-    apiHandler.__isBunflyAPI__ = true;
+    apiHandler.__isBunpiAPI__ = true;
     apiHandler.__apiName__ = name;
     apiHandler.__apiMethod__ = httpMethod;
     apiHandler.__apiSchema__ = schema;

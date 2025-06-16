@@ -1,7 +1,7 @@
-import { Code, Bunfly } from 'bunfly';
+import { Code, Bunpi } from 'bunpi';
 
 // 配置服务器
-const app = new Bunfly({
+const app = new Bunpi({
     port: process.env.PORT || 3000,
     host: process.env.HOST || 'localhost'
 });

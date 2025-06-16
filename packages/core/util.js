@@ -1,5 +1,5 @@
 /**
- * Bunfly 工具函数 - 使用 Bun 专属 API
+ * Bunpi 工具函数 - 使用 Bun 专属 API
  */
 
 import { file, write } from 'bun';
@@ -12,7 +12,7 @@ import { Code } from './config/code.js';
 export const ensureDir = async (dirPath) => {
     try {
         // 尝试在目录中写入一个临时文件来确保目录存在
-        const testFile = file(path.join(dirPath, '.bunfly-temp'));
+        const testFile = file(path.join(dirPath, '.bunpi-temp'));
         await write(testFile, '');
         // 删除临时文件
         await write(testFile, null);

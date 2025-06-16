@@ -17,7 +17,7 @@ export default {
             ...Code.SUCCESS,
             msg: '系统信息获取成功',
             data: {
-                name: 'Bunfly',
+                name: 'Bunpi',
                 description: 'A universal JS backend API framework for Bun',
                 version: '1.0.0',
                 runtime: {

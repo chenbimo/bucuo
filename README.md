@@ -1,10 +1,10 @@
-# Bunfly API
+# Bunpi API
 
-基于 Bunfly Core 构建的业务层 API 项目。
+基于 Bunpi Core 构建的业务层 API 项目。
 
 ## 特性
 
--   🏗️ 基于 Bunfly Core 框架构建
+-   🏗️ 基于 Bunpi Core 框架构建
 -   👥 用户管理系统
 -   🔐 JWT 认证
 -   📊 请求统计
@@ -144,7 +144,7 @@ curl http://localhost:3000/api/stats/requests
 ```
 PORT=3000
 HOST=localhost
-JWT_SECRET=bunfly-dev-secret-key-2024
+JWT_SECRET=bunpi-dev-secret-key-2024
 JWT_EXPIRES_IN=24h
 REDIS_USE_MEMORY_CACHE=true
 CORS_ORIGIN=*

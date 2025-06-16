@@ -1,6 +1,6 @@
-# Bunfly Core
+# Bunpi Core
 
-Bunfly 框架的核心驱动，提供通用的 API 接口框架功能。
+Bunpi 框架的核心驱动，提供通用的 API 接口框架功能。
 
 ## 特性
 
@@ -39,16 +39,16 @@ core/
 ## 基本用法
 
 ```javascript
-import Bunfly from './main.js';
+import Bunpi from './main.js';
 
-const app = new Bunfly({
+const app = new Bunpi({
     port: 3000,
     host: 'localhost'
 });
 
 // 添加路由
 app.get('/hello', async (context) => {
-    return { message: 'Hello from Bunfly Core!' };
+    return { message: 'Hello from Bunpi Core!' };
 });
 
 // 启动服务器
@@ -101,7 +101,7 @@ app.use(myPlugin);
 通过构造函数配置或 `setConfig` 方法：
 
 ```javascript
-const app = new Bunfly({
+const app = new Bunpi({
     port: 3000,
     host: 'localhost'
 });

@@ -1,7 +1,7 @@
 {
-    "name": "bunfly-api",
+    "name": "bunpi-api",
     "version": "1.0.0",
-    "description": "Bunfly API - Business layer built on Bunfly Core",
+    "description": "Bunpi API - Business layer built on Bunpi Core",
     "type": "module",
     "main": "main.js",
     "exports": {
@@ -22,13 +22,13 @@
         "rest",
         "http"
     ],
-    "author": "Bunfly Team",
+    "author": "Bunpi Team",
     "license": "MIT",
     "engines": {
         "bun": ">=1.0.0"
     },
     "dependencies": {
-        "bunfly": "workspace:*"
+        "bunpi": "workspace:*"
     },
     "files": [
         "main.js",

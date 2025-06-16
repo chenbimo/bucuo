@@ -2,7 +2,7 @@
  * 创建用户 API - /user/create
  */
 
-import { Code } from 'bunfly';
+import { Code } from 'bunpi';
 import userSchema from '../../schema/user.json';
 
 export default {

@@ -5,7 +5,7 @@ import { Env } from './config/env.js';
 
 export { Code } from './config/code.js';
 
-class Bunfly {
+class Bunpi {
     constructor(options = {}) {
         this.apiRoutes = new Map();
         this.pluginLists = [];
@@ -85,9 +85,8 @@ class Bunfly {
                 '/': async (request) => {
                     return Response.json({
                         ...Code.SUCCESS,
-                        msg: 'Bunfly API Server is running',
+                        msg: 'Bunpi API Server is running',
                         data: {
-                            version: '1.0.0',
                             environment: Env.NODE_ENV,
                             host: Env.APP_HOST,
                             port: Env.APP_PORT
@@ -120,16 +119,18 @@ class Bunfly {
                         return Response.json(Code.INTERNAL_SERVER_ERROR);
                     }
                 },
-                '/public/*': async (request) => {
+                '/*': async (request) => {
                     const url = new URL(request.url);
-                    const filePath = path.join(import.meta.dir, 'public', url.pathname.replace('/public/', ''));
+                    console.log('🔥[ url ]-143', url);
+                    const filePath = path.join(process.cwd(), 'public', url.pathname);
+                    console.log('🔥[ filePath ]-145', filePath);
 
                     try {
                         const file = await Bun.file(filePath);
                         if (await file.exists()) {
                             return new Response(file, {
                                 headers: {
-                                    'Content-Type': Bun.getMimeType(filePath) || 'application/octet-stream'
+                                    'Content-Type': file.type || 'application/octet-stream'
                                 }
                             });
                         } else {
@@ -158,4 +159,4 @@ class Bunfly {
     }
 }
 
-export { Bunfly };
+export { Bunpi };

@@ -16,7 +16,7 @@ export default {
     handler: async (data, context) => {
         const { request } = context;
 
-        // 获取当前 Bunfly 实例的路由信息
+        // 获取当前 Bunpi 实例的路由信息
         // 由于我们在 API 处理器内部，需要通过 context 访问应用实例
         const app = context.app || this;
 

@@ -1,4 +1,4 @@
-import { Code } from 'bunfly';
+import { Code } from 'bunpi';
 import userSchema from '../../schema/user.json';
 
 export default Api({

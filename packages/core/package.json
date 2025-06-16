@@ -1,7 +1,7 @@
 {
-    "name": "bunfly",
+    "name": "bunpi",
     "version": "1.0.0",
-    "description": "Bunfly Core - Universal JS backend API framework core for Bun",
+    "description": "Bunpi Core - Universal JS backend API framework core for Bun",
     "type": "module",
     "main": "main.js",
     "exports": {
@@ -23,7 +23,7 @@
         "rest",
         "http"
     ],
-    "author": "Bunfly Team",
+    "author": "Bunpi Team",
     "license": "MIT",
     "engines": {
         "bun": ">=1.0.0"
