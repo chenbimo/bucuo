@@ -12,7 +12,7 @@ export default {
         fields: [],
         required: []
     },
-    handler: async (request, context) => {
+    handler: async (bunpi, req) => {
         return {
             ...Code.SUCCESS,
             msg: '系统信息获取成功',

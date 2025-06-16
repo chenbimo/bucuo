@@ -8,9 +8,7 @@ export default {
         fields: [],
         required: []
     },
-    handler: async (data, context) => {
-        const { redis } = context;
-
+    handler: async (bunpi, req) => {
         const status = {
             server: 'ok',
             timestamp: new Date().toISOString(),
@@ -30,9 +28,9 @@ export default {
         };
 
         // 检查 Redis 连接状态
-        if (redis) {
+        if (bunpi.redis) {
             try {
-                await redis.ping();
+                await bunpi.redis.ping();
                 status.redis = 'connected';
             } catch (error) {
                 status.redis = 'disconnected';

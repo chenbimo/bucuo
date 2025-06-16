@@ -13,15 +13,9 @@ export default {
         required: []
     },
     method: 'get',
-    handler: async (data, context) => {
-        const { request } = context;
-
-        // 获取当前 Bunpi 实例的路由信息
-        // 由于我们在 API 处理器内部，需要通过 context 访问应用实例
-        const app = context.app || this;
-
+    handler: async (bunpi, req) => {
         // 如果无法直接访问应用实例，我们需要从全局或其他方式获取
-        if (!app || !app.routes) {
+        if (!bunpi || !bunpi.routes) {
             return {
                 ...Code.INTERNAL_SERVER_ERROR,
                 error: '应用实例不可用',
@@ -31,7 +25,7 @@ export default {
 
         // 收集所有路由信息
         const routes = [];
-        for (const [key, handler] of app.routes) {
+        for (const [key, handler] of bunpi.routes) {
             const [method, path] = key.split(':');
             routes.push({
                 method: method,

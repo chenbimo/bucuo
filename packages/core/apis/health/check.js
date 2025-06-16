@@ -1,7 +1,3 @@
-/**
- * 健康检查 API - /core/health/check
- */
-
 import { Code } from '../../config/code.js';
 import healthSchema from '../../schema/health.json';
 
@@ -12,7 +8,7 @@ export default {
         fields: [],
         required: []
     },
-    handler: async (data, context) => {
+    handler: async (bunpi, req) => {
         return {
             ...Code.SUCCESS,
             msg: '健康检查成功',
