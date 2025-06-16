@@ -3,7 +3,7 @@
  * 使用 GET 请求查看所有已注册的路由
  */
 
-import { Code } from './config/code.js';
+import { Code } from '../../config/code.js';
 import debugSchema from '../../schema/debug.json';
 
 export default {

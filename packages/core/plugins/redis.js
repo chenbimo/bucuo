@@ -3,7 +3,6 @@ import { createClient } from '@redis/client';
 export default {
     order: 1,
     async onInit(context) {
-        console.log('🔧 正在初始化 Redis 连接...');
         const config = {
             username: process.env.REDIS_USERNAME || '',
             password: process.env.REDIS_PASSWORD || '',

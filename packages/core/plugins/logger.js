@@ -8,7 +8,6 @@ export default {
     order: 0,
 
     async onInit(context) {
-        console.log('🔧 正在初始化 Logger...');
         const logger = new Logger({
             enableFile: true,
             enableConsole: true
