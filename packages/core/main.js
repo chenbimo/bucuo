@@ -414,8 +414,6 @@ class Bunfly {
         if (callback && typeof callback === 'function') {
             callback(server);
         }
-
-        console.log(`🚀 服务器已启动: http://${Env.APP_HOST}:${Env.APP_PORT}`);
     }
 
     /**

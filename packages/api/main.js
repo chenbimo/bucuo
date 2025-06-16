@@ -38,5 +38,5 @@ process.on('SIGTERM', () => {
 
 // 启动服务器
 app.listen((server) => {
-    console.log(`🚀 服务器已启动: http://${server.host}:${server.port}`);
+    console.log(`🚀 服务器已启动: http://${server.hostname}:${server.port}`);
 });

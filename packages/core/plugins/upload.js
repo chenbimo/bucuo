@@ -12,11 +12,6 @@ export default Plugin({
 
     async onRequest(context) {
         const { request, config } = context;
-        const uploadConfig = config.upload;
-
-        if (!uploadConfig.enabled) {
-            return;
-        }
 
         // 只处理文件上传请求
         const contentType = request.headers.get('content-type') || '';
