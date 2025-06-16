@@ -12,7 +12,7 @@ export default {
         fields: [],
         required: []
     },
-    handler: async (data, context) => {
+    handler: async (request, context) => {
         return {
             ...Code.SUCCESS,
             msg: '系统信息获取成功',

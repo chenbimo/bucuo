@@ -6,22 +6,6 @@ const app = new Bunfly({
     host: process.env.HOST || 'localhost'
 });
 
-// 错误处理
-app.onError(async (context) => {
-    const { error, response, logger } = context;
-
-    if (logger) {
-        logger.error('未处理的错误:', { error: error.message, stack: error.stack });
-    }
-
-    response.json({
-        ...Code.SERVER_ERROR,
-        msg: process.env.NODE_ENV === 'development' ? error.message : '内部服务器错误',
-        data: {},
-        stack: process.env.NODE_ENV === 'development' ? error.stack : ''
-    });
-});
-
 // 优雅关闭
 process.on('SIGINT', () => {
     console.log('\n👋 正在优雅关闭...');

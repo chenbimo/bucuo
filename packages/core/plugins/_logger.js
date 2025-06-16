@@ -12,6 +12,7 @@ export default {
             enableFile: true,
             enableConsole: true
         });
-        context.Logger = logger;
+        console.log('=====logger');
+        return logger;
     }
 };

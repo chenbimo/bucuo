@@ -10,12 +10,11 @@ class Bunfly {
         this.apiRoutes = new Map();
         this.pluginLists = [];
         this.pluginContext = {};
-        this.errorHandlers = [];
     }
 
     async loadPlugins() {
         try {
-            const glob = new Bun.Glob('*.js');
+            const glob = new Bun.Glob('[a-z][A-Z0-9].js');
             const corePlugins = [];
 
             // 扫描指定目录
@@ -24,9 +23,11 @@ class Bunfly {
                 onlyFiles: true,
                 absolute: true
             })) {
+                const fileName = path.basename(file, '.js');
+                if (fileName.startsWith('_')) continue;
                 const plugin = await import(file);
                 const pluginInstance = plugin.default;
-                pluginInstance.pluginName = path.basename(file, '.js');
+                pluginInstance.pluginName = fileName;
                 corePlugins.push(pluginInstance);
             }
 
@@ -51,7 +52,6 @@ class Bunfly {
         try {
             const glob = new Bun.Glob('**/*.js');
             const coreApisDir = path.join(import.meta.dir, 'apis');
-            const coreApis = [];
 
             // 扫描指定目录
             for await (const file of glob.scan({
@@ -59,212 +59,15 @@ class Bunfly {
                 onlyFiles: true,
                 absolute: true
             })) {
+                const fileName = path.basename(file, '.js');
+                if (fileName.startsWith('_')) continue;
                 const api = await import(file);
                 const apiInstance = api.default;
-                apiInstance.route = path.relative(coreApisDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
-                coreApis.push(apiInstance);
+                apiInstance.route = '/api/core/' + path.relative(coreApisDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
+                this.apiRoutes.set(apiInstance.route, apiInstance);
             }
         } catch (error) {
             console.error('加载 API 时发生错误:', error);
-        }
-    }
-
-    /**
-     * 注册错误处理器
-     */
-    onError(handler) {
-        this.errorHandlers.push(handler);
-        return this;
-    }
-
-    /**
-     * 匹配路由
-     */
-    matchRoute(method, url) {
-        const pathname = new URL(url, 'http://localhost').pathname;
-
-        // 精确匹配
-        const exactKey = `${method}:${pathname}`;
-        if (this.apiRoutes.has(exactKey)) {
-            return { handler: this.apiRoutes.get(exactKey), params: {} };
-        }
-
-        // 参数匹配
-        for (const [key, handler] of this.apiRoutes) {
-            const [routeMethod, routePath] = key.split(':');
-
-            // 支持 * 方法（匹配所有方法）
-            if (routeMethod !== method && routeMethod !== '*') continue;
-
-            const params = this.extractParams(routePath, pathname);
-            if (params !== null) {
-                return { handler, params };
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * 提取路径参数
-     */
-    extractParams(routePath, requestPath) {
-        // 处理通配符路由 (/*)
-        if (routePath.endsWith('/*')) {
-            const baseRoute = routePath.slice(0, -2);
-            if (requestPath.startsWith(baseRoute)) {
-                return {}; // 匹配通配符路由，无参数
-            }
-            return null;
-        }
-
-        const routeParts = routePath.split('/');
-        const requestParts = requestPath.split('/');
-
-        if (routeParts.length !== requestParts.length) {
-            return null;
-        }
-
-        const params = {};
-        for (let i = 0; i < routeParts.length; i++) {
-            const routePart = routeParts[i];
-            const requestPart = requestParts[i];
-
-            if (routePart.startsWith(':')) {
-                const paramName = routePart.slice(1);
-                params[paramName] = decodeURIComponent(requestPart);
-            } else if (routePart !== requestPart) {
-                return null;
-            }
-        }
-
-        return params;
-    }
-
-    /**
-     * 处理请求
-     */
-    async handleRequest(request) {
-        const context = {
-            request: request,
-            response: {
-                status: 200,
-                headers: new Headers(),
-                body: null,
-                sent: false,
-                json(data) {
-                    this.headers.set('Content-Type', 'application/json');
-                    this.body = JSON.stringify(data);
-                    return this;
-                },
-                text(data) {
-                    this.headers.set('Content-Type', 'text/plain');
-                    this.body = data;
-                    return this;
-                },
-                html(data) {
-                    this.headers.set('Content-Type', 'text/html');
-                    this.body = data;
-                    return this;
-                },
-                send() {
-                    this.sent = true;
-                    return new Response(this.body, {
-                        status: this.status,
-                        headers: this.headers
-                    });
-                }
-            },
-            params: {},
-            query: {},
-            body: null,
-            startTime: Date.now()
-        };
-
-        try {
-            // 解析查询参数
-            const url = new URL(request.url);
-            context.query = Object.fromEntries(url.searchParams);
-
-            // 解析请求体
-            if (request.body && ['POST', 'PUT', 'PATCH'].includes(request.method)) {
-                const contentType = request.headers.get('content-type') || '';
-                if (contentType.includes('application/json')) {
-                    context.body = await request.json();
-                } else if (contentType.includes('application/x-www-form-urlencoded')) {
-                    context.body = Object.fromEntries(new URLSearchParams(await request.text()));
-                } else if (contentType.includes('multipart/form-data')) {
-                    context.body = await request.formData();
-                } else {
-                    context.body = await request.text();
-                }
-            }
-
-            // 执行插件的请求处理钩子
-            for await (const plugin of this.pluginLists) {
-                try {
-                    await plugin?.onGet(context);
-
-                    // 如果响应已经发送，停止执行后续插件
-                    if (context.response.sent) {
-                        break;
-                    }
-                } catch (error) {
-                    context.error = error;
-                    throw error;
-                }
-            }
-
-            // 如果插件已经处理了响应，跳过路由处理
-            if (!context.response.sent) {
-                // 路由匹配
-                const match = this.matchRoute(request.method, request.url);
-                if (match) {
-                    context.params = match.params;
-                    const result = await match.handler(context);
-
-                    // 如果处理器返回了结果且响应未发送，自动发送JSON响应
-                    if (result !== undefined && !context.response.sent) {
-                        context.response.json(result);
-                    }
-                } else {
-                    context.response.json({ ...Code.API_NOT_FOUND });
-                }
-            }
-
-            return context.response.send();
-        } catch (error) {
-            context.error = error;
-
-            // 执行错误处理器
-            let handled = false;
-            for (const handler of this.errorHandlers) {
-                try {
-                    await handler(context);
-                    if (context.response.sent) {
-                        handled = true;
-                        break;
-                    }
-                } catch (handlerError) {
-                    console.error('错误处理器中发生错误:', handlerError);
-                }
-            }
-
-            if (!handled) {
-                return new Response(
-                    JSON.stringify({
-                        error: '内部服务器错误',
-                        message: error.message,
-                        ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-                    }),
-                    {
-                        status: 500,
-                        headers: { 'Content-Type': 'application/json' }
-                    }
-                );
-            }
-
-            return context.response.send();
         }
     }
 
@@ -278,7 +81,75 @@ class Bunfly {
         const server = serve({
             port: Env.APP_PORT,
             hostname: Env.APP_HOST,
-            fetch: (request, server) => this.handleRequest(request, server)
+            routes: {
+                '/': async (request) => {
+                    return Response.json({
+                        ...Code.SUCCESS,
+                        msg: 'Bunfly API Server is running',
+                        data: {
+                            version: '1.0.0',
+                            environment: Env.NODE_ENV,
+                            host: Env.APP_HOST,
+                            port: Env.APP_PORT
+                        }
+                    });
+                },
+                '/api/*': async (request) => {
+                    const url = new URL(request.url);
+                    const apiPath = url.pathname;
+
+                    try {
+                        const api = this.apiRoutes.get(apiPath);
+                        if (api) {
+                            // 执行插件的请求处理钩子
+                            for await (const plugin of this.pluginLists) {
+                                try {
+                                    if (typeof plugin?.onGet === 'function') {
+                                        await plugin?.onGet(request, this.pluginContext);
+                                    }
+                                } catch (error) {
+                                    console.error('插件处理请求时发生错误:', error);
+                                }
+                            }
+                            const result = await api.handler(request, this.pluginContext);
+                            return Response.json(result);
+                        } else {
+                            return Response.json(Code.API_NOT_FOUND);
+                        }
+                    } catch (error) {
+                        return Response.json(Code.INTERNAL_SERVER_ERROR);
+                    }
+                },
+                '/public/*': async (request) => {
+                    const url = new URL(request.url);
+                    const filePath = path.join(import.meta.dir, 'public', url.pathname.replace('/public/', ''));
+
+                    try {
+                        const file = await Bun.file(filePath);
+                        if (await file.exists()) {
+                            return new Response(file, {
+                                headers: {
+                                    'Content-Type': Bun.getMimeType(filePath) || 'application/octet-stream'
+                                }
+                            });
+                        } else {
+                            return new Response('File not found', { status: 404 });
+                        }
+                    } catch (error) {
+                        console.error('Error serving static file:', error);
+                        return new Response('Internal Server Error', { status: 500 });
+                    }
+                }
+            },
+            error(error) {
+                console.error(error);
+                return new Response(`Internal Error: ${error.message}`, {
+                    status: 500,
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    }
+                });
+            }
         });
 
         if (callback && typeof callback === 'function') {
