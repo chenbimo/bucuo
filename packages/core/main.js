@@ -17,109 +17,71 @@ class Bunfly {
         this.beforeHooks = [];
         this.afterHooks = [];
         this.errorHandlers = [];
-
-        // 标记初始化状态
-        this.initialized = false;
-        this.initPromise = this.initializeCore();
     }
 
     /**
-     * 异步初始化核心组件
+     * 加载插件（核心插件和用户插件）
+     * @param {string} pluginDir - 插件目录路径
+     * @param {string} type - 插件类型 ('core' | 'user')
      */
-    async initializeCore() {
-        if (this.initialized) return;
-
-        console.log('🔧 正在初始化 Bunfly 核心组件...');
-
-        // 加载并初始化核心插件
-        await this.loadCorePlugins();
-
-        this.initialized = true;
-        console.log('✅ Bunfly 核心组件初始化完成');
-    }
-
-    /**
-     * 加载核心插件
-     */
-    async loadCorePlugins() {
-        const pluginDir = path.join(import.meta.dir, 'plugins');
-
+    async loadPlugins() {
         try {
-            const files = await readDir(pluginDir);
-            const pluginFiles = files.filter((file) => file.endsWith('.js'));
+            const glob = new Bun.Glob('*.js');
+            const scanPlugins = [];
+            const corePlugins = await glob.scan({
+                cwd: path.join(import.meta.dir, 'plugins'),
+                onlyFiles: true,
+                absolute: true
+            });
 
+            // 扫描指定目录
+            for await (const entry of corePlugins) {
+                scanPlugins.push(entry);
+            }
             const loadedPlugins = [];
 
-            for (const file of pluginFiles) {
+            // 加载所有插件文件
+            for (const file of scanPlugins) {
                 try {
-                    const pluginPath = path.join(pluginDir, file);
-                    const plugin = await import(pluginPath);
-
-                    // 统一使用 default 导出
+                    const plugin = await import(file);
                     const pluginInstance = plugin.default;
-
-                    if (pluginInstance && typeof pluginInstance.handleInit === 'function') {
-                        loadedPlugins.push(pluginInstance);
-                        console.log(`✅ 已加载核心插件: ${file} [${pluginInstance.name}] [order: ${pluginInstance.order || 0}]`);
-                    } else {
-                        console.warn(`插件 ${file} 没有正确的 default 导出或缺少 handleInit 方法`);
+                    if (!pluginInstance?.name) {
+                        console.warn(`插件 ${file} 缺少 name 属性`);
+                        continue;
                     }
+                    if (!pluginInstance?.order) {
+                        console.warn(`插件 ${file} 缺少 order 属性`);
+                        continue;
+                    }
+
+                    loadedPlugins.push(pluginInstance);
                 } catch (error) {
                     console.warn(`加载插件失败 ${file}:`, error.message);
                 }
             }
 
-            // 按 order 排序并注册插件
+            // 按 order 排序
             loadedPlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
-            loadedPlugins.forEach((plugin) => this.use(plugin));
 
-            // 初始化所有插件
-            await this.initializePlugins(loadedPlugins);
-        } catch (error) {
-            console.warn('未找到插件目录，跳过插件加载');
-        }
-    }
-
-    /**
-     * 初始化插件
-     */
-    async initializePlugins(plugins) {
-        console.log('🔌 正在初始化插件...');
-
-        // 按 order 排序插件
-        const sortedPlugins = [...plugins].sort((a, b) => (a.order || 0) - (b.order || 0));
-
-        // 创建一个临时的上下文来初始化插件
-        const tempContext = {
-            config: this.config,
-            request: null,
-            response: null
-        };
-
-        for (const plugin of sortedPlugins) {
-            try {
-                if (plugin.handleInit && typeof plugin.handleInit === 'function') {
-                    await plugin.handleInit(tempContext);
+            for (const plugin of loadedPlugins) {
+                try {
+                    // 初始化插件
+                    const tempContext = {
+                        config: this.config,
+                        request: null,
+                        response: null
+                    };
+                    await plugin?.handleInit(tempContext);
+                    plugin.__initData = tempContext;
+                    this.plugins.push(plugin);
+                    console.log(`✓ 插件 ${plugin.name} - ${plugin.order} 初始化完成`);
+                } catch (error) {
+                    console.warn(`插件 ${plugin.name} 初始化失败:`, error.message);
                 }
-                console.log(`✓ 插件 ${plugin.name} 初始化完成`);
-            } catch (error) {
-                console.warn(`插件 ${plugin.name} 初始化失败:`, error.message);
             }
+        } catch (error) {
+            console.log('🔥[ error ]-83', error);
         }
-    }
-
-    /**
-     * 注册插件
-     */
-    use(plugin) {
-        if (typeof plugin === 'function') {
-            this.plugins.push(plugin);
-        } else if (plugin && typeof plugin.handleInit === 'function') {
-            this.plugins.push(plugin);
-        } else {
-            throw new Error('插件必须是一个函数或具有 handleInit 方法的插件对象');
-        }
-        return this;
     }
 
     /**
@@ -214,18 +176,9 @@ class Bunfly {
      * 执行插件的请求处理钩子
      */
     async executeRequestPlugins(context) {
-        // 按 order 排序插件
-        const sortedPlugins = [...this.plugins].sort((a, b) => {
-            const orderA = typeof a === 'function' ? 0 : a.order || 0;
-            const orderB = typeof b === 'function' ? 0 : b.order || 0;
-            return orderA - orderB;
-        });
-
-        for (const plugin of sortedPlugins) {
+        for (const plugin of this.plugins) {
             try {
-                if (typeof plugin === 'function') {
-                    await plugin(context);
-                } else if (plugin.handleRequest && typeof plugin.handleRequest === 'function') {
+                if (plugin.handleRequest && typeof plugin.handleRequest === 'function') {
                     await plugin.handleRequest(context);
                 }
 
@@ -305,7 +258,6 @@ class Bunfly {
             params: {},
             query: {},
             body: null,
-            config: this.config,
             startTime: Date.now()
         };
 
@@ -402,13 +354,12 @@ class Bunfly {
      * 启动服务器
      */
     async listen(callback) {
-        // 确保核心组件初始化完成
-        await this.initPromise;
+        await this.loadPlugins();
 
         const server = serve({
             port: Env.APP_PORT,
             hostname: Env.APP_HOST,
-            fetch: (request) => this.handleRequest(request)
+            fetch: (request, server) => this.handleRequest(request, server)
         });
 
         if (callback && typeof callback === 'function') {
@@ -428,7 +379,7 @@ class Bunfly {
     /**
      * 加载 API 路由
      */
-    async loadApiRoutes(baseDir = './src/pages', routePrefix = '') {
+    async loadApiRoutes(baseDir = './api/apis', routePrefix = '') {
         const currentDir = path.resolve(import.meta.dir, baseDir);
 
         try {

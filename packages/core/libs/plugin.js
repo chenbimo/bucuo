@@ -15,11 +15,6 @@
  * @returns {Object} 标准化的插件对象
  */
 export const Plugin = (config) => {
-    // 验证必需参数
-    if (!config || !config.name) {
-        throw new Error('插件配置缺少必需的 name 属性');
-    }
-
     const plugin = {
         name: config.name,
         order: config.order || 0,
