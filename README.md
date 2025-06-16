@@ -1,6 +1,6 @@
-# Bunpi API
+# BunPI - 崩屁
 
-基于 Bunpi Core 构建的业务层 API 项目。
+为 Bun 量身打造的 API 接口框架。
 
 ## 特性
 
