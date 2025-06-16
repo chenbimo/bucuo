@@ -1,23 +1,84 @@
 /**
- * 简单验证器
- * 支持 number, string, array 三种数据类型的验证
+ * 新版验证器
+ * @param {Object} data - 要验证的数据对象，如 {limit: 10, title: '这是标题'}
+ * @param {Object} rules - 验证规则对象，如 {"limit": "每页数量,number,1,100", "title": "标题,string,1,200"}
+ * @param {Array} required - 必传字段数组，如 ['limit', 'title']
+ * @returns {Object} { code: 0|1, fields: {} }
  */
+export function validate(data, rules, required = []) {
+    const result = {
+        code: 0,
+        fields: {}
+    };
+
+    // 参数检查
+    if (!data || typeof data !== 'object') {
+        result.code = 1;
+        result.fields._error = '数据必须是对象格式';
+        return result;
+    }
+
+    if (!rules || typeof rules !== 'object') {
+        result.code = 1;
+        result.fields._error = '验证规则必须是对象格式';
+        return result;
+    }
+
+    if (!Array.isArray(required)) {
+        result.code = 1;
+        result.fields._error = '必传字段必须是数组格式';
+        return result;
+    }
+
+    // 先检查必传字段
+    for (const fieldName of required) {
+        if (!(fieldName in data) || data[fieldName] === undefined || data[fieldName] === null || data[fieldName] === '') {
+            result.code = 1;
+            const ruleParts = rules[fieldName]?.split(',') || [];
+            const fieldLabel = ruleParts[0] || fieldName;
+            result.fields[fieldName] = `${fieldLabel}为必填项`;
+        }
+    }
+
+    // 验证所有在规则中定义的字段
+    for (const [fieldName, rule] of Object.entries(rules)) {
+        // 如果字段不存在且不是必传字段，跳过验证
+        if (!(fieldName in data) && !required.includes(fieldName)) {
+            continue;
+        }
+
+        // 如果必传验证已经失败，跳过后续验证
+        if (result.fields[fieldName]) {
+            continue;
+        }
+
+        const value = data[fieldName];
+        const error = validateFieldValue(value, rule, fieldName);
+
+        if (error) {
+            result.code = 1;
+            result.fields[fieldName] = error;
+        }
+    }
+
+    return result;
+}
 
 /**
- * 验证单个字段
+ * 验证单个字段的值
  * @param {any} value - 要验证的值
- * @param {string} rule - 验证规则，格式：'name,type,min,max,regex,separator'
+ * @param {string} rule - 验证规则
  * @param {string} fieldName - 字段名
- * @returns {Object} { success: boolean, error?: string }
+ * @returns {string|null} 错误信息，验证通过返回 null
  */
-function validateField(value, rule, fieldName) {
+function validateFieldValue(value, rule, fieldName) {
     if (!rule || typeof rule !== 'string') {
-        return { success: false, error: `字段 ${fieldName} 的验证规则格式错误` };
+        return `字段 ${fieldName} 的验证规则格式错误`;
     }
 
     const parts = rule.split(',');
     if (parts.length < 4) {
-        return { success: false, error: `字段 ${fieldName} 的验证规则参数不足` };
+        return `字段 ${fieldName} 的验证规则参数不足`;
     }
 
     const [name, type, minStr, maxStr, regex, separator] = parts;
@@ -32,110 +93,77 @@ function validateField(value, rule, fieldName) {
         case 'array':
             return validateArray(value, name, min, max, regex, separator === 'null' ? ',' : separator, fieldName);
         default:
-            return { success: false, error: `字段 ${fieldName} 的类型 ${type} 不支持` };
+            return `字段 ${fieldName} 的类型 ${type} 不支持`;
     }
 }
 
 /**
  * 验证数字类型
- * @param {any} value - 值
- * @param {string} name - 字段名称
- * @param {number} min - 最小值
- * @param {number} max - 最大值
- * @param {string} fieldName - 字段名
- * @returns {Object}
  */
 function validateNumber(value, name, min, max, fieldName) {
-    if (value === undefined || value === null) {
-        return { success: false, error: `${name || fieldName} 不能为空` };
-    }
-
     const num = Number(value);
     if (isNaN(num)) {
-        return { success: false, error: `${name || fieldName} 必须是数字` };
+        return `${name || fieldName}必须是数字`;
     }
 
     if (num < min) {
-        return { success: false, error: `${name || fieldName} 不能小于 ${min}` };
+        return `${name || fieldName}不能小于${min}`;
     }
 
     if (max > 0 && num > max) {
-        return { success: false, error: `${name || fieldName} 不能大于 ${max}` };
+        return `${name || fieldName}不能大于${max}`;
     }
 
-    return { success: true };
+    return null;
 }
 
 /**
  * 验证字符串类型
- * @param {any} value - 值
- * @param {string} name - 字段名称
- * @param {number} min - 最小长度
- * @param {number} max - 最大长度
- * @param {string} regex - 正则表达式
- * @param {string} fieldName - 字段名
- * @returns {Object}
  */
 function validateString(value, name, min, max, regex, fieldName) {
-    if (value === undefined || value === null) {
-        return { success: false, error: `${name || fieldName} 不能为空` };
-    }
-
     const str = String(value);
 
     if (str.length < min) {
-        return { success: false, error: `${name || fieldName} 长度不能少于 ${min} 个字符` };
+        return `${name || fieldName}长度不能少于${min}个字符`;
     }
 
     if (max > 0 && str.length > max) {
-        return { success: false, error: `${name || fieldName} 长度不能超过 ${max} 个字符` };
+        return `${name || fieldName}长度不能超过${max}个字符`;
     }
 
     if (regex && regex.trim() !== '') {
         try {
             const regExp = new RegExp(regex);
             if (!regExp.test(str)) {
-                return { success: false, error: `${name || fieldName} 格式不正确` };
+                return `${name || fieldName}格式不正确`;
             }
         } catch (error) {
-            return { success: false, error: `${name || fieldName} 的正则表达式格式错误` };
+            return `${name || fieldName}的正则表达式格式错误`;
         }
     }
 
-    return { success: true };
+    return null;
 }
 
 /**
  * 验证数组类型
- * @param {any} value - 值
- * @param {string} name - 字段名称
- * @param {number} min - 最小元素数量
- * @param {number} max - 最大元素数量
- * @param {string} regex - 正则表达式
- * @param {string} separator - 分隔符
- * @param {string} fieldName - 字段名
- * @returns {Object}
  */
 function validateArray(value, name, min, max, regex, separator, fieldName) {
-    if (value === undefined || value === null) {
-        return { success: false, error: `${name || fieldName} 不能为空` };
-    }
-
     let arr;
     if (Array.isArray(value)) {
         arr = value;
     } else if (typeof value === 'string') {
         arr = value.split(separator || ',').filter((item) => item.trim() !== '');
     } else {
-        return { success: false, error: `${name || fieldName} 必须是数组或可分割的字符串` };
+        return `${name || fieldName}必须是数组或可分割的字符串`;
     }
 
     if (arr.length < min) {
-        return { success: false, error: `${name || fieldName} 至少需要 ${min} 个元素` };
+        return `${name || fieldName}至少需要${min}个元素`;
     }
 
     if (max > 0 && arr.length > max) {
-        return { success: false, error: `${name || fieldName} 最多只能有 ${max} 个元素` };
+        return `${name || fieldName}最多只能有${max}个元素`;
     }
 
     if (regex && regex.trim() !== '') {
@@ -143,72 +171,23 @@ function validateArray(value, name, min, max, regex, separator, fieldName) {
             const regExp = new RegExp(regex);
             for (const item of arr) {
                 if (!regExp.test(String(item).trim())) {
-                    return { success: false, error: `${name || fieldName} 中的元素 "${item}" 格式不正确` };
+                    return `${name || fieldName}中的元素"${item}"格式不正确`;
                 }
             }
         } catch (error) {
-            return { success: false, error: `${name || fieldName} 的正则表达式格式错误` };
+            return `${name || fieldName}的正则表达式格式错误`;
         }
     }
 
-    return { success: true };
+    return null;
 }
 
-/**
- * 创建验证器函数（主要验证函数）
- * @param {Object} data - 要验证的数据对象
- * @param {Object} rules - 验证规则对象
- * @returns {Object} { success: boolean, errors?: Array, data?: Object }
- */
-export function Validator(data, rules) {
-    if (!data || typeof data !== 'object') {
-        return { success: false, errors: ['数据必须是对象格式'] };
-    }
-
-    if (!rules || typeof rules !== 'object') {
-        return { success: false, errors: ['验证规则必须是对象格式'] };
-    }
-
-    const errors = [];
-    const validatedData = {};
-
-    // 验证每个字段
-    for (const [fieldName, rule] of Object.entries(rules)) {
-        const value = data[fieldName];
-        const result = validateField(value, rule, fieldName);
-
-        if (!result.success) {
-            errors.push(result.error);
-        } else {
-            // 转换数据类型
-            const ruleType = rule.split(',')[1].toLowerCase();
-            switch (ruleType) {
-                case 'number':
-                    validatedData[fieldName] = Number(value);
-                    break;
-                case 'string':
-                    validatedData[fieldName] = String(value);
-                    break;
-                case 'array':
-                    if (Array.isArray(value)) {
-                        validatedData[fieldName] = value;
-                    } else {
-                        const separator = rule.split(',')[5];
-                        const sep = separator === 'null' ? ',' : separator;
-                        validatedData[fieldName] = String(value)
-                            .split(sep || ',')
-                            .filter((item) => item.trim() !== '');
-                    }
-                    break;
-                default:
-                    validatedData[fieldName] = value;
-            }
-        }
-    }
-
-    if (errors.length > 0) {
-        return { success: false, errors };
-    }
-
-    return { success: true, data: validatedData };
-}
+// 使用示例：
+// const data = { limit: 10, title: '这是标题' };
+// const rules = {
+//     "limit": "每页数量,number,1,100",
+//     "title": "标题,string,1,200"
+// };
+// const required = ['limit', 'title'];
+// const result = validate(data, rules, required);
+// console.log(result); // { code: 0, fields: {} }

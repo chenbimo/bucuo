@@ -104,13 +104,13 @@ class Bunpi {
                             for await (const plugin of this.pluginLists) {
                                 try {
                                     if (typeof plugin?.onGet === 'function') {
-                                        await plugin?.onGet(request, this.pluginContext);
+                                        await plugin?.onGet(this.pluginContext, request);
                                     }
                                 } catch (error) {
                                     console.error('插件处理请求时发生错误:', error);
                                 }
                             }
-                            const result = await api.handler(request, this.pluginContext);
+                            const result = await api.handler(this.pluginContext, request);
                             if (result && typeof result === 'object' && 'code' in result) {
                                 return Response.json(result);
                             } else {

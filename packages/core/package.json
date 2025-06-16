@@ -8,11 +8,7 @@
         ".": "./main.js",
         "./main.js": "./main.js"
     },
-    "scripts": {
-        "test": "bun run test.js",
-        "test:unit": "bun test",
-        "lint": "echo 'Add your linting command here'"
-    },
+    "scripts": {},
     "keywords": [
         "bun",
         "api",

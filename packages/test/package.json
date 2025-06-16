@@ -1,0 +1,33 @@
+{
+    "name": "bunpi-test",
+    "version": "1.0.0",
+    "description": "Bunpi Test Suite - 测试套件",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest run --coverage",
+        "test:core": "vitest run core/",
+        "test:api": "vitest run api/",
+        "test:validator": "vitest run core/libs/validator.test.js"
+    },
+    "keywords": [
+        "bun",
+        "test",
+        "vitest",
+        "unit-test",
+        "api-test"
+    ],
+    "author": "Bunpi Team",
+    "license": "MIT",
+    "engines": {
+        "bun": ">=1.0.0"
+    },
+    "devDependencies": {
+        "vitest": "^3.2.3",
+        "@vitest/ui": "^3.2.3",
+        "@vitest/coverage-v8": "^3.2.3"
+    }
+}
