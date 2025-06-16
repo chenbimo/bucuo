@@ -40,18 +40,17 @@ class Bunfly {
                 pluginInstance.pluginName = path.basename(file, '.js');
                 corePlugins.push(pluginInstance);
             }
-            const loadedPlugins = [];
 
             // 按 order 排序
             corePlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
 
             for (const plugin of corePlugins) {
                 try {
-                    this.pluginContext[plugin.name] = await plugin?.handleInit(this.pluginContext);
+                    this.pluginContext[plugin.pluginName] = await plugin?.handleInit(this.pluginContext);
                     this.pluginLists.push(plugin);
-                    console.log(`✓ 插件 ${plugin.name} - ${plugin.order} 初始化完成`);
+                    console.log(`✓ 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
                 } catch (error) {
-                    console.warn(`插件 ${plugin.name} 初始化失败:`, error.message);
+                    console.warn(`插件 ${plugin.pluginName} 初始化失败:`, error.message);
                 }
             }
         } catch (error) {
