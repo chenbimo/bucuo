@@ -1,4 +1,5 @@
 import { isType } from '../utils/isType.js';
+import { ruleSplit } from '../utils/ruleSplit.js';
 
 /**
  * 新版验证器
@@ -76,16 +77,7 @@ export function Validate(data, rules, required = []) {
  */
 function validateFieldValue(value, rule, fieldName) {
     // 只按前4个逗号分隔，后面的都归入第5个参数
-    const parts = rule.split(',', 5);
-
-    // 如果有第5个参数，需要重新获取完整的spec部分
-    if (rule.split(',').length > 5) {
-        const allParts = rule.split(',');
-        parts[4] = allParts.slice(4).join(',');
-    }
-    if (parts.length !== 5) {
-        return `字段 ${fieldName} 的验证规则错误，应包含5个部分`;
-    }
+    const parts = ruleSplit(rule);
 
     const [name, type, minStr, maxStr, specStr] = parts;
     const min = minStr === 'null' ? null : parseInt(minStr) || 0;

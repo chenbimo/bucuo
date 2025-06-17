@@ -1,8 +1,9 @@
 import { serve } from 'bun';
-import path from 'path';
+import path from 'node:path';
 import { Code } from './config/code.js';
 import { Env } from './config/env.js';
 import { Validate } from './libs/validate.js';
+import { isType } from './utils/isType.js';
 
 export { Code } from './config/code.js';
 
@@ -11,6 +12,68 @@ class Bunpi {
         this.apiRoutes = new Map();
         this.pluginLists = [];
         this.appContext = {};
+    }
+
+    async initCheck() {
+        try {
+            console.log('🔍 开始执行系统检查...');
+
+            const checksDir = path.join(import.meta.dir, 'checks');
+            const glob = new Bun.Glob('*.js');
+
+            // 统计信息
+            let totalChecks = 0;
+            let passedChecks = 0;
+            let failedChecks = 0;
+
+            // 扫描并执行检查函数
+            for await (const file of glob.scan({
+                cwd: checksDir,
+                onlyFiles: true,
+                absolute: true
+            })) {
+                const fileName = path.basename(file);
+                if (fileName.startsWith('_')) continue; // 跳过以下划线开头的文件
+
+                try {
+                    totalChecks++;
+                    console.log(`🔍 执行检查文件: ${fileName}`);
+
+                    // 导入检查模块
+                    const check = await import(file);
+
+                    // 执行默认导出的函数
+                    if (typeof check.default === 'function') {
+                        await check.default(this.appContext);
+                        console.log(`✅ 检查通过: ${fileName}`);
+                        passedChecks++;
+                    } else {
+                        console.warn(`⚠️ 文件 ${fileName} 未导出默认函数`);
+                        failedChecks++;
+                    }
+                } catch (error) {
+                    console.error(`❌ 检查失败 ${fileName}: ${error.message}`);
+                    failedChecks++;
+                }
+            }
+
+            // 输出检查结果统计
+            console.log('📊 系统检查统计:');
+            console.log(`总检查数: ${totalChecks}, 通过: ${passedChecks}, 失败: ${failedChecks}`);
+
+            if (failedChecks > 0) {
+                console.warn(`⚠️ 存在 ${failedChecks} 项检查未通过`);
+                // 可以根据需要在此处抛出异常以阻止服务启动
+                // throw new Error('系统检查未通过');
+            } else if (totalChecks > 0) {
+                console.log('🎉 所有系统检查通过!');
+            } else {
+                console.log('ℹ️ 未执行任何检查');
+            }
+        } catch (error) {
+            console.error('❌ 执行系统检查过程中出错:', error);
+            throw error;
+        }
     }
 
     async loadPlugins() {
@@ -77,6 +140,7 @@ class Bunpi {
      * 启动服务器
      */
     async listen(callback) {
+        await this.initCheck();
         await this.loadPlugins();
         await this.loadApis();
 
