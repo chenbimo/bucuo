@@ -3,6 +3,8 @@ import path from 'node:path';
 import { Code } from './config/code.js';
 import { Env } from './config/env.js';
 import { Validate } from './libs/validate.js';
+
+// 工具函数
 import { isType } from './utils/isType.js';
 import { colors } from './utils/colors.js';
 
