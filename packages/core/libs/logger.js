@@ -4,12 +4,12 @@
 
 import { formatDate } from '../utils/formatDate.js';
 import path from 'path';
-import { mkdir, readdir } from 'node:fs/promises';
+import { Env } from '../config/env.js';
 
 export class Logger {
-    constructor(config = {}) {
+    constructor() {
         // 基础配置
-        this.level = config.level || 'info';
+        this.level = Env.LOG_LEVEL || 'info';
         this.levels = {
             error: 0,
             warn: 1,
@@ -18,9 +18,8 @@ export class Logger {
         };
 
         // 输出配置
-        this.enableConsole = config.enableConsole !== false;
-        this.logDir = config.logDir || 'logs';
-        this.maxFileSize = config.maxFileSize || 50 * 1024 * 1024; // 50MB
+        this.logDir = Env.LOG_DIR || 'logs';
+        this.maxFileSize = Env.LOG_MAX_SIZE || 50 * 1024 * 1024; // 50MB
 
         // 初始化日志目录
         try {
@@ -50,7 +49,7 @@ export class Logger {
         const formattedMessage = this.formatMessage(level, message, meta);
 
         // 控制台输出
-        if (this.enableConsole) {
+        if (Env.LOG_TO_CONSOLE === 1) {
             console.log(formattedMessage);
         }
 
