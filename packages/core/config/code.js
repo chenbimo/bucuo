@@ -47,6 +47,10 @@ export const Code = {
         code: 14,
         msg: '请求频率超限'
     },
+    API_PARAMS_ERROR: {
+        code: 15,
+        msg: '接口参数验证失败'
+    },
 
     // 参数验证错误 (20-29)
     INVALID_PARAMS: {

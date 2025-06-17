@@ -188,7 +188,12 @@ class Bunpi {
                         }
 
                         const validate = Validate(this.appContext.body, api.schema.fields, api.schema.required);
-                        console.log('🔥[ validate ]-115', validate);
+                        if (validate.code !== 0) {
+                            return Response.json({
+                                ...Code.API_PARAMS_ERROR,
+                                data: validate.fields
+                            });
+                        }
                         const result = await api.handler(this.appContext, req);
                         if (result && typeof result === 'object' && 'code' in result) {
                             return Response.json(result);
