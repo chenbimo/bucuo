@@ -4,6 +4,7 @@
 
 import { formatDate } from '../utils/formatDate.js';
 import path from 'path';
+import { mkdir, readdir } from 'node:fs/promises';
 
 export class Logger {
     constructor(config = {}) {
@@ -60,16 +61,20 @@ export class Logger {
         try {
             // 确保日志目录存在
             try {
-                await Bun.mkdir(this.logDir, { recursive: true });
+                await mkdir(this.logDir, { recursive: true });
             } catch (err) {
                 if (err.code !== 'EEXIST') {
                     console.error('创建日志目录失败:', err);
                 }
             }
 
-            // 获取当前日志文件名
+            // 其余代码保持不变...
             const today = new Date().toISOString().split('T')[0];
             const baseLogFile = path.join(this.logDir, `${today}.log`);
+
+            // 先检查基础日志文件
+            let currentLogFile = baseLogFile;
+            const baseFile = Bun.file(baseLogFile);
 
             // 先检查基础日志文件
             let currentLogFile = baseLogFile;
@@ -78,7 +83,7 @@ export class Logger {
             if ((await baseFile.exists()) && baseFile.size >= this.maxFileSize) {
                 // 基础文件已满，查找今天日期的最大序号文件
                 let maxIndex = 0;
-                const files = await Bun.readdir(this.logDir);
+                const files = await readdir(this.logDir);
                 const fileNamePattern = `${today}\\.(\\d+)\\.log`;
 
                 for (const fileName of files) {
