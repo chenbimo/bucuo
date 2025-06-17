@@ -76,10 +76,7 @@ export function Validate(data, rules, required = []) {
  * @returns {string|null} 错误信息，验证通过返回 null
  */
 function validateFieldValue(value, rule, fieldName) {
-    // 只按前4个逗号分隔，后面的都归入第5个参数
-    const parts = ruleSplit(rule);
-
-    const [name, type, minStr, maxStr, specStr] = parts;
+    const [name, type, minStr, maxStr, specStr] = ruleSplit(rule);
     const min = minStr === 'null' ? null : parseInt(minStr) || 0;
     const max = maxStr === 'null' ? null : parseInt(maxStr) || 0;
     const spec = specStr === 'null' ? null : specStr.trim();
@@ -97,20 +94,20 @@ function validateFieldValue(value, rule, fieldName) {
 }
 
 function validateNumber(value, name, min, max, spec, fieldName) {
-    if (isType(value, 'number') === false) {
-        return `${name}(${fieldName})必须是数字`;
-    }
+    try {
+        if (isType(value, 'number') === false) {
+            return `${name}(${fieldName})必须是数字`;
+        }
 
-    if (min !== null && value < min) {
-        return `${name}(${fieldName})不能小于${min}`;
-    }
+        if (min !== null && value < min) {
+            return `${name}(${fieldName})不能小于${min}`;
+        }
 
-    if (min !== null && max > 0 && value > max) {
-        return `${name}(${fieldName})不能大于${max}`;
-    }
+        if (min !== null && max > 0 && value > max) {
+            return `${name}(${fieldName})不能大于${max}`;
+        }
 
-    if (spec && spec.trim() !== '') {
-        try {
+        if (spec && spec.trim() !== '') {
             // 按等号分隔等式
             const parts = spec.split('=');
             if (parts.length !== 2) {
@@ -145,72 +142,72 @@ function validateNumber(value, name, min, max, spec, fieldName) {
             if (Math.abs(leftResult - rightValue) > Number.EPSILON) {
                 return `${name}(${fieldName})不满足计算条件 ${spec}`;
             }
-        } catch (error) {
-            return `${name}(${fieldName})的计算规则格式错误: ${error.message}`;
         }
-    }
 
-    return null;
+        return null;
+    } catch (error) {
+        return `${name}(${fieldName})的计算规则格式错误: ${error.message}`;
+    }
 }
 
 /**
  * 验证字符串类型
  */
 function validateString(value, name, min, max, spec, fieldName) {
-    if (isType(value, 'string') === false) {
-        return `${name}(${fieldName})必须是字符串`;
-    }
+    try {
+        if (isType(value, 'string') === false) {
+            return `${name}(${fieldName})必须是字符串`;
+        }
 
-    if (min !== null && value.length < min) {
-        return `${name}(${fieldName})长度不能少于${min}个字符`;
-    }
+        if (min !== null && value.length < min) {
+            return `${name}(${fieldName})长度不能少于${min}个字符`;
+        }
 
-    if (max !== null && max > 0 && value.length > max) {
-        return `${name}(${fieldName})长度不能超过${max}个字符`;
-    }
+        if (max !== null && max > 0 && value.length > max) {
+            return `${name}(${fieldName})长度不能超过${max}个字符`;
+        }
 
-    if (spec && spec.trim() !== '') {
-        try {
+        if (spec && spec.trim() !== '') {
             const regExp = new RegExp(spec);
             if (!regExp.test(value)) {
                 return `${name}(${fieldName})格式不正确`;
             }
-        } catch (error) {
-            return `${name}(${fieldName})的正则表达式格式错误`;
         }
-    }
 
-    return null;
+        return null;
+    } catch (error) {
+        return `${name}(${fieldName})的正则表达式格式错误`;
+    }
 }
 
 /**
  * 验证数组类型
  */
 function validateArray(value, name, min, max, spec, fieldName) {
-    if (!Array.isArray(value)) {
-        return `${name}(${fieldName})必须是数组`;
-    }
+    try {
+        if (!Array.isArray(value)) {
+            return `${name}(${fieldName})必须是数组`;
+        }
 
-    if (min !== null && value.length < min) {
-        return `${name}(${fieldName})至少需要${min}个元素`;
-    }
+        if (min !== null && value.length < min) {
+            return `${name}(${fieldName})至少需要${min}个元素`;
+        }
 
-    if (max !== null && max > 0 && value.length > max) {
-        return `${name}(${fieldName})最多只能有${max}个元素`;
-    }
+        if (max !== null && max > 0 && value.length > max) {
+            return `${name}(${fieldName})最多只能有${max}个元素`;
+        }
 
-    if (spec && spec.trim() !== '') {
-        try {
+        if (spec && spec.trim() !== '') {
             const regExp = new RegExp(spec);
             for (const item of value) {
                 if (!regExp.test(String(item))) {
                     return `${name}(${fieldName})中的元素"${item}"格式不正确`;
                 }
             }
-        } catch (error) {
-            return `${name}(${fieldName})的正则表达式格式错误`;
         }
-    }
 
-    return null;
+        return null;
+    } catch (error) {
+        return `${name}(${fieldName})的正则表达式格式错误: ${error.message}`;
+    }
 }

@@ -196,7 +196,7 @@ class Bunpi {
                             return new Response(result);
                         }
                     } catch (err) {
-                        console.log('🔥[ err ]-133', err);
+                        console.log(`${colors.error} [ err ]-133`, err);
                         return Response.json(Code.INTERNAL_SERVER_ERROR);
                     }
                 },
