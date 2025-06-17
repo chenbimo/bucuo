@@ -2,7 +2,7 @@
  * Logger 通用日志库 - 极简版
  */
 
-import { formatDate } from '../util.js';
+import { formatDate } from '../utils/formatDate.js';
 import path from 'path';
 
 export class Logger {
@@ -17,23 +17,16 @@ export class Logger {
         };
 
         // 输出配置
-        this.enableFile = config.enableFile !== false;
         this.enableConsole = config.enableConsole !== false;
         this.logDir = config.logDir || 'logs';
         this.maxFileSize = config.maxFileSize || 50 * 1024 * 1024; // 50MB
 
         // 初始化日志目录
-        if (this.enableFile) {
-            try {
-                Bun.write(path.join(this.logDir, '.gitkeep'), '');
-            } catch (error) {
-                console.error('创建日志目录失败:', error);
-            }
+        try {
+            Bun.write(path.join(this.logDir, '.gitkeep'), '');
+        } catch (error) {
+            console.error('创建日志目录失败:', error);
         }
-    }
-
-    shouldLog(level) {
-        return this.levels[level] <= this.levels[this.level];
     }
 
     formatMessage(level, message, meta = {}) {
@@ -50,7 +43,8 @@ export class Logger {
     }
 
     async log(level, message, meta = {}) {
-        if (!this.shouldLog(level)) return;
+        // 内联 shouldLog 逻辑，检查日志级别
+        if (this.levels[level] > this.levels[this.level]) return;
 
         const formattedMessage = this.formatMessage(level, message, meta);
 
@@ -59,10 +53,7 @@ export class Logger {
             console.log(formattedMessage);
         }
 
-        // 文件输出
-        if (this.enableFile) {
-            await this.writeToFile(formattedMessage);
-        }
+        await this.writeToFile(formattedMessage);
     }
 
     async writeToFile(message) {
