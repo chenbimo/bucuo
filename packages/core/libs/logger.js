@@ -59,62 +59,35 @@ export class Logger {
 
     async writeToFile(message) {
         try {
-            // 确保日志目录存在
-            try {
-                await mkdir(this.logDir, { recursive: true });
-            } catch (err) {
-                if (err.code !== 'EEXIST') {
-                    console.error('创建日志目录失败:', err);
-                }
-            }
-
-            // 其余代码保持不变...
             const today = new Date().toISOString().split('T')[0];
-            const baseLogFile = path.join(this.logDir, `${today}.log`);
 
-            // 先检查基础日志文件
-            let currentLogFile = baseLogFile;
-            const baseFile = Bun.file(baseLogFile);
+            // 使用 Bun.glob() 一次性查找所有相关文件并排序
+            const glob = new Bun.Glob(`${today}.*.log`);
+            const files = await Array.fromAsync(glob.scan(this.logDir));
+            files.sort(); // 按文件名排序，自然排序会正确处理数字
 
-            // 先检查基础日志文件
-            let currentLogFile = baseLogFile;
-            const baseFile = Bun.file(baseLogFile);
+            let currentLogFile = path.join(this.logDir, `${today}.0.log`);
 
-            if ((await baseFile.exists()) && baseFile.size >= this.maxFileSize) {
-                // 基础文件已满，查找今天日期的最大序号文件
-                let maxIndex = 0;
-                const files = await readdir(this.logDir);
-                const fileNamePattern = `${today}\\.(\\d+)\\.log`;
+            // 从最后一个文件开始检查
+            for (let i = files.length - 1; i >= 0; i--) {
+                const filePath = path.join(this.logDir, files[i]);
+                const file = Bun.file(filePath);
 
-                for (const fileName of files) {
-                    const match = fileName.match(new RegExp(fileNamePattern));
-                    if (match) {
-                        const index = parseInt(match[1], 10);
-                        if (index > maxIndex) maxIndex = index;
-                    }
+                if (file.size < this.maxFileSize) {
+                    currentLogFile = filePath;
+                    break;
                 }
 
-                if (maxIndex > 0) {
-                    // 检查最大序号文件是否已满
-                    const maxIndexFile = Bun.file(path.join(this.logDir, `${today}.${maxIndex}.log`));
-                    if ((await maxIndexFile.exists()) && maxIndexFile.size < this.maxFileSize) {
-                        // 最大序号文件未满，继续使用它
-                        currentLogFile = path.join(this.logDir, `${today}.${maxIndex}.log`);
-                    } else {
-                        // 最大序号文件已满，创建新的序号文件
-                        currentLogFile = path.join(this.logDir, `${today}.${maxIndex + 1}.log`);
-                    }
-                } else {
-                    // 没有序号文件，创建第一个序号文件
-                    currentLogFile = path.join(this.logDir, `${today}.1.log`);
+                // 如果是最后一个文件且已满，创建新文件
+                if (i === files.length - 1) {
+                    const match = files[i].match(/\.(\d+)\.log$/);
+                    const nextIndex = match ? parseInt(match[1]) + 1 : 1;
+                    currentLogFile = path.join(this.logDir, `${today}.${nextIndex}.log`);
                 }
             }
 
-            // 追加日志
-            await Bun.write(currentLogFile, {
-                text: message + '\n',
-                mode: 'append'
-            });
+            // 使用 Bun 的 append 模式直接写入
+            await Bun.write(currentLogFile, message + '\n', { append: true });
         } catch (error) {
             console.error('写入日志文件失败:', error);
         }
