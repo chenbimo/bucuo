@@ -1,4 +1,4 @@
-import { isType } from '../util.js';
+import { isType } from '../utils/isType.js';
 
 /**
  * 新版验证器
@@ -39,7 +39,7 @@ export function Validate(data, rules, required = []) {
             result.code = 1;
             const ruleParts = rules[fieldName]?.split(',') || [];
             const fieldLabel = ruleParts[0] || fieldName;
-            result.fields[fieldName] = `${fieldLabel}为必填项`;
+            result.fields[fieldName] = `${fieldLabel}(${fieldName})为必填项`;
         }
     }
 
@@ -80,24 +80,24 @@ function validateFieldValue(value, rule, fieldName) {
         return `字段 ${fieldName} 的验证规则错误，应包含5个部分`;
     }
 
-    const [name, type, minStr, maxStr, regex] = parts;
+    const [name, type, minStr, maxStr, specStr] = parts;
     const min = minStr === 'null' ? null : parseInt(minStr) || 0;
     const max = maxStr === 'null' ? null : parseInt(maxStr) || 0;
-    const regex = regex === 'null' ? null : regex.trim();
+    const spec = specStr === 'null' ? null : specStr.trim();
 
     switch (type.toLowerCase()) {
         case 'number':
-            return validateNumber(value, name, min, max, calculate, fieldName);
+            return validateNumber(value, name, min, max, spec, fieldName);
         case 'string':
-            return validateString(value, name, min, max, regex, fieldName);
+            return validateString(value, name, min, max, spec, fieldName);
         case 'array':
-            return validateArray(value, name, min, max, regex, fieldName);
+            return validateArray(value, name, min, max, spec, fieldName);
         default:
             return `字段 ${fieldName} 的类型 ${type} 不支持`;
     }
 }
 
-function validateNumber(value, name, min, max, calculate, fieldName) {
+function validateNumber(value, name, min, max, spec, fieldName) {
     if (isType(value, 'number') === false) {
         return `${name}(${fieldName})必须是数字`;
     }
@@ -110,10 +110,10 @@ function validateNumber(value, name, min, max, calculate, fieldName) {
         return `${name}(${fieldName})不能大于${max}`;
     }
 
-    if (calculate && calculate.trim() !== '') {
+    if (spec && spec.trim() !== '') {
         try {
             // 按等号分隔等式
-            const parts = calculate.split('=');
+            const parts = spec.split('=');
             if (parts.length !== 2) {
                 return `${name}(${fieldName})的计算规则必须包含等号`;
             }
@@ -144,7 +144,7 @@ function validateNumber(value, name, min, max, calculate, fieldName) {
 
             // 比较左边计算结果是否等于右边的数字
             if (Math.abs(leftResult - rightValue) > Number.EPSILON) {
-                return `${name}(${fieldName})不满足计算条件 ${calculate}`;
+                return `${name}(${fieldName})不满足计算条件 ${spec}`;
             }
         } catch (error) {
             return `${name}(${fieldName})的计算规则格式错误: ${error.message}`;
@@ -157,7 +157,7 @@ function validateNumber(value, name, min, max, calculate, fieldName) {
 /**
  * 验证字符串类型
  */
-function validateString(value, name, min, max, regex, fieldName) {
+function validateString(value, name, min, max, spec, fieldName) {
     if (isType(value, 'string') === false) {
         return `${name}(${fieldName})必须是字符串`;
     }
@@ -170,9 +170,9 @@ function validateString(value, name, min, max, regex, fieldName) {
         return `${name}(${fieldName})长度不能超过${max}个字符`;
     }
 
-    if (regex && regex.trim() !== '') {
+    if (spec && spec.trim() !== '') {
         try {
-            const regExp = new RegExp(regex);
+            const regExp = new RegExp(spec);
             if (!regExp.test(value)) {
                 return `${name}(${fieldName})格式不正确`;
             }
@@ -187,7 +187,7 @@ function validateString(value, name, min, max, regex, fieldName) {
 /**
  * 验证数组类型
  */
-function validateArray(value, name, min, max, regex, fieldName) {
+function validateArray(value, name, min, max, spec, fieldName) {
     if (!Array.isArray(value)) {
         return `${name || fieldName}必须是数组`;
     }
@@ -200,9 +200,9 @@ function validateArray(value, name, min, max, regex, fieldName) {
         return `${name || fieldName}最多只能有${max}个元素`;
     }
 
-    if (regex && regex.trim() !== '') {
+    if (spec && spec.trim() !== '') {
         try {
-            const regExp = new RegExp(regex);
+            const regExp = new RegExp(spec);
             for (const item of value) {
                 if (!regExp.test(String(item))) {
                     return `${name || fieldName}中的元素"${item}"格式不正确`;
