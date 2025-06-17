@@ -29,24 +29,24 @@ export class Logger {
         }
     }
 
-    formatMessage(level, message, meta = {}) {
+    formatMessage(level, message) {
         const timestamp = formatDate();
         const levelStr = level.toUpperCase().padStart(5);
 
-        let msg = `[${timestamp}] ${levelStr} ${message}`;
+        let msg = `[${timestamp}] ${levelStr} - `;
 
-        if (Object.keys(meta).length > 0) {
-            msg += `\n${JSON.stringify(meta, null, 2)}`;
+        if (Object.keys(message).length > 0) {
+            msg += `${JSON.stringify(message)}`;
         }
 
         return msg;
     }
 
-    async log(level, message, meta = {}) {
+    async log(level, message) {
         // 内联 shouldLog 逻辑，检查日志级别
         if (this.levels[level] > this.levels[this.level]) return;
 
-        const formattedMessage = this.formatMessage(level, message, meta);
+        const formattedMessage = this.formatMessage(level, message);
 
         // 控制台输出
         if (Env.LOG_TO_CONSOLE === 1) {
@@ -102,21 +102,21 @@ export class Logger {
     }
 
     // 便捷方法
-    async error(message, meta = {}) {
-        await this.log('error', message, meta);
+    async error(message) {
+        await this.log('error', message);
     }
 
-    async warn(message, meta = {}) {
-        await this.log('warn', message, meta);
+    async warn(message) {
+        await this.log('warn', message);
     }
 
-    async info(message, meta = {}) {
-        await this.log('info', message, meta);
+    async info(message) {
+        await this.log('info', message);
     }
 
-    async debug(message, meta = {}) {
+    async debug(message) {
         // debug 级别必须记录，忽略级别检查
-        const formattedMessage = this.formatMessage('debug', message, meta);
+        const formattedMessage = this.formatMessage('debug', message);
 
         // 控制台输出
         if (Env.LOG_TO_CONSOLE === 1) {

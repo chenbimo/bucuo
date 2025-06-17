@@ -179,6 +179,7 @@ class Bunpi {
                                 return Response.json(Code.INVALID_PARAM_FORMAT);
                             }
                         }
+
                         // 执行插件的请求处理钩子
                         for await (const plugin of this.pluginLists) {
                             try {
@@ -189,6 +190,7 @@ class Bunpi {
                                 console.error(`${colors.error} 插件处理请求时发生错误:`, error);
                             }
                         }
+                        logger.debug({ 请求路径: apiPath, 请求方法: req.method, 用户信息: this.appContext.user, 请求体: this.appContext.body });
 
                         // 使用新的验证器实例进行验证
                         const validate = this.validator.validate(this.appContext.body, api.schema.fields, api.schema.required);
