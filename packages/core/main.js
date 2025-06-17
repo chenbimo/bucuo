@@ -79,7 +79,7 @@ class Bunpi {
 
     async loadPlugins() {
         try {
-            const glob = new Bun.Glob('[a-z][A-Z0-9].js');
+            const glob = new Bun.Glob('*.js');
             const corePlugins = [];
 
             // 扫描指定目录
@@ -101,8 +101,9 @@ class Bunpi {
 
             for (const plugin of corePlugins) {
                 try {
-                    this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};
                     this.pluginLists.push(plugin);
+                    this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};
+
                     console.log(`${colors.success} 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
                 } catch (error) {
                     console.warn(`${colors.error} 插件 ${plugin.pluginName} 初始化失败:`, error.message);
@@ -179,6 +180,7 @@ class Bunpi {
                                 return Response.json(Code.INVALID_PARAM_FORMAT);
                             }
                         }
+                        console.log('🔥[ this.pluginLists ]-185', this.pluginLists);
 
                         // 执行插件的请求处理钩子
                         for await (const plugin of this.pluginLists) {
@@ -190,7 +192,7 @@ class Bunpi {
                                 console.error(`${colors.error} 插件处理请求时发生错误:`, error);
                             }
                         }
-                        logger.debug({ 请求路径: apiPath, 请求方法: req.method, 用户信息: this.appContext.user, 请求体: this.appContext.body });
+                        logger.debug({ 请求路径: apiPath, 请求方法: req.method, 用户信息: this.appContext?.user, 请求体: this.appContext?.body });
 
                         // 使用新的验证器实例进行验证
                         const validate = this.validator.validate(this.appContext.body, api.schema.fields, api.schema.required);
