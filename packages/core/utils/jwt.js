@@ -5,8 +5,7 @@ import { Env } from '../config/env.js';
 export const jwtSigner = createSigner({
     key: Env.JWT_SECRET,
     expiresIn: Env.JWT_EXPIRES_IN || '7d',
-    algorithm: Env.JWT_ALGORITHM || 'HS256',
-    ...Env.JWT_SIGNER_OPTIONS
+    algorithm: Env.JWT_ALGORITHM || 'HS256'
 });
 
 export const jwtVerifier = createVerifier({
