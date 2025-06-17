@@ -2,6 +2,7 @@ import { serve } from 'bun';
 import path from 'path';
 import { Code } from './config/code.js';
 import { Env } from './config/env.js';
+import { Validate } from './libs/validate.js';
 
 export { Code } from './config/code.js';
 
@@ -110,6 +111,8 @@ class Bunpi {
                                     console.error('插件处理请求时发生错误:', error);
                                 }
                             }
+                            const validate = Validate(api.schema.fields, api.schema.required);
+                            console.log('🔥[ validate ]-115', validate);
                             const result = await api.handler(this.pluginContext, request);
                             if (result && typeof result === 'object' && 'code' in result) {
                                 return Response.json(result);

@@ -5,7 +5,7 @@ export default {
     name: '系统状态',
     method: 'get',
     schema: {
-        fields: [],
+        fields: {},
         required: []
     },
     handler: async (bunpi, req) => {

@@ -5,28 +5,29 @@
  * @param {Array} required - 必传字段数组，如 ['limit', 'title']
  * @returns {Object} { code: 0|1, fields: {} }
  */
-export function validate(data, rules, required = []) {
+export function Validate(data, rules, required = []) {
     const result = {
         code: 0,
-        fields: {}
+        fields: {},
+        error: ''
     };
 
     // 参数检查
     if (!data || typeof data !== 'object') {
         result.code = 1;
-        result.fields._error = '数据必须是对象格式';
+        result.error = '数据必须是对象格式';
         return result;
     }
 
     if (!rules || typeof rules !== 'object') {
         result.code = 1;
-        result.fields._error = '验证规则必须是对象格式';
+        result.error = '验证规则必须是对象格式';
         return result;
     }
 
     if (!Array.isArray(required)) {
         result.code = 1;
-        result.fields._error = '必传字段必须是数组格式';
+        result.error = '必传字段必须是数组格式';
         return result;
     }
 

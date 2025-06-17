@@ -9,8 +9,11 @@ export default {
     name: '系统信息',
     method: 'get',
     schema: {
-        fields: [],
-        required: []
+        fields: {
+            title: healthSchema.title,
+            keyword: healthSchema.keyword
+        },
+        required: ['title', 'keyword', 'name']
     },
     handler: async (bunpi, req) => {
         return {

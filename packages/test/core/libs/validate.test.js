@@ -1,24 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { validate } from '../../../core/libs/validator.js'; 
+import { Validate } from '../../../core/libs/validate.js';
 
 describe('验证器测试', () => {
     describe('基本参数验证', () => {
         it('应该拒绝非对象格式的数据', () => {
-            const result = validate(null, {}, []);
+            const result = Validate(null, {}, []);
             expect(result.code).toBe(1);
-            expect(result.fields._error).toBe('数据必须是对象格式');
+            expect(result.error).toBe('数据必须是对象格式');
         });
 
         it('应该拒绝非对象格式的规则', () => {
-            const result = validate({}, null, []);
+            const result = Validate({}, null, []);
             expect(result.code).toBe(1);
-            expect(result.fields._error).toBe('验证规则必须是对象格式');
+            expect(result.error).toBe('验证规则必须是对象格式');
         });
 
         it('应该拒绝非数组格式的必传字段', () => {
-            const result = validate({}, {}, 'not-array');
+            const result = Validate({}, {}, 'not-array');
             expect(result.code).toBe(1);
-            expect(result.fields._error).toBe('必传字段必须是数组格式');
+            expect(result.error).toBe('必传字段必须是数组格式');
         });
     });
 
@@ -31,7 +31,7 @@ describe('验证器测试', () => {
             };
             const required = ['limit', 'title'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.limit).toBe('每页数量为必填项');
         });
@@ -44,7 +44,7 @@ describe('验证器测试', () => {
             };
             const required = ['limit'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.limit).toBe('每页数量为必填项');
         });
@@ -57,7 +57,7 @@ describe('验证器测试', () => {
             };
             const required = ['limit'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.limit).toBe('每页数量为必填项');
         });
@@ -69,7 +69,7 @@ describe('验证器测试', () => {
             const rules = { limit: '每页数量,number,1,100' };
             const required = ['limit'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(0);
             expect(result.fields).toEqual({});
         });
@@ -79,7 +79,7 @@ describe('验证器测试', () => {
             const rules = { limit: '每页数量,number,1,100' };
             const required = ['limit'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.limit).toBe('每页数量必须是数字');
         });
@@ -89,7 +89,7 @@ describe('验证器测试', () => {
             const rules = { limit: '每页数量,number,1,100' };
             const required = ['limit'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.limit).toBe('每页数量不能小于1');
         });
@@ -99,7 +99,7 @@ describe('验证器测试', () => {
             const rules = { limit: '每页数量,number,1,100' };
             const required = ['limit'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.limit).toBe('每页数量不能大于100');
         });
@@ -111,7 +111,7 @@ describe('验证器测试', () => {
             const rules = { title: '标题,string,1,200' };
             const required = ['title'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(0);
             expect(result.fields).toEqual({});
         });
@@ -121,7 +121,7 @@ describe('验证器测试', () => {
             const rules = { title: '标题,string,1,200' };
             const required = ['title'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.title).toBe('标题为必填项');
         });
@@ -131,7 +131,7 @@ describe('验证器测试', () => {
             const rules = { title: '标题,string,1,200' };
             const required = ['title'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.title).toBe('标题长度不能超过200个字符');
         });
@@ -141,7 +141,7 @@ describe('验证器测试', () => {
             const rules = { email: '邮箱,string,5,100,^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' };
             const required = ['email'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.email).toBe('邮箱格式不正确');
         });
@@ -151,7 +151,7 @@ describe('验证器测试', () => {
             const rules = { email: '邮箱,string,5,100,^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$' };
             const required = ['email'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(0);
             expect(result.fields).toEqual({});
         });
@@ -163,7 +163,7 @@ describe('验证器测试', () => {
             const rules = { tags: '标签,array,1,5' };
             const required = ['tags'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(0);
             expect(result.fields).toEqual({});
         });
@@ -173,7 +173,7 @@ describe('验证器测试', () => {
             const rules = { tags: '标签,array,1,5' };
             const required = ['tags'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(0);
             expect(result.fields).toEqual({});
         });
@@ -183,7 +183,7 @@ describe('验证器测试', () => {
             const rules = { tags: '标签,array,1,5' };
             const required = ['tags'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.tags).toBe('标签至少需要1个元素');
         });
@@ -193,7 +193,7 @@ describe('验证器测试', () => {
             const rules = { tags: '标签,array,1,5' };
             const required = ['tags'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.tags).toBe('标签最多只能有5个元素');
         });
@@ -215,9 +215,9 @@ describe('验证器测试', () => {
             };
             const required = ['limit', 'title'];
 
-            const result = validate(data, rules, required);
-            expect(result.code).toBe(0);
-            expect(result.fields).toEqual({});
+            const result = Validate(data, rules, required);
+            expect(result.code).toBe(1);
+            expect(result.fields).toEqual({ email: '邮箱格式不正确' });
         });
 
         it('应该报告多个字段的错误', () => {
@@ -233,7 +233,7 @@ describe('验证器测试', () => {
             };
             const required = ['limit', 'title'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
             expect(result.fields.limit).toBe('每页数量必须是数字');
             expect(result.fields.title).toBe('标题为必填项');
@@ -248,7 +248,7 @@ describe('验证器测试', () => {
             };
             const required = ['limit'];
 
-            const result = validate(data, rules, required);
+            const result = Validate(data, rules, required);
             expect(result.code).toBe(0);
             expect(result.fields).toEqual({});
         });

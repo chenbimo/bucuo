@@ -5,7 +5,7 @@ export default {
     name: '健康检查',
     method: 'get',
     schema: {
-        fields: [],
+        fields: {},
         required: []
     },
     handler: async (bunpi, req) => {
