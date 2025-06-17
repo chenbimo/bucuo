@@ -7,8 +7,7 @@ import { Validate } from './libs/validate.js';
 // 工具函数
 import { isType } from './utils/isType.js';
 import { colors } from './utils/colors.js';
-
-export { Code } from './config/code.js';
+import { logger } from './utils/logger.js';
 
 class Bunpi {
     constructor(options = {}) {
@@ -141,6 +140,7 @@ class Bunpi {
      * 启动服务器
      */
     async listen(callback) {
+        logger.info('BunPI API 服务正在启动...');
         await this.initCheck();
         await this.loadPlugins();
         await this.loadApis();
@@ -239,4 +239,4 @@ class Bunpi {
     }
 }
 
-export { Bunpi };
+export { Bunpi, Code, Env, Validate, colors, logger };
