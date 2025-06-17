@@ -36,7 +36,7 @@ export default async () => {
                     const ruleParts = ruleSplit(rule);
 
                     if (ruleParts.length !== 5) {
-                        console.log(`${colors.warn} 字段 ${fieldName} 的验证规则错误，应包含5个部分，但包含 ${ruleParts.length} 个部分`);
+                        console.log(`${colors.warn} ${fileName} 文件 ${fieldName} 验证规则错误，应包含 5 个部分，但包含 ${ruleParts.length} 个部分`);
                         fileValid = false;
                         continue;
                     }
@@ -46,20 +46,20 @@ export default async () => {
                     // 验证类型（必须严格使用小写类型名称）
                     const validTypes = ['number', 'string', 'array'];
                     if (!validTypes.includes(type)) {
-                        console.log(`${colors.warn} 字段 ${fieldName} 的类型 ${type} 不支持，应为小写的 number、string 或 array`);
+                        console.log(`${colors.warn} ${fileName} 文件 ${fieldName} 类型 ${type} 不支持，应为小写的 number、string 或 array`);
                         fileValid = false;
                         continue;
                     }
 
                     // 验证最小值/最大值
                     if (minStr !== 'null' && isNaN(parseInt(minStr))) {
-                        console.log(`${colors.warn} 字段 ${fieldName} 的最小值 ${minStr} 应为数字或 "null"`);
+                        console.log(`${colors.warn} ${fileName} 文件 ${fieldName} 最小值 ${minStr} 应为数字或 "null"`);
                         fileValid = false;
                         continue;
                     }
 
                     if (maxStr !== 'null' && isNaN(parseInt(maxStr))) {
-                        console.log(`${colors.warn} 字段 ${fieldName} 的最大值 ${maxStr} 应为数字或 "null"`);
+                        console.log(`${colors.warn} ${fileName} 文件 ${fieldName} 最大值 ${maxStr} 应为数字或 "null"`);
                         fileValid = false;
                         continue;
                     }
@@ -72,7 +72,7 @@ export default async () => {
                             const expressionPart = spec.split('=')[0].trim();
 
                             if (!safePattern.test(expressionPart)) {
-                                console.log(`${colors.error} 字段 ${fieldName} 的表达式 ${expressionPart} 包含不安全的字符`);
+                                console.log(`${colors.error} ${fileName} 文件 ${fieldName} 表达式 ${expressionPart} 包含不安全的字符`);
                                 fileValid = false;
                                 continue;
                             }
@@ -80,7 +80,7 @@ export default async () => {
                             // 验证等号右侧是否为数字
                             const rightPart = spec.split('=')[1].trim();
                             if (isNaN(parseFloat(rightPart))) {
-                                console.log(`${colors.error} 字段 ${fieldName} 的计算规则右边必须是数字，而不是 ${rightPart}`);
+                                console.log(`${colors.error} ${fileName} 文件 ${fieldName} 计算规则右边必须是数字，而不是 ${rightPart}`);
                                 fileValid = false;
                                 continue;
                             }
@@ -89,7 +89,7 @@ export default async () => {
                             try {
                                 new RegExp(spec);
                             } catch (e) {
-                                console.log(`${colors.error} 字段 ${fieldName} 的正则表达式 ${spec} 无效: ${e.message}`);
+                                console.log(`${colors.error}${fileName} 文件 ${fieldName} 正则表达式 ${spec} 无效: ${e.message}`);
                                 fileValid = false;
                                 continue;
                             }
@@ -109,7 +109,6 @@ export default async () => {
         }
 
         if (invalidFiles > 0) {
-            console.log(`${colors.warn} 存在无效的 schema 文件，请修正后再启动服务`);
             return false;
         } else {
             return true;

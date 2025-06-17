@@ -60,7 +60,7 @@ class Bunpi {
             }
 
             // 输出检查结果统计
-            console.log(`${colors.info} 总检查数: ${totalChecks}, 通过: ${passedChecks}, 失败: ${failedChecks}`);
+            console.log(`${colors.info} 总检查数: ${colors.blue(totalChecks)}, 通过: ${colors.green(passedChecks)}, 失败: ${colors.red(failedChecks)}`);
 
             if (failedChecks > 0) {
                 process.exit();
@@ -101,9 +101,9 @@ class Bunpi {
                 try {
                     this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};
                     this.pluginLists.push(plugin);
-                    console.log(`✅ 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
+                    console.log(`${colors.success} 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
                 } catch (error) {
-                    console.warn(`插件 ${plugin.pluginName} 初始化失败:`, error.message);
+                    console.warn(`${colors.error} 插件 ${plugin.pluginName} 初始化失败:`, error.message);
                 }
             }
         } catch (error) {
@@ -131,7 +131,7 @@ class Bunpi {
                 this.apiRoutes.set(apiInstance.route, apiInstance);
             }
         } catch (error) {
-            console.error('加载 API 时发生错误:', error);
+            console.error(`${colors.error} 加载 API 时发生错误:`, error);
         }
     }
 
@@ -183,7 +183,7 @@ class Bunpi {
                                     await plugin?.onGet(this.appContext, req);
                                 }
                             } catch (error) {
-                                console.error('插件处理请求时发生错误:', error);
+                                console.error(`${colors.error} 插件处理请求时发生错误:`, error);
                             }
                         }
 
