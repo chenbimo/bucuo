@@ -74,4 +74,10 @@ const createColors = (enabled = isColorSupported) => {
     };
 };
 
-export default createColors();
+const colors = createColors();
+colors.info = colors.blue('i');
+colors.success = colors.green('√');
+colors.warn = colors.yellow('‼');
+colors.error = colors.red('x');
+
+export { colors };
