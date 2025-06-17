@@ -2,7 +2,7 @@ import { serve } from 'bun';
 import path from 'node:path';
 import { Code } from './config/code.js';
 import { Env } from './config/env.js';
-import { Validate } from './libs/validate.js';
+import { Validator } from './libs/validate.js';
 
 // 工具函数
 import { isType } from './utils/isType.js';
@@ -14,6 +14,7 @@ class Bunpi {
         this.apiRoutes = new Map();
         this.pluginLists = [];
         this.appContext = {};
+        this.validator = new Validator(); // 创建验证器实例
     }
 
     async initCheck() {
@@ -189,7 +190,8 @@ class Bunpi {
                             }
                         }
 
-                        const validate = Validate(this.appContext.body, api.schema.fields, api.schema.required);
+                        // 使用新的验证器实例进行验证
+                        const validate = this.validator.validate(this.appContext.body, api.schema.fields, api.schema.required);
                         if (validate.code !== 0) {
                             return Response.json({
                                 ...Code.API_PARAMS_ERROR,
@@ -239,4 +241,4 @@ class Bunpi {
     }
 }
 
-export { Bunpi, Code, Env, Validate, colors, logger };
+export { Bunpi, Code, Env, Validator, colors, logger };
