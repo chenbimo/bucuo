@@ -3,15 +3,15 @@
  */
 
 import { Code } from '../../config/code.js';
-import healthSchema from '../../schema/health.json';
+import commonSchema from '../../schema/common.json';
 
 export default {
     name: '系统信息',
-    // method: 'get',
+    method: 'post',
     schema: {
         fields: {
-            title: healthSchema.title,
-            keyword: healthSchema.keyword
+            title: commonSchema.title,
+            keyword: commonSchema.keyword
         },
         required: ['title', 'keyword', 'name']
     },

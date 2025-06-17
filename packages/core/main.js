@@ -10,7 +10,7 @@ class Bunpi {
     constructor(options = {}) {
         this.apiRoutes = new Map();
         this.pluginLists = [];
-        this.pluginContext = {};
+        this.appContext = {};
     }
 
     async loadPlugins() {
@@ -37,7 +37,7 @@ class Bunpi {
 
             for (const plugin of corePlugins) {
                 try {
-                    this.pluginContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.pluginContext) : {};
+                    this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};
                     this.pluginLists.push(plugin);
                     console.log(`✅ 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
                 } catch (error) {
@@ -64,7 +64,8 @@ class Bunpi {
                 if (fileName.startsWith('_')) continue;
                 const api = await import(file);
                 const apiInstance = api.default;
-                apiInstance.route = '/api/core/' + path.relative(coreApisDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
+                const apiPath = path.relative(coreApisDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
+                apiInstance.route = `${apiInstance.method.toUpperCase()}/api/core/${apiPath}`;
                 this.apiRoutes.set(apiInstance.route, apiInstance);
             }
         } catch (error) {
@@ -82,9 +83,6 @@ class Bunpi {
         const server = serve({
             port: Env.APP_PORT,
             hostname: Env.APP_HOST,
-            // fetch: async (req) => {
-            //     const path = new URL(req.url).pathname;
-            // },
             routes: {
                 '/': async (req) => {
                     return Response.json({
@@ -100,30 +98,35 @@ class Bunpi {
                 '/api/*': async (req) => {
                     try {
                         const url = new URL(req.url);
-                        const apiPath = url.pathname;
-                        const body = await req.json();
-                        console.log('🔥[ body ]-104', body);
-                        console.log('🔥[ req.method ]-107', req.method);
+                        const apiPath = `${req.method}${url.pathname}`;
+
                         const api = this.apiRoutes.get(apiPath);
-                        if (!api) {
-                            return Response.json(Code.API_NOT_FOUND);
+                        if (!api) return Response.json(Code.API_NOT_FOUND);
+
+                        if (req.method === 'GET') {
+                            this.appContext.body = Object.fromEntries(url.searchParams);
+                        }
+                        if (req.method === 'POST') {
+                            try {
+                                this.appContext.body = await req.json();
+                            } catch (err) {
+                                return Response.json(Code.INVALID_PARAM_FORMAT);
+                            }
                         }
                         // 执行插件的请求处理钩子
                         for await (const plugin of this.pluginLists) {
                             try {
                                 if (typeof plugin?.onGet === 'function') {
-                                    await plugin?.onGet(this.pluginContext, req);
+                                    await plugin?.onGet(this.appContext, req);
                                 }
                             } catch (error) {
                                 console.error('插件处理请求时发生错误:', error);
                             }
                         }
-                        console.log('🔥[ api ]-115', api);
-                        console.log('🔥[ req ]-117', req.body);
 
-                        const validate = Validate(req.body, api.schema.fields, api.schema.required);
+                        const validate = Validate(this.appContext.body, api.schema.fields, api.schema.required);
                         console.log('🔥[ validate ]-115', validate);
-                        const result = await api.handler(this.pluginContext, req);
+                        const result = await api.handler(this.appContext, req);
                         if (result && typeof result === 'object' && 'code' in result) {
                             return Response.json(result);
                         } else {
