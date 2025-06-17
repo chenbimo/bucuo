@@ -60,7 +60,7 @@ export class Logger {
         try {
             // 获取当前日志文件名
             const today = new Date().toISOString().split('T')[0];
-            const logFile = path.join(this.logDir, `app-${today}.log`);
+            const logFile = path.join(this.logDir, `${today}.log`);
 
             // 检查文件大小
             let fileSize = 0;
