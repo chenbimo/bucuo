@@ -1,3 +1,5 @@
+import { isType } from '../util.js';
+
 /**
  * 新版验证器
  * @param {Object} data - 要验证的数据对象，如 {limit: 10, title: '这是标题'}
@@ -73,46 +75,80 @@ export function Validate(data, rules, required = []) {
  * @returns {string|null} 错误信息，验证通过返回 null
  */
 function validateFieldValue(value, rule, fieldName) {
-    if (!rule || typeof rule !== 'string') {
-        return `字段 ${fieldName} 的验证规则格式错误`;
-    }
-
     const parts = rule.split(',');
-    if (parts.length < 4) {
-        return `字段 ${fieldName} 的验证规则参数不足`;
+    if (parts.length !== 5) {
+        return `字段 ${fieldName} 的验证规则错误，应包含5个部分`;
     }
 
-    const [name, type, minStr, maxStr, regex, separator] = parts;
-    const min = parseInt(minStr) || 0;
-    const max = parseInt(maxStr) || 0;
+    const [name, type, minStr, maxStr, regex] = parts;
+    const min = minStr === 'null' ? null : parseInt(minStr) || 0;
+    const max = maxStr === 'null' ? null : parseInt(maxStr) || 0;
+    const regex = regex === 'null' ? null : regex.trim();
 
     switch (type.toLowerCase()) {
         case 'number':
-            return validateNumber(value, name, min, max, fieldName);
+            return validateNumber(value, name, min, max, calculate, fieldName);
         case 'string':
             return validateString(value, name, min, max, regex, fieldName);
         case 'array':
-            return validateArray(value, name, min, max, regex, separator === 'null' ? ',' : separator, fieldName);
+            return validateArray(value, name, min, max, regex, fieldName);
         default:
             return `字段 ${fieldName} 的类型 ${type} 不支持`;
     }
 }
 
-/**
- * 验证数字类型
- */
-function validateNumber(value, name, min, max, fieldName) {
-    const num = Number(value);
-    if (isNaN(num)) {
-        return `${name || fieldName}必须是数字`;
+function validateNumber(value, name, min, max, calculate, fieldName) {
+    if (isType(value, 'number') === false) {
+        return `${name}(${fieldName})必须是数字`;
     }
 
-    if (num < min) {
-        return `${name || fieldName}不能小于${min}`;
+    if (min !== null && value < min) {
+        return `${name}(${fieldName})不能小于${min}`;
     }
 
-    if (max > 0 && num > max) {
-        return `${name || fieldName}不能大于${max}`;
+    if (min !== null && max > 0 && value > max) {
+        return `${name}(${fieldName})不能大于${max}`;
+    }
+
+    if (calculate && calculate.trim() !== '') {
+        try {
+            // 按等号分隔等式
+            const parts = calculate.split('=');
+            if (parts.length !== 2) {
+                return `${name}(${fieldName})的计算规则必须包含等号`;
+            }
+
+            const leftExpression = parts[0].trim();
+            const rightValue = parseFloat(parts[1].trim());
+
+            // 验证右边是否为有效数字
+            if (isNaN(rightValue)) {
+                return `${name}(${fieldName})的计算规则右边必须是数字`;
+            }
+
+            // 安全的表达式验证，只允许数字、x、基本运算符和括号
+            const safePattern = /^[x\d\+\-\*\/\(\)\.\s]+$/;
+            if (!safePattern.test(leftExpression)) {
+                return `${name}(${fieldName})的表达式包含不安全的字符`;
+            }
+
+            // 将 x 替换为实际值
+            let processedExpression = leftExpression.replace(/x/g, value.toString());
+
+            // 使用 Function 构造器安全地计算表达式
+            const leftResult = new Function('return ' + processedExpression)();
+
+            if (typeof leftResult !== 'number' || !isFinite(leftResult)) {
+                return `${name}(${fieldName})的表达式计算结果不是有效数字`;
+            }
+
+            // 比较左边计算结果是否等于右边的数字
+            if (Math.abs(leftResult - rightValue) > Number.EPSILON) {
+                return `${name}(${fieldName})不满足计算条件 ${calculate}`;
+            }
+        } catch (error) {
+            return `${name}(${fieldName})的计算规则格式错误: ${error.message}`;
+        }
     }
 
     return null;
@@ -122,24 +158,26 @@ function validateNumber(value, name, min, max, fieldName) {
  * 验证字符串类型
  */
 function validateString(value, name, min, max, regex, fieldName) {
-    const str = String(value);
-
-    if (str.length < min) {
-        return `${name || fieldName}长度不能少于${min}个字符`;
+    if (isType(value, 'string') === false) {
+        return `${name}(${fieldName})必须是字符串`;
     }
 
-    if (max > 0 && str.length > max) {
-        return `${name || fieldName}长度不能超过${max}个字符`;
+    if (min !== null && value.length < min) {
+        return `${name}(${fieldName})长度不能少于${min}个字符`;
+    }
+
+    if (max !== null && max > 0 && value.length > max) {
+        return `${name}(${fieldName})长度不能超过${max}个字符`;
     }
 
     if (regex && regex.trim() !== '') {
         try {
             const regExp = new RegExp(regex);
-            if (!regExp.test(str)) {
-                return `${name || fieldName}格式不正确`;
+            if (!regExp.test(value)) {
+                return `${name}(${fieldName})格式不正确`;
             }
         } catch (error) {
-            return `${name || fieldName}的正则表达式格式错误`;
+            return `${name}(${fieldName})的正则表达式格式错误`;
         }
     }
 
@@ -149,29 +187,24 @@ function validateString(value, name, min, max, regex, fieldName) {
 /**
  * 验证数组类型
  */
-function validateArray(value, name, min, max, regex, separator, fieldName) {
-    let arr;
-    if (Array.isArray(value)) {
-        arr = value;
-    } else if (typeof value === 'string') {
-        arr = value.split(separator || ',').filter((item) => item.trim() !== '');
-    } else {
-        return `${name || fieldName}必须是数组或可分割的字符串`;
+function validateArray(value, name, min, max, regex, fieldName) {
+    if (!Array.isArray(value)) {
+        return `${name || fieldName}必须是数组`;
     }
 
-    if (arr.length < min) {
+    if (min !== null && value.length < min) {
         return `${name || fieldName}至少需要${min}个元素`;
     }
 
-    if (max > 0 && arr.length > max) {
+    if (max !== null && max > 0 && value.length > max) {
         return `${name || fieldName}最多只能有${max}个元素`;
     }
 
     if (regex && regex.trim() !== '') {
         try {
             const regExp = new RegExp(regex);
-            for (const item of arr) {
-                if (!regExp.test(String(item).trim())) {
+            for (const item of value) {
+                if (!regExp.test(String(item))) {
                     return `${name || fieldName}中的元素"${item}"格式不正确`;
                 }
             }
@@ -182,13 +215,3 @@ function validateArray(value, name, min, max, regex, separator, fieldName) {
 
     return null;
 }
-
-// 使用示例：
-// const data = { limit: 10, title: '这是标题' };
-// const rules = {
-//     "limit": "每页数量,number,1,100",
-//     "title": "标题,string,1,200"
-// };
-// const required = ['limit', 'title'];
-// const result = validate(data, rules, required);
-// console.log(result); // { code: 0, fields: {} }
