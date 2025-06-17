@@ -75,7 +75,14 @@ export function Validate(data, rules, required = []) {
  * @returns {string|null} 错误信息，验证通过返回 null
  */
 function validateFieldValue(value, rule, fieldName) {
-    const parts = rule.split(',');
+    // 只按前4个逗号分隔，后面的都归入第5个参数
+    const parts = rule.split(',', 5);
+
+    // 如果有第5个参数，需要重新获取完整的spec部分
+    if (rule.split(',').length > 5) {
+        const allParts = rule.split(',');
+        parts[4] = allParts.slice(4).join(',');
+    }
     if (parts.length !== 5) {
         return `字段 ${fieldName} 的验证规则错误，应包含5个部分`;
     }
@@ -189,15 +196,15 @@ function validateString(value, name, min, max, spec, fieldName) {
  */
 function validateArray(value, name, min, max, spec, fieldName) {
     if (!Array.isArray(value)) {
-        return `${name || fieldName}必须是数组`;
+        return `${name}(${fieldName})必须是数组`;
     }
 
     if (min !== null && value.length < min) {
-        return `${name || fieldName}至少需要${min}个元素`;
+        return `${name}(${fieldName})至少需要${min}个元素`;
     }
 
     if (max !== null && max > 0 && value.length > max) {
-        return `${name || fieldName}最多只能有${max}个元素`;
+        return `${name}(${fieldName})最多只能有${max}个元素`;
     }
 
     if (spec && spec.trim() !== '') {
@@ -205,11 +212,11 @@ function validateArray(value, name, min, max, spec, fieldName) {
             const regExp = new RegExp(spec);
             for (const item of value) {
                 if (!regExp.test(String(item))) {
-                    return `${name || fieldName}中的元素"${item}"格式不正确`;
+                    return `${name}(${fieldName})中的元素"${item}"格式不正确`;
                 }
             }
         } catch (error) {
-            return `${name || fieldName}的正则表达式格式错误`;
+            return `${name}(${fieldName})的正则表达式格式错误`;
         }
     }
 

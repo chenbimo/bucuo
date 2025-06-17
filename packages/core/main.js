@@ -82,8 +82,11 @@ class Bunpi {
         const server = serve({
             port: Env.APP_PORT,
             hostname: Env.APP_HOST,
+            // fetch: async (req) => {
+            //     const path = new URL(req.url).pathname;
+            // },
             routes: {
-                '/': async (request) => {
+                '/': async (req) => {
                     return Response.json({
                         ...Code.SUCCESS,
                         msg: 'BunPI API 服务已启动',
@@ -94,40 +97,45 @@ class Bunpi {
                         }
                     });
                 },
-                '/api/*': async (request) => {
-                    const url = new URL(request.url);
-                    const apiPath = url.pathname;
-
+                '/api/*': async (req) => {
                     try {
+                        const url = new URL(req.url);
+                        const apiPath = url.pathname;
+                        const body = await req.json();
+                        console.log('🔥[ body ]-104', body);
+                        console.log('🔥[ req.method ]-107', req.method);
                         const api = this.apiRoutes.get(apiPath);
-                        if (api) {
-                            // 执行插件的请求处理钩子
-                            for await (const plugin of this.pluginLists) {
-                                try {
-                                    if (typeof plugin?.onGet === 'function') {
-                                        await plugin?.onGet(this.pluginContext, request);
-                                    }
-                                } catch (error) {
-                                    console.error('插件处理请求时发生错误:', error);
-                                }
-                            }
-                            const validate = Validate(api.schema.fields, api.schema.required);
-                            console.log('🔥[ validate ]-115', validate);
-                            const result = await api.handler(this.pluginContext, request);
-                            if (result && typeof result === 'object' && 'code' in result) {
-                                return Response.json(result);
-                            } else {
-                                return new Response(result);
-                            }
-                        } else {
+                        if (!api) {
                             return Response.json(Code.API_NOT_FOUND);
                         }
-                    } catch (error) {
+                        // 执行插件的请求处理钩子
+                        for await (const plugin of this.pluginLists) {
+                            try {
+                                if (typeof plugin?.onGet === 'function') {
+                                    await plugin?.onGet(this.pluginContext, req);
+                                }
+                            } catch (error) {
+                                console.error('插件处理请求时发生错误:', error);
+                            }
+                        }
+                        console.log('🔥[ api ]-115', api);
+                        console.log('🔥[ req ]-117', req.body);
+
+                        const validate = Validate(req.body, api.schema.fields, api.schema.required);
+                        console.log('🔥[ validate ]-115', validate);
+                        const result = await api.handler(this.pluginContext, req);
+                        if (result && typeof result === 'object' && 'code' in result) {
+                            return Response.json(result);
+                        } else {
+                            return new Response(result);
+                        }
+                    } catch (err) {
+                        console.log('🔥[ err ]-133', err);
                         return Response.json(Code.INTERNAL_SERVER_ERROR);
                     }
                 },
-                '/*': async (request) => {
-                    const url = new URL(request.url);
+                '/*': async (req) => {
+                    const url = new URL(req.url);
                     const filePath = path.join(process.cwd(), 'public', url.pathname);
 
                     try {

@@ -54,6 +54,19 @@ describe('验证器测试', () => {
             expect(result.fields.limit).toBe('每页数量(limit)为必填项');
         });
 
+        it('应该检测缺失的必传字段', () => {
+            const data = { title: '测试标题' };
+            const rules = {
+                limit: '每页数量,number,1,100,null',
+                title: '标题,string,1,200,null'
+            };
+            const required = ['limit', 'title', 'name'];
+
+            const result = Validate(data, rules, required);
+            expect(result.code).toBe(1);
+            expect(result.fields.limit).toBe('每页数量(limit)为必填项');
+        });
+
         it('应该检测空字符串的必传字段', () => {
             const data = { limit: '', title: '测试标题' };
             const rules = {
@@ -112,7 +125,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.limit).toBe('字段 limit 的验证规则错误，应包含5个部分');
+            expect(result.fields.limit).toBe('每页数量(limit)的计算规则必须包含等号');
         });
 
         it('应该拒绝不支持的数据类型', () => {
@@ -388,7 +401,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.email).toBe('字段 email 的验证规则错误，应包含5个部分');
+            expect(result.fields.email).toBe('邮箱(email)格式不正确');
         });
 
         it('应该验证手机号格式', () => {
@@ -440,7 +453,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.tags).toBe('标签必须是数组');
+            expect(result.fields.tags).toBe('标签(tags)必须是数组');
         });
 
         it('应该检查数组的最小长度', () => {
@@ -449,7 +462,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, []);
             expect(result.code).toBe(1);
-            expect(result.fields.tags).toBe('标签至少需要1个元素');
+            expect(result.fields.tags).toBe('标签(tags)至少需要1个元素');
         });
 
         it('应该检查数组的最大长度', () => {
@@ -459,7 +472,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.tags).toBe('标签最多只能有5个元素');
+            expect(result.fields.tags).toBe('标签(tags)最多只能有5个元素');
         });
 
         it('应该验证边界长度（最小值）', () => {
@@ -520,7 +533,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.emails).toBe('字段 emails 的验证规则错误，应包含5个部分');
+            expect(result.fields.emails).toBe('邮箱列表(emails)中的元素"invalid-email"格式不正确');
         });
 
         it('应该处理数组的无效正则表达式', () => {
@@ -530,7 +543,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.items).toBe('项目的正则表达式格式错误');
+            expect(result.fields.items).toBe('项目(items)的正则表达式格式错误');
         });
     });
 
@@ -572,10 +585,10 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.limit).toBe('每页数量为必填项');
-            expect(result.fields.title).toBe('标题为必填项');
-            expect(result.fields.email).toBe('邮箱格式不正确');
-            expect(result.fields.tags).toBe('标签必须是数组');
+            expect(result.fields.limit).toBe('每页数量(limit)必须是数字');
+            expect(result.fields.title).toBe('标题(title)为必填项');
+            expect(result.fields.email).toBe('邮箱(email)格式不正确');
+            expect(result.fields.tags).toBe('标签(tags)必须是数组');
         });
 
         it('应该跳过非必传且不存在的字段', () => {
@@ -605,7 +618,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.email).toBe('邮箱格式不正确');
+            expect(result.fields.email).toBe('邮箱(email)格式不正确');
             expect(result.fields.limit).toBeUndefined();
         });
 
@@ -622,7 +635,7 @@ describe('验证器测试', () => {
 
             const result = Validate(data, rules, required);
             expect(result.code).toBe(1);
-            expect(result.fields.limit).toBe('每页数量必须是数字');
+            expect(result.fields.limit).toBe('每页数量(limit)必须是数字');
             expect(result.fields.title).toBeUndefined();
         });
     });

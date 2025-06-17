@@ -7,7 +7,7 @@ import healthSchema from '../../schema/health.json';
 
 export default {
     name: '系统信息',
-    method: 'get',
+    // method: 'get',
     schema: {
         fields: {
             title: healthSchema.title,
