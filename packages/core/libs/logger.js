@@ -53,19 +53,28 @@ export class Logger {
             console.log(formattedMessage);
         }
 
-        await this.writeToFile(formattedMessage);
+        await this.writeToFile(formattedMessage, level);
     }
 
-    async writeToFile(message) {
+    async writeToFile(message, level = 'info') {
         try {
-            const today = new Date().toISOString().split('T')[0];
+            let prefix, glob;
+
+            // debug 日志使用单独的文件名
+            if (level === 'debug') {
+                prefix = 'debug';
+                glob = new Bun.Glob(`debug.*.log`);
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                prefix = today;
+                glob = new Bun.Glob(`${today}.*.log`);
+            }
 
             // 使用 Bun.glob() 一次性查找所有相关文件并排序
-            const glob = new Bun.Glob(`${today}.*.log`);
             const files = await Array.fromAsync(glob.scan(this.logDir));
             files.sort(); // 按文件名排序，自然排序会正确处理数字
 
-            let currentLogFile = path.join(this.logDir, `${today}.0.log`);
+            let currentLogFile = path.join(this.logDir, `${prefix}.0.log`);
 
             // 从最后一个文件开始检查
             for (let i = files.length - 1; i >= 0; i--) {
@@ -81,7 +90,7 @@ export class Logger {
                 if (i === files.length - 1) {
                     const match = files[i].match(/\.(\d+)\.log$/);
                     const nextIndex = match ? parseInt(match[1]) + 1 : 1;
-                    currentLogFile = path.join(this.logDir, `${today}.${nextIndex}.log`);
+                    currentLogFile = path.join(this.logDir, `${prefix}.${nextIndex}.log`);
                 }
             }
 
@@ -106,6 +115,14 @@ export class Logger {
     }
 
     async debug(message, meta = {}) {
-        await this.log('debug', message, meta);
+        // debug 级别必须记录，忽略级别检查
+        const formattedMessage = this.formatMessage('debug', message, meta);
+
+        // 控制台输出
+        if (Env.LOG_TO_CONSOLE === 1) {
+            console.log(formattedMessage);
+        }
+
+        await this.writeToFile(formattedMessage, 'debug');
     }
 }
