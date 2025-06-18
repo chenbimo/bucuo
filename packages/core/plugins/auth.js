@@ -1,4 +1,4 @@
-import { jwtSigner, jwtVerifier } from '../utils/jwt.js';
+import { jwt } from '../utils/jwt.js';
 
 export default {
     order: 4,
@@ -8,7 +8,7 @@ export default {
             const token = authHeader.substring(7);
 
             try {
-                const payload = jwtVerifier(token);
+                const payload = await jwt.verify(token);
                 context.user = payload;
             } catch (error) {
                 context.user = {};
