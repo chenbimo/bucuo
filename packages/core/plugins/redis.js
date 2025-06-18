@@ -1,5 +1,6 @@
 import { createClient } from '@redis/client';
 import { Env } from '../config/env.js';
+import { colors } from '../utils/colors.js';
 
 export default {
     order: 2,
@@ -25,16 +26,10 @@ export default {
                 // 使用 Bun 自带的 redis 连接
                 const redis = createClient(config)
                     .on('error', (err) => {
-                        console.error('❌ Redis 客户端错误');
+                        console.log(`${colors.error} Redis 客户端错误`);
                     })
                     .on('ready', () => {
                         // console.log('✅ Redis 客户端就绪');
-                    })
-                    .on('end', () => {
-                        console.log('🔚 Redis 连接已结束');
-                    })
-                    .on('reconnecting', () => {
-                        console.log('🔄 Redis 正在重连...');
                     });
 
                 // 测试连接
@@ -43,17 +38,17 @@ export default {
                     // 测试连接
                     const result = await redis.ping();
                 } catch (error) {
-                    console.error('❌ Redis 连接失败:', error);
-                    throw error;
+                    console.log(`${colors.error} Redis 连接失败:`, error);
+                    return {};
                 }
 
                 return redis;
             } else {
-                console.warn('Redis 未启用，跳过初始化');
+                console.log(`${colors.warn} Redis 未启用，跳过初始化`);
                 return {};
             }
         } catch (err) {
-            console.error('❌ Redis 初始化失败:', err);
+            console.log(`${colors.error} Redis 初始化失败:`, err);
             return {};
         }
     }

@@ -104,8 +104,6 @@ class Bunpi {
                 try {
                     this.pluginLists.push(plugin);
                     this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};
-
-                    console.log(`${colors.success} 插件 ${plugin.pluginName} - ${plugin.order} 初始化完成`);
                 } catch (error) {
                     console.warn(`${colors.error} 插件 ${plugin.pluginName} 初始化失败:`, error.message);
                 }

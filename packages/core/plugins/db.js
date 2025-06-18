@@ -1,6 +1,7 @@
 import { Kysely, MysqlDialect, sql } from 'kysely';
 import { createPool } from 'mysql2';
 import { Env } from '../config/env.js';
+import { colors } from '../utils/colors.js';
 
 export default {
     order: 3,
@@ -37,10 +38,11 @@ export default {
                     return {};
                 }
             } else {
+                console.log(`${colors.warn} Mysql 未启用，跳过初始化`);
                 return {};
             }
         } catch (error) {
-            console.error('❌ 数据库连接失败:', error.message);
+            console.error(`${colors.error} 数据库连接失败:`, error.message);
             return {};
         }
     }
