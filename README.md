@@ -1,6 +1,6 @@
-# BunPI - 崩屁
+# BunPI - 泵派
 
-[`FunPI - 放屁`](https://github.com/chenbimo/funpi) 的下一代，为 Bun 量身打造的 API 接口框架。
+BunPI - 为 Bun 专属打造的 API 接口框架核心引擎
 
 ## 特性
 
