@@ -1,13 +1,10 @@
-/**
- * 健康信息 API - /core/health/info
- */
-
 import { Code } from '../../config/code.js';
 import commonSchema from '../../schema/common.json';
 
 export default {
     name: '系统信息',
     method: 'post',
+    auth: true,
     schema: {
         fields: {
             title: commonSchema.title,

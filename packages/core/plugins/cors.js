@@ -3,8 +3,8 @@
  */
 
 export default {
-    order: 4,
-    async onGet(req) {
+    order: 1,
+    async onGet(bunpi, req) {
         // 设置 CORS 头部
         req.headers.set('Access-Control-Allow-Origin', req.headers.get('origin'));
         req.headers.set('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');

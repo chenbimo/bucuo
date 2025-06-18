@@ -8,6 +8,7 @@ import { Validator } from './libs/validate.js';
 import { isType } from './utils/isType.js';
 import { colors } from './utils/colors.js';
 import { logger } from './utils/logger.js';
+import { jwtSigner, jwtVerifier } from './utils/jwt.js';
 
 class Bunpi {
     constructor(options = {}) {
@@ -164,12 +165,20 @@ class Bunpi {
                 },
                 '/api/*': async (req) => {
                     try {
+                        if (req.method === 'OPTIONS') {
+                            return new Response();
+                        }
+
+                        // 接口处理
                         const url = new URL(req.url);
                         const apiPath = `${req.method}${url.pathname}`;
 
                         const api = this.apiRoutes.get(apiPath);
+
+                        // 接口不存在
                         if (!api) return Response.json(Code.API_NOT_FOUND);
 
+                        // 配置参数
                         if (req.method === 'GET') {
                             this.appContext.body = Object.fromEntries(url.searchParams);
                         }
@@ -180,9 +189,8 @@ class Bunpi {
                                 return Response.json(Code.INVALID_PARAM_FORMAT);
                             }
                         }
-                        console.log('🔥[ this.pluginLists ]-185', this.pluginLists);
 
-                        // 执行插件的请求处理钩子
+                        // 插件钩子
                         for await (const plugin of this.pluginLists) {
                             try {
                                 if (typeof plugin?.onGet === 'function') {
@@ -192,9 +200,16 @@ class Bunpi {
                                 console.error(`${colors.error} 插件处理请求时发生错误:`, error);
                             }
                         }
+
+                        // 请求记录
                         logger.debug({ 请求路径: apiPath, 请求方法: req.method, 用户信息: this.appContext?.user, 请求体: this.appContext?.body });
 
-                        // 使用新的验证器实例进行验证
+                        // 登录验证
+                        if (api.auth === true && !this.appContext?.user?.id) {
+                            return Response.json(Code.LOGIN_REQUIRED);
+                        }
+
+                        // 参数验证
                         const validate = this.validator.validate(this.appContext.body, api.schema.fields, api.schema.required);
                         if (validate.code !== 0) {
                             return Response.json({
@@ -202,7 +217,11 @@ class Bunpi {
                                 data: validate.fields
                             });
                         }
+
+                        // 执行函数
                         const result = await api.handler(this.appContext, req);
+
+                        // 返回数据
                         if (result && typeof result === 'object' && 'code' in result) {
                             return Response.json(result);
                         } else {
@@ -245,4 +264,4 @@ class Bunpi {
     }
 }
 
-export { Bunpi, Code, Env, Validator, colors, logger };
+export { Bunpi, Code, Env, Validator, colors, logger, jwtSigner, jwtVerifier };

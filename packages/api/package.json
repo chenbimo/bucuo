@@ -28,7 +28,11 @@
         "bun": ">=1.0.0"
     },
     "dependencies": {
-        "bunpi": "workspace:*"
+        "bunpi": "workspace:*",
+        "@redis/client": "^5.5.6",
+        "fast-jwt": "^6.0.2",
+        "kysely": "^0.27.3",
+        "mysql2": "^3.6.5"
     },
     "files": [
         "main.js",

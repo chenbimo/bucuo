@@ -1,7 +1,7 @@
 import { jwtSigner, jwtVerifier } from '../utils/jwt.js';
 
 export default {
-    order: 6,
+    order: 4,
     async onGet(context, req) {
         const authHeader = req.headers.get('authorization');
         if (authHeader && authHeader.startsWith('Bearer ')) {
