@@ -18,6 +18,7 @@
     },
     "author": "chensuiyi <bimostyle@qq.com>",
     "homepage": "https://chensuiyi.me",
+    "license": "Apache-2.0",
     "workspaces": [
         "packages/*"
     ],
