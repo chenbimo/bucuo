@@ -1,33 +1,43 @@
 import { Code } from '../../config/code.js';
-import commonSchema from '../../schema/common.json';
+import { Env } from '../../config/env.js';
 
 export default {
-    name: '系统信息',
-    method: 'post',
-    auth: true,
+    name: '健康检查',
+    method: 'get',
     schema: {
-        fields: {
-            title: commonSchema.title,
-            keyword: commonSchema.keyword
-        },
-        required: ['title', 'keyword', 'name']
+        fields: {},
+        required: []
     },
     handler: async (bunpi, req) => {
+        const info = {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            memory: process.memoryUsage(),
+            runtime: 'Bun',
+            version: Bun.version,
+            platform: process.platform,
+            arch: process.arch
+        };
+        // 检查 Redis 连接状态
+        if (Env.REDIS_ENABLE === 1) {
+            if (bunpi.redis) {
+                try {
+                    await bunpi.redis.ping();
+                    info.redis = '已连接';
+                } catch (error) {
+                    info.redis = '未连接';
+                    info.redisError = error.message;
+                }
+            } else {
+                info.redis = '未开启';
+            }
+        } else {
+            info.redis = '禁用';
+        }
         return {
             ...Code.SUCCESS,
-            msg: '系统信息获取成功',
-            data: {
-                name: 'Bunpi',
-                description: 'A universal JS backend API framework for Bun',
-                version: '1.0.0',
-                runtime: {
-                    name: 'Bun',
-                    version: Bun.version,
-                    revision: Bun.revision || 'unknown'
-                },
-                features: ['Zero dependencies', 'Plugin system', 'JWT authentication', 'File upload', 'CORS support', 'Structured logging', 'Redis cache support', 'Simple routing'],
-                timestamp: new Date().toISOString()
-            }
+            data: info
         };
     }
 };
