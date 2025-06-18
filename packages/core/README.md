@@ -1,6 +1,6 @@
-# Bunpi Core
+# BunPI - 泵派
 
-Bunpi 框架的核心驱动，提供通用的 API 接口框架功能。
+BunPI - 为 Bun 专属打造的 API 接口框架核心引擎
 
 ## 特性
 

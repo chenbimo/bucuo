@@ -1,7 +1,7 @@
 {
     "name": "bunpi",
     "version": "1.0.0",
-    "description": "Bunpi Core - Universal JS backend API framework core for Bun",
+    "description": "BunPI - 为 Bun 专属打造的 API 接口框架核心引擎",
     "type": "module",
     "main": "main.js",
     "exports": {
@@ -18,12 +18,12 @@
         "rest",
         "http"
     ],
-    "author": "Bunpi Team",
-    "license": "MIT",
+    "author": "chensuiyi <bimostyle@qq.com>",
+    "homepage": "https://chensuiyi.me",
+    "license": "Apache-2.0",
     "engines": {
-        "bun": ">=1.0.0"
+        "bun": ">=1.2.16"
     },
-    "devDependencies": {},
     "files": [
         "main.js",
         "util.js",
@@ -31,6 +31,5 @@
         "plugins/",
         "libs/",
         "README.md"
-    ],
-    "dependencies": {}
+    ]
 }
