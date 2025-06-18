@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Validate } from '../../../core/libs/validate.js';
+import { Validate } from '../../../core/utils/validate.js';
 
 describe('验证器测试', () => {
     describe('基本参数验证', () => {

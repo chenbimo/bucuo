@@ -2,20 +2,19 @@ import { serve } from 'bun';
 import path from 'node:path';
 import { Code } from './config/code.js';
 import { Env } from './config/env.js';
-import { Validator } from './libs/validate.js';
 
 // 工具函数
 import { isType } from './utils/isType.js';
 import { colors } from './utils/colors.js';
 import { logger } from './utils/logger.js';
-import { jwtSigner, jwtVerifier } from './utils/jwt.js';
+import { jwt } from './utils/jwt.js';
+import { validator } from './utils/validate.js';
 
 class Bunpi {
     constructor(options = {}) {
         this.apiRoutes = new Map();
         this.pluginLists = [];
         this.appContext = {};
-        this.validator = new Validator(); // 创建验证器实例
     }
 
     async initCheck() {
@@ -208,7 +207,7 @@ class Bunpi {
                         }
 
                         // 参数验证
-                        const validate = this.validator.validate(this.appContext.body, api.schema.fields, api.schema.required);
+                        const validate = validator.validate(this.appContext.body, api.schema.fields, api.schema.required);
                         if (validate.code !== 0) {
                             return Response.json({
                                 ...Code.API_PARAMS_ERROR,
@@ -262,4 +261,4 @@ class Bunpi {
     }
 }
 
-export { Bunpi, Code, Env, Validator, colors, logger, jwtSigner, jwtVerifier };
+export { Bunpi, Code, Env, validator, colors, logger, jwt };

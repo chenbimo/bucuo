@@ -2,21 +2,6 @@
 
 这个包包含了 Bunpi 项目的所有测试文件，使用 Vitest 测试框架。
 
-## 目录结构
-
-```
-packages/test/
-├── core/               # Core 包的测试
-│   └── libs/          # Core 库测试
-│       └── validator.test.js
-├── api/               # API 包的测试
-│   └── user/          # 用户相关API测试
-│       └── user.test.js
-├── package.json       # 测试包配置
-├── index.js          # 测试入口文件
-└── README.md         # 说明文档
-```
-
 ## 测试命令
 
 ### 基本命令

@@ -61,6 +61,4 @@ class JwtManager {
     }
 }
 
-// 导出单例实例
 export const jwt = new JwtManager();
-// 确保在应用启动时初始化

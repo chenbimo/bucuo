@@ -1,5 +1,5 @@
-import { isType } from '../utils/isType.js';
-import { ruleSplit } from '../utils/ruleSplit.js';
+import { isType } from './isType.js';
+import { ruleSplit } from './ruleSplit.js';
 
 /**
  * 验证器类
@@ -241,3 +241,5 @@ export class Validator {
         }
     }
 }
+
+export const validator = new Validator();
