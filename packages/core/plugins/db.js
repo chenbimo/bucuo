@@ -1,5 +1,3 @@
-import { Kysely, MysqlDialect, sql } from 'kysely';
-import { createPool } from 'mysql2';
 import { Env } from '../config/env.js';
 import { colors } from '../utils/colors.js';
 
@@ -20,6 +18,9 @@ export default {
                     // timezone: Env.TIMEZONE,
                     debug: Env.MYSQL_DEBUG === 1
                 };
+
+                const createPool = await import('mysql2').then((m) => m.createPool);
+                const { Kysely, MysqlDialect, sql } = await import('kysely');
 
                 const pool = await createPool(config);
 
@@ -43,7 +44,7 @@ export default {
             }
         } catch (error) {
             console.error(`${colors.error} 数据库连接失败:`, error.message);
-            return {};
+            process.exit();
         }
     }
 };

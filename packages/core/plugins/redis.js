@@ -1,4 +1,3 @@
-import { createClient } from '@redis/client';
 import { Env } from '../config/env.js';
 import { colors } from '../utils/colors.js';
 
@@ -22,7 +21,7 @@ export default {
                         }
                     }
                 };
-
+                const createClient = await import('@redis/client').then((m) => m.createClient);
                 // 使用 Bun 自带的 redis 连接
                 const redis = createClient(config)
                     .on('error', (err) => {
@@ -39,7 +38,7 @@ export default {
                     const result = await redis.ping();
                 } catch (error) {
                     console.log(`${colors.error} Redis 连接失败:`, error);
-                    return {};
+                    process.exit();
                 }
 
                 return redis;
@@ -49,7 +48,7 @@ export default {
             }
         } catch (err) {
             console.log(`${colors.error} Redis 初始化失败:`, err);
-            return {};
+            process.exit();
         }
     }
 };
