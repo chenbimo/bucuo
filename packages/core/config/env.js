@@ -25,6 +25,7 @@ export const Env = {
     // 时区
     TIMEZONE: process.env.TIMEZONE,
     // 数据库配置
+    MYSQL_ENABLE: Number(process.env.MYSQL_ENABLE),
     MYSQL_HOST: process.env.MYSQL_HOST,
     MYSQL_PORT: Number(process.env.MYSQL_PORT),
     MYSQL_DB: process.env.MYSQL_DB,
@@ -34,6 +35,7 @@ export const Env = {
     MYSQL_POOL_TIMEOUT: Number(process.env.MYSQL_POOL_TIMEOUT),
     MYSQL_POOL_MAX: Number(process.env.MYSQL_POOL_MAX),
     // Redis配置
+    REDIS_ENABLE: Number(process.env.REDIS_ENABLE),
     REDIS_HOST: process.env.REDIS_HOST,
     REDIS_PORT: Number(process.env.REDIS_PORT),
     REDIS_USERNAME: process.env.REDIS_USERNAME,
