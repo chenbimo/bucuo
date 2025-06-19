@@ -7,7 +7,9 @@
     "exports": {
         ".": "./main.js"
     },
-    "scripts": {},
+    "scripts": {
+        "r": "bun publish --registry=https://registry.npmjs.org --access=public"
+    },
     "keywords": [
         "bun",
         "api",
