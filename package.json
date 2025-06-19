@@ -1,31 +1,35 @@
 {
     "name": "bunpi",
     "version": "0.0.1",
-    "description": "bunpi - 为Bun专属打造的API接口框架",
+    "description": "BunPI - 为 Bun 专属打造的 API 接口框架核心引擎",
     "type": "module",
-    "publishConfig": {
-        "access": "restricted"
+    "main": "main.js",
+    "exports": {
+        ".": "./main.js"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/chenbimo/bunpi.git"
-    },
-    "scripts": {
-        "r": "lerna publish",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage"
-    },
+    "scripts": {},
+    "keywords": [
+        "bun",
+        "api",
+        "framework",
+        "core",
+        "javascript",
+        "backend",
+        "rest",
+        "http"
+    ],
     "author": "chensuiyi <bimostyle@qq.com>",
     "homepage": "https://chensuiyi.me",
     "license": "Apache-2.0",
-    "workspaces": [
-        "packages/*"
-    ],
-    "devDependencies": {
-        "@vitest/coverage-v8": "^3.2.3",
-        "lerna": "^8.2.2",
-        "vite": "^6.3.5",
-        "vitest": "^3.2.3"
-    }
+    "engines": {
+        "bun": ">=1.2.16"
+    },
+    "files": [
+        "main.js",
+        "util.js",
+        "apis/",
+        "plugins/",
+        "libs/",
+        "README.md"
+    ]
 }
