@@ -1,6 +1,6 @@
 {
     "name": "bunpi-test",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "Bunpi Test Suite - 测试套件",
     "type": "module",
     "main": "index.js",
