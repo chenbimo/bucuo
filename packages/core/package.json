@@ -1,6 +1,6 @@
 {
     "name": "bunpi",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "BunPI - 为 Bun 专属打造的 API 接口框架核心引擎",
     "type": "module",
     "main": "main.js",

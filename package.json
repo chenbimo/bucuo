@@ -1,6 +1,6 @@
 {
     "name": "bunpi",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "bunpi - 为Bun专属打造的API接口框架",
     "type": "module",
     "publishConfig": {
