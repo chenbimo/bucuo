@@ -25,11 +25,23 @@
         "bun": ">=1.2.16"
     },
     "files": [
-        "main.js",
-        "util.js",
         "apis/",
+        "checks/",
+        "config/",
         "plugins/",
-        "libs/",
-        "README.md"
+        "schema/",
+        "utils/",
+        ".gitignore",
+        ".npmignore",
+        ".bunignore",
+        ".editorconfig",
+        ".npmrc",
+        ".prettierignore",
+        ".prettierrc",
+        "LICENSE",
+        "main.js",
+        "package.json",
+        "README.md",
+        "vitest.config.js"
     ]
 }
