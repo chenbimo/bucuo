@@ -111,15 +111,16 @@ class BuCuo {
             console.log('🔥[ error ]-83', error);
         }
     }
-
-    async loadApis() {
+    async loadApis(dirName) {
         try {
-            const glob = new Bun.Glob('**/*.js');
             const coreApisDir = path.join(import.meta.dir, 'apis');
-
+            const userApisDir = path.join(process.cwd(), 'apis');
+            const glob = new Bun.Glob('**/*.js');
+            const apiDir = dirName === 'core' ? coreApisDir : userApisDir;
+            const apiPlaceholder = dirName === 'core' ? 'core/' : '';
             // 扫描指定目录
             for await (const file of glob.scan({
-                cwd: coreApisDir,
+                cwd: apiDir,
                 onlyFiles: true,
                 absolute: true
             })) {
@@ -127,8 +128,8 @@ class BuCuo {
                 if (fileName.startsWith('_')) continue;
                 const api = await import(file);
                 const apiInstance = api.default;
-                const apiPath = path.relative(coreApisDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
-                apiInstance.route = `${apiInstance.method.toUpperCase()}/api/core/${apiPath}`;
+                const apiPath = path.relative(apiDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
+                apiInstance.route = `${apiInstance.method.toUpperCase()}/api/${apiPlaceholder}${apiPath}`;
                 this.apiRoutes.set(apiInstance.route, apiInstance);
             }
         } catch (error) {
@@ -143,7 +144,8 @@ class BuCuo {
         logger.info('BunPI API 服务正在启动...');
         await this.initCheck();
         await this.loadPlugins();
-        await this.loadApis();
+        await this.loadApis('core');
+        await this.loadApis('user');
 
         const server = serve({
             port: Env.APP_PORT,
