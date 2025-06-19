@@ -141,7 +141,6 @@ class BuCuo {
      * 启动服务器
      */
     async listen(callback) {
-        logger.info('BunPI API 服务正在启动...');
         await this.initCheck();
         await this.loadPlugins();
         await this.loadApis('core');
@@ -154,7 +153,7 @@ class BuCuo {
                 '/': async (req) => {
                     return Response.json({
                         ...Code.SUCCESS,
-                        msg: 'BunPI API 服务已启动',
+                        msg: 'BuCuo 接口服务已启动',
                         data: {
                             mode: Env.NODE_ENV,
                             host: Env.APP_HOST,
