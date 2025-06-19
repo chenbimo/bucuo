@@ -1,6 +1,6 @@
-# BunPI - 泵派
+# BuCuo - 不错
 
-BunPI - 为 Bun 专属打造的 API 接口框架核心引擎
+BuCuo(不错) - 为 Bun 专属打造的 API 接口框架核心引擎
 
 ## 特性
 
