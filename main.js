@@ -10,7 +10,7 @@ import { logger } from './utils/logger.js';
 import { jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
 
-class Bunpi {
+class Buko {
     constructor(options = {}) {
         this.apiRoutes = new Map();
         this.pluginLists = [];
@@ -261,4 +261,4 @@ class Bunpi {
     }
 }
 
-export { Bunpi, Code, Env, validator, colors, logger, jwt };
+export { Buko, Code, Env, validator, colors, logger, jwt };

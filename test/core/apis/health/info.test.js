@@ -11,13 +11,13 @@ if (typeof globalThis.Bun === 'undefined') {
 }
 
 describe('健康信息 API 测试 - /core/health/info', () => {
-    let mockBunpi;
+    let mockBuko;
     let mockReq;
 
     beforeAll(() => {
-        // 模拟 bunpi 实例
-        mockBunpi = {
-            // 可以在这里添加需要的 bunpi 方法和属性
+        // 模拟 buko 实例
+        mockBuko = {
+            // 可以在这里添加需要的 buko 方法和属性
         };
 
         // 模拟请求对象
@@ -45,7 +45,7 @@ describe('健康信息 API 测试 - /core/health/info', () => {
 
     describe('接口响应测试', () => {
         it('应该返回成功的响应结构', async () => {
-            const response = await infoHandler.handler(mockBunpi, mockReq);
+            const response = await infoHandler.handler(mockBuko, mockReq);
 
             // 验证响应结构
             expect(response).toBeDefined();
@@ -55,11 +55,11 @@ describe('健康信息 API 测试 - /core/health/info', () => {
         });
 
         it('应该返回正确的系统信息数据', async () => {
-            const response = await infoHandler.handler(mockBunpi, mockReq);
+            const response = await infoHandler.handler(mockBuko, mockReq);
             const { data } = response;
 
             // 验证基本信息
-            expect(data.name).toBe('Bunpi');
+            expect(data.name).toBe('Buko');
             expect(data.description).toBe('A universal JS backend API framework for Bun');
             expect(data.version).toBe('1.0.0');
             expect(data.timestamp).toBeDefined();
@@ -67,7 +67,7 @@ describe('健康信息 API 测试 - /core/health/info', () => {
         });
 
         it('应该返回正确的运行时信息', async () => {
-            const response = await infoHandler.handler(mockBunpi, mockReq);
+            const response = await infoHandler.handler(mockBuko, mockReq);
             const { data } = response;
 
             // 验证运行时信息
@@ -84,7 +84,7 @@ describe('健康信息 API 测试 - /core/health/info', () => {
         });
 
         it('应该返回正确的功能特性列表', async () => {
-            const response = await infoHandler.handler(mockBunpi, mockReq);
+            const response = await infoHandler.handler(mockBuko, mockReq);
             const { data } = response;
 
             // 验证功能特性
@@ -93,25 +93,16 @@ describe('健康信息 API 测试 - /core/health/info', () => {
             expect(data.features.length).toBeGreaterThan(0);
 
             // 验证预期的功能特性
-            const expectedFeatures = [
-                'Zero dependencies',
-                'Plugin system',
-                'JWT authentication',
-                'File upload',
-                'CORS support',
-                'Structured logging',
-                'Redis cache support',
-                'Simple routing'
-            ];
+            const expectedFeatures = ['Zero dependencies', 'Plugin system', 'JWT authentication', 'File upload', 'CORS support', 'Structured logging', 'Redis cache support', 'Simple routing'];
 
-            expectedFeatures.forEach(feature => {
+            expectedFeatures.forEach((feature) => {
                 expect(data.features).toContain(feature);
             });
         });
 
         it('应该返回当前时间戳', async () => {
             const beforeCall = new Date().toISOString();
-            const response = await infoHandler.handler(mockBunpi, mockReq);
+            const response = await infoHandler.handler(mockBuko, mockReq);
             const afterCall = new Date().toISOString();
 
             const { data } = response;
@@ -126,7 +117,7 @@ describe('健康信息 API 测试 - /core/health/info', () => {
     describe('接口性能测试', () => {
         it('应该在合理时间内响应', async () => {
             const startTime = performance.now();
-            await infoHandler.handler(mockBunpi, mockReq);
+            await infoHandler.handler(mockBuko, mockReq);
             const endTime = performance.now();
 
             const responseTime = endTime - startTime;
@@ -135,14 +126,12 @@ describe('健康信息 API 测试 - /core/health/info', () => {
         });
 
         it('应该支持并发调用', async () => {
-            const promises = Array.from({ length: 10 }, () =>
-                infoHandler.handler(mockBunpi, mockReq)
-            );
+            const promises = Array.from({ length: 10 }, () => infoHandler.handler(mockBuko, mockReq));
 
             const responses = await Promise.all(promises);
 
             // 所有响应都应该成功
-            responses.forEach(response => {
+            responses.forEach((response) => {
                 expect(response.code).toBe(Code.SUCCESS.code);
                 expect(response.data).toBeDefined();
             });
@@ -150,16 +139,16 @@ describe('健康信息 API 测试 - /core/health/info', () => {
     });
 
     describe('边界条件测试', () => {
-        it('应该处理空的 bunpi 实例', async () => {
+        it('应该处理空的 buko 实例', async () => {
             const response = await infoHandler.handler(null, mockReq);
 
-            // 即使 bunpi 为空，也应该返回正确的响应
+            // 即使 buko 为空，也应该返回正确的响应
             expect(response.code).toBe(Code.SUCCESS.code);
             expect(response.data).toBeDefined();
         });
 
         it('应该处理空的请求对象', async () => {
-            const response = await infoHandler.handler(mockBunpi, null);
+            const response = await infoHandler.handler(mockBuko, null);
 
             // 即使请求对象为空，也应该返回正确的响应
             expect(response.code).toBe(Code.SUCCESS.code);
@@ -177,8 +166,8 @@ describe('健康信息 API 测试 - /core/health/info', () => {
 
     describe('数据一致性测试', () => {
         it('多次调用应该返回一致的静态信息', async () => {
-            const response1 = await infoHandler.handler(mockBunpi, mockReq);
-            const response2 = await infoHandler.handler(mockBunpi, mockReq);
+            const response1 = await infoHandler.handler(mockBuko, mockReq);
+            const response2 = await infoHandler.handler(mockBuko, mockReq);
 
             // 静态信息应该保持一致
             expect(response1.data.name).toBe(response2.data.name);
@@ -190,17 +179,16 @@ describe('健康信息 API 测试 - /core/health/info', () => {
         });
 
         it('时间戳应该在每次调用时更新', async () => {
-            const response1 = await infoHandler.handler(mockBunpi, mockReq);
+            const response1 = await infoHandler.handler(mockBuko, mockReq);
 
             // 等待一小段时间确保时间戳不同
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
 
-            const response2 = await infoHandler.handler(mockBunpi, mockReq);
+            const response2 = await infoHandler.handler(mockBuko, mockReq);
 
             // 时间戳应该不同
             expect(response1.data.timestamp).not.toBe(response2.data.timestamp);
-            expect(new Date(response2.data.timestamp).getTime())
-                .toBeGreaterThan(new Date(response1.data.timestamp).getTime());
+            expect(new Date(response2.data.timestamp).getTime()).toBeGreaterThan(new Date(response1.data.timestamp).getTime());
         });
     });
 });

@@ -1,7 +1,7 @@
 {
-    "name": "bunpi-test",
+    "name": "buko-test",
     "version": "0.0.1",
-    "description": "Bunpi Test Suite - 测试套件",
+    "description": "Buko Test Suite - 测试套件",
     "type": "module",
     "main": "index.js",
     "scripts": {},
@@ -12,7 +12,7 @@
         "unit-test",
         "api-test"
     ],
-    "author": "Bunpi Team",
+    "author": "Buko Team",
     "license": "MIT",
     "engines": {
         "bun": ">=1.0.0"

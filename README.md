@@ -18,16 +18,16 @@ BunPI - 为 Bun 专属打造的 API 接口框架核心引擎
 ## 基本用法
 
 ```javascript
-import Bunpi from './main.js';
+import Buko from './main.js';
 
-const app = new Bunpi({
+const app = new Buko({
     port: 3000,
     host: 'localhost'
 });
 
 // 添加路由
 app.get('/hello', async (context) => {
-    return { message: 'Hello from Bunpi Core!' };
+    return { message: 'Hello from Buko Core!' };
 });
 
 // 启动服务器
@@ -80,7 +80,7 @@ app.use(myPlugin);
 通过构造函数配置或 `setConfig` 方法：
 
 ```javascript
-const app = new Bunpi({
+const app = new Buko({
     port: 3000,
     host: 'localhost'
 });
