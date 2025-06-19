@@ -8,7 +8,7 @@ export default {
         fields: {},
         required: []
     },
-    handler: async (buko, req) => {
+    handler: async (bucuo, req) => {
         const info = {
             status: 'ok',
             timestamp: new Date().toISOString(),
@@ -21,9 +21,9 @@ export default {
         };
         // 检查 Redis 连接状态
         if (Env.REDIS_ENABLE === 1) {
-            if (buko.redis) {
+            if (bucuo.redis) {
                 try {
-                    await buko.redis.ping();
+                    await bucuo.redis.ping();
                     info.redis = '已连接';
                 } catch (error) {
                     info.redis = '未连接';

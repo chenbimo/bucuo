@@ -3,7 +3,7 @@ import { colors } from '../utils/colors.js';
 
 export default {
     order: 2,
-    async onInit(buko, req) {
+    async onInit(bucuo, req) {
         try {
             if (Env.REDIS_ENABLE === 1) {
                 const config = {

@@ -1,9 +1,9 @@
 /**
- * Buko 测试套件入口文件
+ * BuCuo 测试套件入口文件
  * 包含所有测试模块的导入和配置
  */
 
-console.log('🧪 Buko 测试套件启动');
+console.log('🧪 BuCuo 测试套件启动');
 console.log('📁 测试目录结构:');
 console.log('  ├── core/libs/     - Core库测试');
 console.log('  ├── api/user/      - 用户API测试');
