@@ -4,12 +4,12 @@ import { Code } from './config/code.js';
 import { Env } from './config/env.js';
 
 // 工具函数
-import { isType } from './utils/util.js';
+import { Api } from './utils/api.js';
 import { colors } from './utils/colors.js';
 import { logger } from './utils/logger.js';
 import { jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
-import { Api } from './utils/api.js';
+import { isType, isEmptyObject, pickFields } from './utils/util.js';
 
 class BuCuo {
     constructor(options = {}) {
@@ -179,11 +179,19 @@ class BuCuo {
 
                         // 配置参数
                         if (req.method === 'GET') {
-                            this.appContext.body = Object.fromEntries(url.searchParams);
+                            if (isEmptyObject(api.fields) === false) {
+                                this.appContext.body = pickFields(Object.fromEntries(url.searchParams), Object.keys(api.fields));
+                            } else {
+                                this.appContext.body = Object.fromEntries(url.searchParams);
+                            }
                         }
                         if (req.method === 'POST') {
                             try {
-                                this.appContext.body = await req.json();
+                                if (isEmptyObject(api.fields) === false) {
+                                    this.appContext.body = pickFields(await req.json(), Object.keys(api.fields));
+                                } else {
+                                    this.appContext.body = await req.json();
+                                }
                             } catch (err) {
                                 return Response.json(Code.INVALID_PARAM_FORMAT);
                             }
@@ -201,7 +209,12 @@ class BuCuo {
                         }
 
                         // 请求记录
-                        logger.debug({ 请求路径: apiPath, 请求方法: req.method, 用户信息: this.appContext?.user, 请求体: this.appContext?.body });
+                        logger.debug({
+                            请求路径: apiPath,
+                            请求方法: req.method,
+                            用户信息: this.appContext?.user,
+                            请求体: this.appContext?.body
+                        });
 
                         // 登录验证
                         if (api.auth === true && !this.appContext?.user?.id) {

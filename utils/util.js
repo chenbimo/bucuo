@@ -1,10 +1,3 @@
-// 自增ID
-export const incrTimeID = () => {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const random = randomInt(100000, 999999);
-    return Number(`${timestamp}${random}`);
-};
-
 // 规则分割
 export const ruleSplit = (rule) => {
     const allParts = rule.split(',');
@@ -70,4 +63,40 @@ export const isType = (value, type) => {
         default:
             return actualType === expectedType;
     }
+};
+
+export const pickFields = (obj, keys) => {
+    if (!obj || typeof obj !== 'object') {
+        return {};
+    }
+
+    const result = {};
+
+    for (const key of keys) {
+        if (key in obj) {
+            result[key] = obj[key];
+        }
+    }
+
+    return result;
+};
+
+export const isEmptyObject = (obj) => {
+    // 首先检查是否为对象
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+        return false;
+    }
+
+    // 检查是否为空对象
+    return Object.keys(obj).length === 0;
+};
+
+export const isEmptyArray = (arr) => {
+    // 首先检查是否为数组
+    if (!Array.isArray(arr)) {
+        return false;
+    }
+
+    // 检查是否为空数组
+    return arr.length === 0;
 };
