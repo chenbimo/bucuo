@@ -21,9 +21,9 @@ export default {
         };
         // 检查 Redis 连接状态
         if (Env.REDIS_ENABLE === 1) {
-            if (bucuo.redis) {
+            if (bucuo._redis) {
                 try {
-                    await bucuo.redis.ping();
+                    await bucuo._redis.ping();
                     info.redis = '已连接';
                 } catch (error) {
                     info.redis = '未连接';

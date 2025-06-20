@@ -59,7 +59,7 @@ export class Api {
                 };
             } catch (error) {
                 // 记录错误日志
-                bucuo.logger?.error({
+                bucuo._logger?.error({
                     ...Code.API_INTERNAL_ERROR,
                     error: error.message,
                     stack: error.stack,

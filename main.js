@@ -9,7 +9,7 @@ import { colors } from './utils/colors.js';
 import { logger } from './utils/logger.js';
 import { jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
-import { isType, isEmptyObject, pickFields } from './utils/util.js';
+import { isType, isEmptyObject, pickFields, sortPlugins } from './utils/util.js';
 
 class BuCuo {
     constructor(options = {}) {
@@ -82,6 +82,7 @@ class BuCuo {
         try {
             const glob = new Bun.Glob('*.js');
             const corePlugins = [];
+            const userPlugins = [];
 
             // 扫描指定目录
             for await (const file of glob.scan({
@@ -93,14 +94,55 @@ class BuCuo {
                 if (fileName.startsWith('_')) continue;
                 const plugin = await import(file);
                 const pluginInstance = plugin.default;
-                pluginInstance.pluginName = fileName;
+                pluginInstance.pluginName = '_' + fileName;
                 corePlugins.push(pluginInstance);
             }
 
-            // 按 order 排序
-            corePlugins.sort((a, b) => (a.order || 0) - (b.order || 0));
+            const sortedCorePlugins = sortPlugins(corePlugins);
+            if (sortedCorePlugins === false) {
+                console.error(`${colors.error} 插件依赖关系错误，请检查插件的 after 属性`);
+                process.exit();
+            }
 
-            for (const plugin of corePlugins) {
+            for (const plugin of sortedCorePlugins) {
+                try {
+                    this.pluginLists.push(plugin);
+                    this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};
+                } catch (error) {
+                    console.warn(`${colors.error} 插件 ${plugin.pluginName} 初始化失败:`, error.message);
+                }
+            }
+
+            // 扫描指定目录
+            for await (const file of glob.scan({
+                cwd: path.join(process.cwd(), 'plugins'),
+                onlyFiles: true,
+                absolute: true
+            })) {
+                const fileName = path.basename(file, '.js');
+                if (fileName.startsWith('_')) continue;
+                const plugin = await import(file);
+                const pluginInstance = plugin.default;
+                pluginInstance.pluginName = fileName;
+                userPlugins.push(pluginInstance);
+            }
+
+            const sortedUserPlugins = sortPlugins(userPlugins);
+            if (sortedUserPlugins === false) {
+                console.error(`${colors.error} 插件依赖关系错误，请检查插件的 after 属性`);
+                process.exit();
+            }
+
+            for (const plugin of sortedCorePlugins) {
+                try {
+                    this.pluginLists.push(plugin);
+                    this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};
+                } catch (error) {
+                    console.warn(`${colors.error} 插件 ${plugin.pluginName} 初始化失败:`, error.message);
+                }
+            }
+
+            for (const plugin of sortedUserPlugins) {
                 try {
                     this.pluginLists.push(plugin);
                     this.appContext[plugin.pluginName] = typeof plugin?.onInit === 'function' ? await plugin?.onInit(this.appContext) : {};

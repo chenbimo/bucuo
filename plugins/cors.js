@@ -1,9 +1,5 @@
-/**
- * CORS 跨域插件
- */
-
 export default {
-    order: 1,
+    after: ['_redis', '_db'],
     async onGet(bucuo, req) {
         // 设置 CORS 头部
         req.headers.set('Access-Control-Allow-Origin', req.headers.get('origin'));

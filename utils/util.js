@@ -1,3 +1,30 @@
+export const sortPlugins = (plugins) => {
+    const result = [];
+    const visited = new Set();
+    const visiting = new Set();
+    const pluginMap = Object.fromEntries(plugins.map((p) => [p.pluginName, p]));
+    let isPass = true;
+    const visit = (name) => {
+        if (visited.has(name)) return;
+        if (visiting.has(name)) {
+            isPass = false;
+            return;
+        }
+
+        const plugin = pluginMap[name];
+        if (!plugin) return; // 依赖不存在时跳过
+
+        visiting.add(name);
+        (plugin.after || []).forEach(visit);
+        visiting.delete(name);
+        visited.add(name);
+        result.push(plugin);
+    };
+
+    plugins.forEach((p) => visit(p.pluginName));
+    return isPass ? result : false;
+};
+
 // 规则分割
 export const ruleSplit = (rule) => {
     const allParts = rule.split(',');
@@ -74,6 +101,22 @@ export const pickFields = (obj, keys) => {
 
     for (const key of keys) {
         if (key in obj) {
+            result[key] = obj[key];
+        }
+    }
+
+    return result;
+};
+
+export const omitFields = (obj, keys) => {
+    if (!obj || typeof obj !== 'object' || !Array.isArray(keys)) {
+        return {};
+    }
+
+    const result = {};
+
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key) && !keys.includes(key)) {
             result[key] = obj[key];
         }
     }

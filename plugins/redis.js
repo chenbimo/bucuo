@@ -2,7 +2,7 @@ import { Env } from '../config/env.js';
 import { colors } from '../utils/colors.js';
 
 export default {
-    order: 2,
+    after: ['_logger'],
     async onInit(bucuo, req) {
         try {
             if (Env.REDIS_ENABLE === 1) {

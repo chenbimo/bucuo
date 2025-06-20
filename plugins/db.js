@@ -3,7 +3,7 @@ import { colors } from '../utils/colors.js';
 import { Crud } from '../utils/curd.js';
 
 export default {
-    order: 3,
+    after: ['_redis'],
     async onInit(context) {
         try {
             if (Env.MYSQL_ENABLE === 1) {
@@ -36,7 +36,7 @@ export default {
                 const result = await sql`SELECT VERSION() AS version`.execute(db);
                 if (result?.rows?.[0]?.version) {
                     // 扩展数据库实例
-                    return Crud(db, context.redis);
+                    return Crud(db, context._redis);
                 } else {
                     return {};
                 }

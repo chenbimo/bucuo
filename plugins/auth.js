@@ -1,7 +1,7 @@
 import { jwt } from '../utils/jwt.js';
 
 export default {
-    order: 4,
+    after: ['_redis', '_db'],
     async onGet(context, req) {
         const authHeader = req.headers.get('authorization');
         if (authHeader && authHeader.startsWith('Bearer ')) {

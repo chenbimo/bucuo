@@ -3,7 +3,7 @@ import { colors } from '../utils/colors.js';
 import { logger } from '../utils/logger.js';
 
 export default {
-    order: 1,
+    after: [],
     async onInit(bucuo, req) {
         try {
             return logger;
