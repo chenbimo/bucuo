@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { ruleSplit } from '../utils/ruleSplit.js';
+import { ruleSplit } from '../utils/util.js';
 import { colors } from '../utils/colors.js';
 
 export default async () => {

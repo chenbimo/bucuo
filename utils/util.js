@@ -1,9 +1,36 @@
-/**
- * 数据类型判断工具函数
- * @param {any} value - 要判断的值
- * @param {string} type - 要判断的类型名称
- * @returns {boolean} 判断结果
- */
+// 自增ID
+export const incrTimeID = () => {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const random = randomInt(100000, 999999);
+    return Number(`${timestamp}${random}`);
+};
+
+// 规则分割
+export const ruleSplit = (rule) => {
+    const allParts = rule.split(',');
+
+    // 如果部分数量小于等于5，直接返回
+    if (allParts.length <= 5) {
+        return allParts;
+    }
+
+    // 只取前4个部分，剩余的都合并为第5个部分
+    return [allParts[0], allParts[1], allParts[2], allParts[3], allParts.slice(4).join(',')];
+};
+
+export const formatDate = (date = new Date(), format = 'YYYY-MM-DD HH:mm:ss') => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hour = String(d.getHours()).padStart(2, '0');
+    const minute = String(d.getMinutes()).padStart(2, '0');
+    const second = String(d.getSeconds()).padStart(2, '0');
+
+    return format.replace('YYYY', year).replace('MM', month).replace('DD', day).replace('HH', hour).replace('mm', minute).replace('ss', second);
+};
+
+// 类型判断
 export const isType = (value, type) => {
     const getType = (val) => {
         return Object.prototype.toString.call(val).slice(8, -1).toLowerCase();

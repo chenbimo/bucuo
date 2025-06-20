@@ -1,9 +1,5 @@
-/**
- * Logger 通用日志库 - 极简版
- */
-
-import { formatDate } from './formatDate.js';
 import path from 'path';
+import { formatDate } from './util.js';
 import { Env } from '../config/env.js';
 
 export class Logger {

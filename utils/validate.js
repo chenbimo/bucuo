@@ -1,5 +1,4 @@
-import { isType } from './isType.js';
-import { ruleSplit } from './ruleSplit.js';
+import { ruleSplit, isType } from './util.js';
 
 /**
  * 验证器类
