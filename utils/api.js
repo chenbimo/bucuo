@@ -1,0 +1,73 @@
+import { Code } from '../config/code.js';
+export class Api {
+    // GET 方法
+    static GET(name, schema = {}, required = [], handler) {
+        // 支持参数重载：如果第二个参数是函数，则没有 schema 和 required
+        if (typeof schema === 'function') {
+            handler = schema;
+            schema = {};
+            required = [];
+        } else if (typeof required === 'function') {
+            handler = required;
+            required = [];
+        }
+
+        return {
+            method: 'GET',
+            name,
+            schema,
+            required,
+            handler: this.wrapHandler(handler)
+        };
+    }
+
+    // POST 方法
+    static POST(name, schema = {}, required = [], handler) {
+        if (typeof schema === 'function') {
+            handler = schema;
+            schema = {};
+            required = [];
+        } else if (typeof required === 'function') {
+            handler = required;
+            required = [];
+        }
+
+        return {
+            method: 'POST',
+            name,
+            schema,
+            required,
+            handler: this.wrapHandler(handler)
+        };
+    }
+
+    // 包装处理器，自动处理异常和响应格式
+    static wrapHandler(handler) {
+        return async (bucuo, req) => {
+            try {
+                const result = await handler(bucuo, req);
+
+                // 如果返回的结果已经包含 code 字段，直接返回
+                if (result && typeof result === 'object' && 'code' in result) {
+                    return result;
+                }
+
+                // 否则自动包装为成功响应
+                return {
+                    ...Code.SUCCESS,
+                    data: result
+                };
+            } catch (error) {
+                // 记录错误日志
+                bucuo.logger?.error('API执行错误:', {
+                    error: error.message,
+                    stack: error.stack,
+                    api: handler.name || 'unknown'
+                });
+
+                // 返回错误响应
+                return Code.API_INTERNAL_ERROR;
+            }
+        };
+    }
+}

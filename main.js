@@ -9,6 +9,7 @@ import { colors } from './utils/colors.js';
 import { logger } from './utils/logger.js';
 import { jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
+import { Api } from './utils/api.js';
 
 class BuCuo {
     constructor(options = {}) {
@@ -208,7 +209,7 @@ class BuCuo {
                         }
 
                         // 参数验证
-                        const validate = validator.validate(this.appContext.body, api.schema.fields, api.schema.required);
+                        const validate = validator.validate(this.appContext.body, api.schema, api.required);
                         if (validate.code !== 0) {
                             return Response.json({
                                 ...Code.API_PARAMS_ERROR,
@@ -262,4 +263,4 @@ class BuCuo {
     }
 }
 
-export { BuCuo, Code, Env, validator, colors, logger, jwt };
+export { BuCuo, Code, Env, Api, validator, colors, logger, jwt };
