@@ -41,6 +41,20 @@ export default {
                     process.exit();
                 }
 
+                // 添加时序ID生成函数
+                redis.genTimeID = async () => {
+                    const timestamp = Math.floor(Date.now() / 1000);
+                    const key = `time_id_counter:${timestamp}`;
+
+                    const counter = await redis.incr(key);
+                    await redis.expire(key, 2);
+
+                    // 6位全部用于计数器，同一秒内可生成1,000,000个不重复ID
+                    const suffix = (counter % 1000000).toString().padStart(6, '0');
+
+                    return Number(`${timestamp}${suffix}`);
+                };
+
                 return redis;
             } else {
                 console.log(`${colors.warn} Redis 未启用，跳过初始化`);
