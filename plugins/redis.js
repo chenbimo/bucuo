@@ -49,8 +49,12 @@ export default {
                     const counter = await redis.incr(key);
                     await redis.expire(key, 2);
 
-                    // 6位全部用于计数器，同一秒内可生成1,000,000个不重复ID
-                    const suffix = (counter % 1000000).toString().padStart(6, '0');
+                    // 前3位计数器 + 后3位随机数
+                    const counterPrefix = (counter % 1000).toString().padStart(3, '0'); // 000-999
+                    const randomSuffix = Math.floor(Math.random() * 1000)
+                        .toString()
+                        .padStart(3, '0'); // 000-999
+                    const suffix = `${counterPrefix}${randomSuffix}`;
 
                     return Number(`${timestamp}${suffix}`);
                 };
