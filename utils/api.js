@@ -1,11 +1,11 @@
 import { Code } from '../config/code.js';
 export class Api {
     // GET 方法
-    static GET(name, schema = {}, required = [], handler) {
-        // 支持参数重载：如果第二个参数是函数，则没有 schema 和 required
-        if (typeof schema === 'function') {
-            handler = schema;
-            schema = {};
+    static GET(name, fields = {}, required = [], handler) {
+        // 支持参数重载：如果第二个参数是函数，则没有 fields 和 required
+        if (typeof fields === 'function') {
+            handler = fields;
+            fields = {};
             required = [];
         } else if (typeof required === 'function') {
             handler = required;
@@ -15,17 +15,17 @@ export class Api {
         return {
             method: 'GET',
             name,
-            schema,
+            fields,
             required,
             handler: this.wrapHandler(handler)
         };
     }
 
     // POST 方法
-    static POST(name, schema = {}, required = [], handler) {
-        if (typeof schema === 'function') {
-            handler = schema;
-            schema = {};
+    static POST(name, fields = {}, required = [], handler) {
+        if (typeof fields === 'function') {
+            handler = fields;
+            fields = {};
             required = [];
         } else if (typeof required === 'function') {
             handler = required;
@@ -35,7 +35,7 @@ export class Api {
         return {
             method: 'POST',
             name,
-            schema,
+            fields,
             required,
             handler: this.wrapHandler(handler)
         };
@@ -55,7 +55,7 @@ export class Api {
                 // 否则自动包装为成功响应
                 return {
                     ...Code.SUCCESS,
-                    data: result
+                    data: result || {}
                 };
             } catch (error) {
                 // 记录错误日志

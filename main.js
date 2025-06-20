@@ -4,7 +4,7 @@ import { Code } from './config/code.js';
 import { Env } from './config/env.js';
 
 // 工具函数
-import { isType } from './utils/isType.js';
+import { isType } from './utils/util.js';
 import { colors } from './utils/colors.js';
 import { logger } from './utils/logger.js';
 import { jwt } from './utils/jwt.js';
@@ -209,7 +209,7 @@ class BuCuo {
                         }
 
                         // 参数验证
-                        const validate = validator.validate(this.appContext.body, api.schema, api.required);
+                        const validate = validator.validate(this.appContext.body, api.fields, api.required);
                         if (validate.code !== 0) {
                             return Response.json({
                                 ...Code.API_PARAMS_ERROR,
