@@ -1,12 +1,7 @@
 import { sql } from 'kysely';
+import { Env } from '../config/env.js';
 
-export function Crud(db, options = {}) {
-    const config = {
-        createdAtField: 'created_at',
-        updatedAtField: 'updated_at',
-        ...options
-    };
-
+export function Crud(db, redis) {
     // 扩展 SelectQueryBuilder
     const originalSelectFrom = db.selectFrom.bind(db);
     db.selectFrom = function (table) {
@@ -72,17 +67,21 @@ export function Crud(db, options = {}) {
 
         // insData - 插入数据并自动添加时间戳
         query.insData = async function (data) {
-            const now = new Date();
+            const now = Date.now();
 
-            const addTimestamps = (item) => ({
-                ...item,
-                [config.createdAtField]: item[config.createdAtField] || now,
-                [config.updatedAtField]: item[config.updatedAtField] || now
-            });
+            if (Array.isArray(data)) {
+                for (let item of data) {
+                    item.id = await redis.genTimeID();
+                    item.created_at = now;
+                    item.updated_at = now;
+                }
+            } else {
+                data.id = await redis.genTimeID();
+                data.created_at = now;
+                data.updated_at = now;
+            }
 
-            const processedData = Array.isArray(data) ? data.map(addTimestamps) : addTimestamps(data);
-
-            return await this.values(processedData).execute();
+            return await this.values(data).executeTakeFirst();
         };
 
         return query;
@@ -95,12 +94,9 @@ export function Crud(db, options = {}) {
 
         // updateData - 更新数据并自动更新时间戳
         query.updData = async function (data) {
-            const dataWithTimestamp = {
-                ...data,
-                [config.updatedAtField]: data[config.updatedAtField] || new Date()
-            };
+            data.updated_at = Date.now();
 
-            return await this.set(dataWithTimestamp).execute();
+            return await this.set(data).executeTakeFirst();
         };
 
         return query;
@@ -113,7 +109,7 @@ export function Crud(db, options = {}) {
 
         // deleteData - 删除数据
         query.delData = async function () {
-            return await this.execute();
+            return await this.executeTakeFirst();
         };
 
         return query;
@@ -127,7 +123,10 @@ export function Crud(db, options = {}) {
         const originalExecute = trx.execute.bind(trx);
         trx.execute = async function (callback) {
             return await originalExecute(async (txDb) => {
-                const extendedTxDb = extendKyselyWithCrud(txDb, config);
+                const extendedTxDb = extendKyselyWithCrud(txDb, {
+                    createdAtField: 'created_at',
+                    updatedAtField: 'updated_at'
+                });
                 return await callback(extendedTxDb);
             });
         };

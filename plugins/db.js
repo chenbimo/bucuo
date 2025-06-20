@@ -36,10 +36,7 @@ export default {
                 const result = await sql`SELECT VERSION() AS version`.execute(db);
                 if (result?.rows?.[0]?.version) {
                     // 扩展数据库实例
-                    return Crud(db, {
-                        createdAtField: 'created_at',
-                        updatedAtField: 'updated_at'
-                    });
+                    return Crud(db, context.redis);
                 } else {
                     return {};
                 }
