@@ -80,8 +80,12 @@ export function Crud(db, redis) {
                 data.created_at = now;
                 data.updated_at = now;
             }
-
-            return await this.values(data).execute();
+            await this.values(data).executeTakeFirst();
+            if (Array.isArray(data)) {
+                return { ids: data.map((item) => item.id) };
+            } else {
+                return { ids: [data.id] };
+            }
         };
 
         return query;
