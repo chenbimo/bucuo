@@ -1,5 +1,6 @@
 import { Env } from '../config/env.js';
 import { colors } from '../utils/colors.js';
+import { Crud } from '../utils/curd.js';
 
 export default {
     order: 3,
@@ -34,7 +35,11 @@ export default {
                 // 测试数据库连接
                 const result = await sql`SELECT VERSION() AS version`.execute(db);
                 if (result?.rows?.[0]?.version) {
-                    return db;
+                    // 扩展数据库实例
+                    return Crud(db, {
+                        createdAtField: 'created_at',
+                        updatedAtField: 'updated_at'
+                    });
                 } else {
                     return {};
                 }
