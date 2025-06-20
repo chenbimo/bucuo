@@ -14,9 +14,9 @@ export class Api {
 
         return {
             method: 'GET',
-            name,
-            fields,
-            required,
+            name: name,
+            fields: fields,
+            required: required,
             handler: this.wrapHandler(handler)
         };
     }
@@ -34,9 +34,9 @@ export class Api {
 
         return {
             method: 'POST',
-            name,
-            fields,
-            required,
+            name: name,
+            fields: fields,
+            required: required,
             handler: this.wrapHandler(handler)
         };
     }
@@ -59,10 +59,11 @@ export class Api {
                 };
             } catch (error) {
                 // 记录错误日志
-                bucuo.logger?.error('API执行错误:', {
+                bucuo.logger?.error({
+                    ...Code.API_INTERNAL_ERROR,
                     error: error.message,
                     stack: error.stack,
-                    api: handler.name || 'unknown'
+                    url: req.url || ''
                 });
 
                 // 返回错误响应
