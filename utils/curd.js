@@ -81,7 +81,7 @@ export function Crud(db, redis) {
                 data.updated_at = now;
             }
 
-            return await this.values(data).executeTakeFirst();
+            return await this.values(data).execute();
         };
 
         return query;
@@ -96,7 +96,7 @@ export function Crud(db, redis) {
         query.updData = async function (data) {
             data.updated_at = Date.now();
 
-            return await this.set(data).executeTakeFirst();
+            return await this.set(data).execute();
         };
 
         return query;
