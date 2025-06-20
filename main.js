@@ -259,9 +259,12 @@ class BuCuo {
                         });
 
                         // 登录验证
-                        if (api.auth === true && !this.appContext?.user?.id) {
+                        if (api.auth && !this.appContext?.user?.id) {
                             return Response.json(Code.LOGIN_REQUIRED);
                         }
+                        // if (api.auth && api.auth !== true && this.appContext?.user?.role !== api.auth) {
+                        //     return Response.json(Code.PERMISSION_DENIED);
+                        // }
 
                         // 参数验证
                         const validate = validator.validate(this.appContext.body, api.fields, api.required);
