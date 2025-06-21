@@ -197,9 +197,7 @@ class BuCuo {
                         ...Code.SUCCESS,
                         msg: 'BuCuo 接口服务已启动',
                         data: {
-                            mode: Env.NODE_ENV,
-                            host: Env.APP_HOST,
-                            port: Env.APP_PORT
+                            mode: Env.NODE_ENV
                         }
                     });
                 },
