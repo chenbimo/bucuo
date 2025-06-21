@@ -27,7 +27,7 @@ export const Env = {
     MYSQL_HOST: process.env.MYSQL_HOST,
     MYSQL_PORT: Number(process.env.MYSQL_PORT),
     MYSQL_DB: process.env.MYSQL_DB,
-    MYSQL_USERNAME: process.env.MYSQL_USERNAME,
+    MYSQL_USER: process.env.MYSQL_USER,
     MYSQL_PASSWORD: process.env.MYSQL_PASSWORD,
     MYSQL_DEBUG: Number(process.env.MYSQL_DEBUG),
     MYSQL_POOL_TIMEOUT: Number(process.env.MYSQL_POOL_TIMEOUT),
