@@ -122,22 +122,18 @@ export const Code = {
         msg: '文件类型不被允许'
     },
 
-    // 数据库错误 (50-59)
-    DATABASE_ERROR: {
+    // 用户错误 (50-59)
+    USER_NOT_FOUND: {
         code: 50,
-        msg: '数据库操作失败'
+        msg: '用户不存在'
     },
-    DATABASE_CONNECTION_ERROR: {
+    USER_INVALID_PASSWORD: {
         code: 51,
-        msg: '数据库连接失败'
+        msg: '用户密码无效'
     },
-    DATABASE_QUERY_ERROR: {
+    USER_ACCOUNT_LOCKED: {
         code: 52,
-        msg: '数据库查询失败'
-    },
-    DATABASE_TRANSACTION_ERROR: {
-        code: 53,
-        msg: '数据库事务失败'
+        msg: '用户账户已锁定'
     },
 
     // 缓存错误 (60-69)
