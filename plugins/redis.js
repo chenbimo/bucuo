@@ -22,14 +22,7 @@ export default {
                     }
                 };
                 const createClient = await import('@redis/client').then((m) => m.createClient);
-                // 使用 Bun 自带的 redis 连接
-                const redis = createClient(config)
-                    .on('error', (err) => {
-                        console.log(`${colors.error} Redis 客户端错误`);
-                    })
-                    .on('ready', () => {
-                        // console.log('✅ Redis 客户端就绪');
-                    });
+                const redis = createClient(config);
 
                 // 测试连接
                 try {
@@ -37,9 +30,40 @@ export default {
                     // 测试连接
                     const result = await redis.ping();
                 } catch (error) {
-                    console.log(`${colors.error} Redis 连接失败:`, error);
+                    bucuo.logger.error(`${colors.error} Redis 连接失败:`, error);
                     process.exit();
                 }
+
+                // 添加对象存储辅助方法
+                redis.setObject = async (key, obj, ttl = null) => {
+                    try {
+                        const data = JSON.stringify(obj);
+                        if (ttl) {
+                            return await redis.setEx(`${process.env.REDIS_KEY_PREFIX}:${key}`, ttl, data);
+                        }
+                        return await redis.set(`${process.env.REDIS_KEY_PREFIX}:${key}`, data);
+                    } catch (error) {
+                        bucuo.logger.error(`${colors.error} Redis setObject 错误:`, error);
+                    }
+                };
+
+                redis.getObject = async (key) => {
+                    try {
+                        const data = await redis.get(`${process.env.REDIS_KEY_PREFIX}:${key}`);
+                        return data ? JSON.parse(data) : null;
+                    } catch (error) {
+                        bucuo.logger.error(`${colors.error} Redis getObject 错误:`, error);
+                        return null;
+                    }
+                };
+
+                redis.delObject = async (key) => {
+                    try {
+                        await redis.del(`${process.env.REDIS_KEY_PREFIX}:${key}`);
+                    } catch (error) {
+                        bucuo.logger.error(`${colors.error} Redis delObject 错误:`, error);
+                    }
+                };
 
                 // 添加时序ID生成函数
                 redis.genTimeID = async () => {
@@ -61,11 +85,11 @@ export default {
 
                 return redis;
             } else {
-                console.log(`${colors.warn} Redis 未启用，跳过初始化`);
+                bucuo.logger.warn(`${colors.warn} Redis 未启用，跳过初始化`);
                 return {};
             }
         } catch (err) {
-            console.log(`${colors.error} Redis 初始化失败:`, err);
+            bucuo.logger.error(`${colors.error} Redis 初始化失败:`, err);
             process.exit();
         }
     }
