@@ -95,6 +95,14 @@ export const Code = {
         code: 34,
         msg: '需要登录'
     },
+    TOKEN_GET_FAILED: {
+        code: 35,
+        msg: '获取访问令牌失败'
+    },
+    QRCODE_GET_FAILED: {
+        code: 36,
+        msg: '获取二维码失败'
+    },
 
     // 文件操作错误 (40-49)
     FILE_NOT_FOUND: {
