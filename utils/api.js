@@ -2,21 +2,6 @@ import { Code } from '../config/code.js';
 export class Api {
     // GET 方法
     static GET(name, auth = false, fields = {}, required = [], handler) {
-        // 支持参数重载：如果第二个参数是函数，则没有 auth, fields 和 required
-        if (typeof auth === 'function') {
-            handler = auth;
-            auth = false;
-            fields = {};
-            required = [];
-        } else if (typeof fields === 'function') {
-            handler = fields;
-            fields = {};
-            required = [];
-        } else if (typeof required === 'function') {
-            handler = required;
-            required = [];
-        }
-
         return {
             method: 'GET',
             name: name,
@@ -29,21 +14,6 @@ export class Api {
 
     // POST 方法
     static POST(name, auth = false, fields = {}, required = [], handler) {
-        // 支持参数重载：如果第二个参数是函数，则没有 auth, fields 和 required
-        if (typeof auth === 'function') {
-            handler = auth;
-            auth = false;
-            fields = {};
-            required = [];
-        } else if (typeof fields === 'function') {
-            handler = fields;
-            fields = {};
-            required = [];
-        } else if (typeof required === 'function') {
-            handler = required;
-            required = [];
-        }
-
         return {
             method: 'POST',
             name: name,
