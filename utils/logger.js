@@ -16,15 +16,6 @@ export class Logger {
     static maxFileSize = Env.LOG_MAX_SIZE || 50 * 1024 * 1024; // 50MB
     static currentFiles = new Map(); // key: prefix, value: filepath
 
-    // 静态初始化
-    static {
-        try {
-            Bun.write(path.join(this.logDir, '.gitkeep'), '');
-        } catch (error) {
-            console.error('创建日志目录失败:', error);
-        }
-    }
-
     static formatMessage(level, message) {
         const timestamp = formatDate();
         const levelStr = level.toUpperCase().padStart(5);
