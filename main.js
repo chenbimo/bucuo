@@ -1,4 +1,3 @@
-import { serve } from 'bun';
 import path from 'node:path';
 import { Code } from './config/code.js';
 import { Env } from './config/env.js';
@@ -189,7 +188,7 @@ class BuCuo {
         await this.loadApis('core');
         await this.loadApis('app');
 
-        const server = serve({
+        const server = Bun.serve({
             port: Env.APP_PORT,
             hostname: Env.APP_HOST,
             routes: {
