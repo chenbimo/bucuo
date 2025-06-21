@@ -1,23 +1,23 @@
 import path from 'path';
+import { appendFile, stat } from 'node:fs/promises';
 import { formatDate } from './util.js';
 import { Env } from '../config/env.js';
 
 export class Logger {
-    constructor() {
-        // 基础配置
-        this.level = Env.LOG_LEVEL || 'info';
-        this.levels = {
-            error: 0,
-            warn: 1,
-            info: 2,
-            debug: 3
-        };
+    // 静态属性
+    static level = Env.LOG_LEVEL || 'info';
+    static levels = {
+        error: 0,
+        warn: 1,
+        info: 2,
+        debug: 3
+    };
+    static logDir = Env.LOG_DIR || 'logs';
+    static maxFileSize = Env.LOG_MAX_SIZE || 50 * 1024 * 1024; // 50MB
+    static currentFiles = new Map(); // key: prefix, value: filepath
 
-        // 输出配置
-        this.logDir = Env.LOG_DIR || 'logs';
-        this.maxFileSize = Env.LOG_MAX_SIZE || 50 * 1024 * 1024; // 50MB
-
-        // 初始化日志目录
+    // 静态初始化
+    static {
         try {
             Bun.write(path.join(this.logDir, '.gitkeep'), '');
         } catch (error) {
@@ -25,7 +25,7 @@ export class Logger {
         }
     }
 
-    formatMessage(level, message) {
+    static formatMessage(level, message) {
         const timestamp = formatDate();
         const levelStr = level.toUpperCase().padStart(5);
 
@@ -38,7 +38,7 @@ export class Logger {
         return msg;
     }
 
-    async log(level, message) {
+    static async log(level, message) {
         // 内联 shouldLog 逻辑，检查日志级别
         if (this.levels[level] > this.levels[this.level]) return;
 
@@ -52,65 +52,93 @@ export class Logger {
         await this.writeToFile(formattedMessage, level);
     }
 
-    async writeToFile(message, level = 'info') {
+    static async writeToFile(message, level = 'info') {
         try {
-            let prefix, glob;
+            let prefix;
 
             // debug 日志使用单独的文件名
             if (level === 'debug') {
                 prefix = 'debug';
-                glob = new Bun.Glob(`debug.*.log`);
             } else {
-                const today = new Date().toISOString().split('T')[0];
-                prefix = today;
-                glob = new Bun.Glob(`${today}.*.log`);
+                prefix = new Date().toISOString().split('T')[0];
             }
 
-            // 使用 Bun.glob() 一次性查找所有相关文件并排序
-            const files = await Array.fromAsync(glob.scan(this.logDir));
-            files.sort(); // 按文件名排序，自然排序会正确处理数字
+            // 检查缓存的当前文件是否仍然可用
+            let currentLogFile = this.currentFiles.get(prefix);
 
-            let currentLogFile = path.join(this.logDir, `${prefix}.0.log`);
-
-            // 从最后一个文件开始检查
-            for (let i = files.length - 1; i >= 0; i--) {
-                const filePath = path.join(this.logDir, files[i]);
-                const file = Bun.file(filePath);
-
-                if (file.size < this.maxFileSize) {
-                    currentLogFile = filePath;
-                    break;
-                }
-
-                // 如果是最后一个文件且已满，创建新文件
-                if (i === files.length - 1) {
-                    const match = files[i].match(/\.(\d+)\.log$/);
-                    const nextIndex = match ? parseInt(match[1]) + 1 : 1;
-                    currentLogFile = path.join(this.logDir, `${prefix}.${nextIndex}.log`);
+            if (currentLogFile) {
+                try {
+                    const stats = await stat(currentLogFile);
+                    // 如果文件超过最大大小，清除缓存
+                    if (stats.size >= this.maxFileSize) {
+                        this.currentFiles.delete(prefix);
+                        currentLogFile = null;
+                    }
+                } catch (error) {
+                    // 文件不存在或无法访问，清除缓存
+                    this.currentFiles.delete(prefix);
+                    currentLogFile = null;
                 }
             }
 
-            // 使用 Bun 的 append 模式直接写入
-            await Bun.write(currentLogFile, message + '\n', { append: true });
+            // 如果没有缓存的文件或文件已满，查找合适的文件
+            if (!currentLogFile) {
+                currentLogFile = await this.findAvailableLogFile(prefix);
+                this.currentFiles.set(prefix, currentLogFile);
+            }
+
+            // 使用 Node.js 的 appendFile 进行文件追加
+            await appendFile(currentLogFile, message + '\n', 'utf8');
         } catch (error) {
             console.error('写入日志文件失败:', error);
         }
     }
 
-    // 便捷方法
-    async error(message) {
+    static async findAvailableLogFile(prefix) {
+        const glob = new Bun.Glob(`${prefix}.*.log`);
+        const files = await Array.fromAsync(glob.scan(this.logDir));
+
+        // 按文件名排序
+        files.sort((a, b) => {
+            const aNum = parseInt(a.match(/\.(\d+)\.log$/)?.[1] || '0');
+            const bNum = parseInt(b.match(/\.(\d+)\.log$/)?.[1] || '0');
+            return aNum - bNum;
+        });
+
+        // 从最后一个文件开始检查
+        for (let i = files.length - 1; i >= 0; i--) {
+            const filePath = path.join(this.logDir, files[i]);
+            try {
+                const stats = await stat(filePath);
+                if (stats.size < this.maxFileSize) {
+                    return filePath;
+                }
+            } catch (error) {
+                // 文件不存在或无法访问，跳过
+                continue;
+            }
+        }
+
+        // 所有文件都已满或没有文件，创建新文件
+        const nextIndex = files.length > 0 ? Math.max(...files.map((f) => parseInt(f.match(/\.(\d+)\.log$/)?.[1] || '0'))) + 1 : 0;
+
+        return path.join(this.logDir, `${prefix}.${nextIndex}.log`);
+    }
+
+    // 静态便捷方法
+    static async error(message) {
         await this.log('error', message);
     }
 
-    async warn(message) {
+    static async warn(message) {
         await this.log('warn', message);
     }
 
-    async info(message) {
+    static async info(message) {
         await this.log('info', message);
     }
 
-    async debug(message) {
+    static async debug(message) {
         // debug 级别必须记录，忽略级别检查
         const formattedMessage = this.formatMessage('debug', message);
 
@@ -122,5 +150,3 @@ export class Logger {
         await this.writeToFile(formattedMessage, 'debug');
     }
 }
-
-export const logger = new Logger();

@@ -6,7 +6,7 @@ import { Env } from './config/env.js';
 // 工具函数
 import { Api } from './utils/api.js';
 import { colors } from './utils/colors.js';
-import { logger } from './utils/logger.js';
+import { Logger } from './utils/logger.js';
 import { Jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
 import { Crypto2 } from './utils/crypto.js';
@@ -252,7 +252,7 @@ class BuCuo {
                         }
 
                         // 请求记录
-                        logger.debug({
+                        Logger.debug({
                             请求路径: apiPath,
                             请求方法: req.method,
                             用户信息: this.appContext?.user,
@@ -322,4 +322,4 @@ class BuCuo {
     }
 }
 
-export { BuCuo, Code, Env, Api, Jwt, Crypto2, validator, colors, logger };
+export { BuCuo, Code, Env, Api, Jwt, Crypto2, validator, colors, Logger };
