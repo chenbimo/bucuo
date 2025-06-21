@@ -7,8 +7,9 @@ import { Env } from './config/env.js';
 import { Api } from './utils/api.js';
 import { colors } from './utils/colors.js';
 import { logger } from './utils/logger.js';
-import { jwt } from './utils/jwt.js';
+import { Jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
+import { Crypto2 } from './utils/crypto.js';
 import { isType, isEmptyObject, pickFields, sortPlugins } from './utils/util.js';
 
 class BuCuo {
@@ -321,4 +322,4 @@ class BuCuo {
     }
 }
 
-export { BuCuo, Code, Env, Api, validator, colors, logger, jwt };
+export { BuCuo, Code, Env, Api, Jwt, Crypto2, validator, colors, logger };
