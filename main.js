@@ -161,7 +161,6 @@ class BuCuo {
             const userApisDir = path.join(process.cwd(), 'apis');
             const glob = new Bun.Glob('**/*.js');
             const apiDir = dirName === 'core' ? coreApisDir : userApisDir;
-            const apiPlaceholder = dirName === 'core' ? 'core/' : '';
             // 扫描指定目录
             for await (const file of glob.scan({
                 cwd: apiDir,
@@ -173,7 +172,7 @@ class BuCuo {
                 const api = await import(file);
                 const apiInstance = api.default;
                 const apiPath = path.relative(apiDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
-                apiInstance.route = `${apiInstance.method.toUpperCase()}/api/${apiPlaceholder}${apiPath}`;
+                apiInstance.route = `${apiInstance.method.toUpperCase()}/api/${dirName}/${apiPath}`;
                 this.apiRoutes.set(apiInstance.route, apiInstance);
             }
         } catch (error) {
@@ -188,7 +187,7 @@ class BuCuo {
         await this.initCheck();
         await this.loadPlugins();
         await this.loadApis('core');
-        await this.loadApis('user');
+        await this.loadApis('app');
 
         const server = serve({
             port: Env.APP_PORT,
