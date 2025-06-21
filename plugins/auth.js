@@ -1,4 +1,4 @@
-import { jwt } from '../utils/jwt.js';
+import { Jwt } from '../utils/jwt.js';
 
 export default {
     after: ['_redis', '_db'],
@@ -8,7 +8,7 @@ export default {
             const token = authHeader.substring(7);
 
             try {
-                const payload = await jwt.verify(token);
+                const payload = await Jwt.verify(token);
                 context.user = payload;
             } catch (error) {
                 context.user = {};
