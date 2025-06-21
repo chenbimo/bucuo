@@ -20,8 +20,6 @@ export const Env = {
     LOG_DIR: process.env.LOG_DIR,
     LOG_TO_CONSOLE: Number(process.env.LOG_TO_CONSOLE),
     LOG_MAX_SIZE: Number(process.env.LOG_MAX_SIZE),
-    // 数据库表主键方案
-    TABLE_PRIMARY_KEY: process.env.TABLE_PRIMARY_KEY,
     // 时区
     TIMEZONE: process.env.TIMEZONE,
     // 数据库配置
