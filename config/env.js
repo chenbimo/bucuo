@@ -8,7 +8,7 @@ export const Env = {
     // 监听端口
     APP_PORT: Number(process.env.APP_PORT),
     // 监听主机
-    LISTEN_HOST: process.env.LISTEN_HOST,
+    APP_HOST: process.env.APP_HOST,
     // 超级管理员密码
     DEV_PASSWORD: process.env.DEV_PASSWORD,
     // 请求体大小 10M
