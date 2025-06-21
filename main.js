@@ -95,7 +95,7 @@ class BuCuo {
                 if (fileName.startsWith('_')) continue;
                 const plugin = await import(file);
                 const pluginInstance = plugin.default;
-                pluginInstance.pluginName = '_' + fileName;
+                pluginInstance.pluginName = fileName;
                 corePlugins.push(pluginInstance);
             }
 
