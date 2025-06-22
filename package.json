@@ -35,6 +35,7 @@
         "apis/",
         "checks/",
         "config/",
+        "libs/",
         "plugins/",
         "schema/",
         "utils/",
