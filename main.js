@@ -234,7 +234,6 @@ class BuCuo {
                                 } else if (contentType.indexOf('xml') !== -1) {
                                     const xmlData = await req.text();
                                     bodyData = new XMLParser().parse(xmlData);
-                                    console.log('🔥[ bodyData ]-237', bodyData);
                                 } else if (contentType.indexOf('form-data') !== -1) {
                                     bodyData = await req.formData();
                                 } else if (contentType.indexOf('x-www-form-urlencoded') !== -1) {
