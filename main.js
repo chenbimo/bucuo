@@ -20,7 +20,7 @@ class BuCuo {
 
     async initCheck() {
         try {
-            const checksDir = path.join(import.meta.dir, 'checks');
+            const checksDir = path.join(__dirname, 'checks');
             const glob = new Bun.Glob('*.js');
 
             // 统计信息
@@ -86,7 +86,7 @@ class BuCuo {
 
             // 扫描指定目录
             for await (const file of glob.scan({
-                cwd: path.join(import.meta.dir, 'plugins'),
+                cwd: path.join(__dirname, 'plugins'),
                 onlyFiles: true,
                 absolute: true
             })) {
@@ -156,7 +156,7 @@ class BuCuo {
     }
     async loadApis(dirName) {
         try {
-            const coreApisDir = path.join(import.meta.dir, 'apis');
+            const coreApisDir = path.join(__dirname, 'apis');
             const userApisDir = path.join(process.cwd(), 'apis');
             const glob = new Bun.Glob('**/*.js');
             const apiDir = dirName === 'core' ? coreApisDir : userApisDir;

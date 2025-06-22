@@ -5,7 +5,7 @@ import { colors } from '../utils/colors.js';
 export default async () => {
     try {
         const schemaGlob = new Bun.Glob('*.json');
-        const coreSchemaDir = path.join(import.meta.dir, '..', 'schema');
+        const coreSchemaDir = path.join(__dirname, '..', 'schema');
         const userSchemaDir = path.join(process.cwd(), 'schema');
 
         // 统计信息
