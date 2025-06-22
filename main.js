@@ -9,6 +9,7 @@ import { Logger } from './utils/logger.js';
 import { Jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
 import { Crypto2 } from './utils/crypto.js';
+import { xml2Json } from './utils/xml2Json.js';
 import { isType, isEmptyObject, pickFields, sortPlugins } from './utils/util.js';
 
 class BuCuo {
@@ -226,12 +227,31 @@ class BuCuo {
                         }
                         if (req.method === 'POST') {
                             try {
-                                if (isEmptyObject(api.fields) === false) {
-                                    this.appContext.body = pickFields(await req.json(), Object.keys(api.fields));
-                                } else {
+                                const contentType = req.headers.get('content-type') || '';
+
+                                if (contentType.indexOf('json') !== -1) {
                                     this.appContext.body = await req.json();
+                                } else if (contentType.indexOf('xml') !== -1) {
+                                    const xmlData = await req.text();
+                                    this.appContext.body = xml2Json(xmlData);
+                                } else if (contentType.indexOf('form-data') !== -1) {
+                                    this.appContext.body = await req.formData();
+                                } else if (contentType.indexOf('x-www-form-urlencoded') !== -1) {
+                                    const text = await clonedReq.text();
+                                    const formData = new URLSearchParams(text);
+                                    this.appContext.body = Object.fromEntries(formData);
+                                } else {
+                                    this.appContext.body = {};
+                                }
+                                if (isEmptyObject(api.fields) === false) {
+                                    this.appContext.body = pickFields(this.appContext.body, Object.keys(api.fields));
                                 }
                             } catch (err) {
+                                Logger.error({
+                                    error: err.message,
+                                    stack: err.stack
+                                });
+
                                 return Response.json(Code.INVALID_PARAM_FORMAT);
                             }
                         }
