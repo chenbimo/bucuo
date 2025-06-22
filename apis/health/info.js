@@ -8,7 +8,7 @@ export default {
         fields: {},
         required: []
     },
-    handler: async (bucuo, req) => {
+    handler: async (bucuo, body, req) => {
         const info = {
             status: 'ok',
             timestamp: new Date().toISOString(),

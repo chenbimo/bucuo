@@ -216,13 +216,13 @@ class BuCuo {
 
                         // 接口不存在
                         if (!api) return Response.json(Code.API_NOT_FOUND);
-
+                        let bodyData = {};
                         // 配置参数
                         if (req.method === 'GET') {
                             if (isEmptyObject(api.fields) === false) {
-                                this.appContext.body = pickFields(Object.fromEntries(url.searchParams), Object.keys(api.fields));
+                                bodyData = pickFields(Object.fromEntries(url.searchParams), Object.keys(api.fields));
                             } else {
-                                this.appContext.body = Object.fromEntries(url.searchParams);
+                                bodyData = Object.fromEntries(url.searchParams);
                             }
                         }
                         if (req.method === 'POST') {
@@ -230,21 +230,21 @@ class BuCuo {
                                 const contentType = req.headers.get('content-type') || '';
 
                                 if (contentType.indexOf('json') !== -1) {
-                                    this.appContext.body = await req.json();
+                                    bodyData = await req.json();
                                 } else if (contentType.indexOf('xml') !== -1) {
                                     const xmlData = await req.text();
-                                    this.appContext.body = xml2Json(xmlData);
+                                    bodyData = xml2Json(xmlData);
                                 } else if (contentType.indexOf('form-data') !== -1) {
-                                    this.appContext.body = await req.formData();
+                                    bodyData = await req.formData();
                                 } else if (contentType.indexOf('x-www-form-urlencoded') !== -1) {
                                     const text = await clonedReq.text();
                                     const formData = new URLSearchParams(text);
-                                    this.appContext.body = Object.fromEntries(formData);
+                                    bodyData = Object.fromEntries(formData);
                                 } else {
-                                    this.appContext.body = {};
+                                    bodyData = {};
                                 }
                                 if (isEmptyObject(api.fields) === false) {
-                                    this.appContext.body = pickFields(this.appContext.body, Object.keys(api.fields));
+                                    bodyData = pickFields(bodyData, Object.keys(api.fields));
                                 }
                             } catch (err) {
                                 Logger.error({
@@ -284,7 +284,7 @@ class BuCuo {
                         // }
 
                         // 参数验证
-                        const validate = validator.validate(this.appContext.body, api.fields, api.required);
+                        const validate = validator.validate(bodyData, api.fields, api.required);
                         if (validate.code !== 0) {
                             return Response.json({
                                 ...Code.API_PARAMS_ERROR,
@@ -293,7 +293,7 @@ class BuCuo {
                         }
 
                         // 执行函数
-                        const result = await api.handler(this.appContext, req);
+                        const result = await api.handler(this.appContext, bodyData, req);
 
                         // 返回数据
                         if (result && typeof result === 'object' && 'code' in result) {
