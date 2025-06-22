@@ -103,6 +103,10 @@ export const Code = {
         code: 36,
         msg: '获取二维码失败'
     },
+    QRCODE_ID_NOT_FOUND: {
+        code: 37,
+        msg: '二维码ID不存在'
+    },
 
     // 文件操作错误 (40-49)
     FILE_NOT_FOUND: {
