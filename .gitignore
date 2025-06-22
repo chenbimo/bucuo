@@ -23,6 +23,7 @@ note.md
 addons2
 pnpm-lock.yaml
 bun.lock
+other
 
 # Editor directories and files
 .vscode/*

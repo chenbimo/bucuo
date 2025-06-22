@@ -23,7 +23,7 @@ export class Logger {
         let msg = `[${timestamp}] ${levelStr} - `;
 
         if (Object.keys(message).length > 0) {
-            msg += `${JSON.stringify(message).replace(/\s+/g, '').replace(/\\"/g, '"').replace(/\\n/g, ' ')}`;
+            msg += `${JSON.stringify(message).replace(/\s+/g, ' ').replace(/\\"/g, '"').replace(/\\n/g, ' ')}`;
         }
 
         return msg;

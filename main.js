@@ -9,7 +9,7 @@ import { Logger } from './utils/logger.js';
 import { Jwt } from './utils/jwt.js';
 import { validator } from './utils/validate.js';
 import { Crypto2 } from './utils/crypto.js';
-import { xml2Json } from './utils/xml2Json.js';
+import { XMLParser } from './libs/xml/XMLParser.js';
 import { isType, isEmptyObject, pickFields, sortPlugins } from './utils/util.js';
 
 class BuCuo {
@@ -233,7 +233,8 @@ class BuCuo {
                                     bodyData = await req.json();
                                 } else if (contentType.indexOf('xml') !== -1) {
                                     const xmlData = await req.text();
-                                    bodyData = xml2Json(xmlData);
+                                    bodyData = new XMLParser().parse(xmlData);
+                                    console.log('🔥[ bodyData ]-237', bodyData);
                                 } else if (contentType.indexOf('form-data') !== -1) {
                                     bodyData = await req.formData();
                                 } else if (contentType.indexOf('x-www-form-urlencoded') !== -1) {
