@@ -17,6 +17,7 @@ class BunPii {
         this.apiRoutes = new Map();
         this.pluginLists = [];
         this.appContext = {};
+        this.appOptions = options;
     }
 
     async initCheck() {
@@ -343,7 +344,8 @@ class BunPii {
                     } catch (error) {
                         return Response.json(Code.INTERNAL_SERVER_ERROR);
                     }
-                }
+                },
+                ...(this.appOptions.routes || {})
             },
             error(error) {
                 console.error(error);
