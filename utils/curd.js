@@ -53,6 +53,13 @@ export function Crud(db, redis) {
         return await selectQuery.selectAll().execute();
     };
 
+    // 查询总数
+    db.getCount = async function (selectQuery, countField = 'id') {
+        const countQuery = selectQuery.select(sql`count(${sql.raw(countField)})`.as('total'));
+        const result = await countQuery.executeTakeFirst();
+        return Number(result?.total || 0);
+    };
+
     // 分页查询 - 这个方法保持原样，因为它需要构建复杂的查询
     db.getList = async function (table, options = {}) {
         const { where = null, page = 1, pageSize = 10, fields = null, orderBy = null } = options;
