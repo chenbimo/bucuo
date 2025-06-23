@@ -1,4 +1,4 @@
-# BunPii - 不错
+# BunPii
 
 BunPii - 为 Bun 专属打造的 API 接口框架核心引擎
 
