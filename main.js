@@ -218,6 +218,7 @@ class BunPii {
                         }
                         // 初始化请求数据存储
                         const ctx = {
+                            headers: req.headers,
                             body: {},
                             user: {}
                         };
