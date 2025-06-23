@@ -1,7 +1,7 @@
 {
-    "name": "bucuo-test",
+    "name": "bunpii-test",
     "version": "0.0.1",
-    "description": "BuCuo Test Suite - 测试套件",
+    "description": "BunPii Test Suite - 测试套件",
     "type": "module",
     "main": "index.js",
     "scripts": {},
@@ -12,7 +12,7 @@
         "unit-test",
         "api-test"
     ],
-    "author": "BuCuo Team",
+    "author": "BunPii Team",
     "license": "MIT",
     "engines": {
         "bun": ">=1.0.0"

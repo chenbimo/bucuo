@@ -26,9 +26,9 @@ export class Api {
 
     // 包装处理器，自动处理异常和响应格式
     static wrapHandler(handler) {
-        return async (bucuo, req) => {
+        return async (bunpii, req) => {
             try {
-                const result = await handler(bucuo, req);
+                const result = await handler(bunpii, req);
 
                 // 如果返回的结果已经包含 code 字段，直接返回
                 if (result && typeof result === 'object' && 'code' in result) {
@@ -42,7 +42,7 @@ export class Api {
                 };
             } catch (error) {
                 // 记录错误日志
-                bucuo.logger?.error({
+                bunpii.logger?.error({
                     ...Code.API_INTERNAL_ERROR,
                     error: error.message,
                     stack: error.stack,

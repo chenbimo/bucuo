@@ -1,6 +1,6 @@
-# BuCuo 测试套件
+# BunPii 测试套件
 
-这个包包含了 BuCuo 项目的所有测试文件，使用 Vitest 测试框架。
+这个包包含了 BunPii 项目的所有测试文件，使用 Vitest 测试框架。
 
 ## 测试命令
 

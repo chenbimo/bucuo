@@ -4,7 +4,7 @@ import { Logger } from '../utils/logger.js';
 
 export default {
     after: [],
-    async onInit(bucuo, req) {
+    async onInit(bunpii, req) {
         try {
             return Logger;
         } catch (error) {

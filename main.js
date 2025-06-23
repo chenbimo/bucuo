@@ -12,7 +12,7 @@ import { Crypto2 } from './utils/crypto.js';
 import { XMLParser } from './libs/xml/XMLParser.js';
 import { isType, isEmptyObject, pickFields, sortPlugins } from './utils/util.js';
 
-class BuCuo {
+class BunPii {
     constructor(options = {}) {
         this.apiRoutes = new Map();
         this.pluginLists = [];
@@ -196,7 +196,7 @@ class BuCuo {
                 '/': async (req) => {
                     return Response.json({
                         ...Code.SUCCESS,
-                        msg: 'BuCuo 接口服务已启动',
+                        msg: 'BunPii 接口服务已启动',
                         data: {
                             mode: Env.NODE_ENV
                         }
@@ -338,4 +338,4 @@ class BuCuo {
     }
 }
 
-export { BuCuo, Code, Env, Api, Jwt, Crypto2, validator, colors, Logger };
+export { BunPii, Code, Env, Api, Jwt, Crypto2, validator, colors, Logger };
