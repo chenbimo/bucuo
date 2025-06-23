@@ -250,8 +250,9 @@ class BunPii {
                                 if (contentType.indexOf('json') !== -1) {
                                     ctx.body = await req.json();
                                 } else if (contentType.indexOf('xml') !== -1) {
-                                    const xmlData = await req.text();
-                                    ctx.body = new XMLParser().parse(xmlData);
+                                    const textData = await req.text();
+                                    const xmlData = new XMLParser().parse(textData);
+                                    ctx.body = xmlData?.xml ? xmlData.xml : xmlData;
                                 } else if (contentType.indexOf('form-data') !== -1) {
                                     ctx.body = await req.formData();
                                 } else if (contentType.indexOf('x-www-form-urlencoded') !== -1) {
