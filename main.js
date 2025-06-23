@@ -207,6 +207,11 @@ class BunPii {
                         if (req.method === 'OPTIONS') {
                             return new Response();
                         }
+                        // 初始化请求数据存储
+                        const ctx = {
+                            body: {},
+                            user: {}
+                        };
 
                         // 接口处理
                         const url = new URL(req.url);
@@ -216,13 +221,26 @@ class BunPii {
 
                         // 接口不存在
                         if (!api) return Response.json(Code.API_NOT_FOUND);
-                        let bodyData = {};
+
+                        const authHeader = req.headers.get('authorization');
+                        if (authHeader && authHeader.startsWith('Bearer ')) {
+                            const token = authHeader.substring(7);
+
+                            try {
+                                const payload = await Jwt.verify(token);
+                                ctx.user = payload;
+                            } catch (error) {
+                                ctx.user = {};
+                            }
+                        } else {
+                            ctx.user = {};
+                        }
                         // 配置参数
                         if (req.method === 'GET') {
                             if (isEmptyObject(api.fields) === false) {
-                                bodyData = pickFields(Object.fromEntries(url.searchParams), Object.keys(api.fields));
+                                ctx.body = pickFields(Object.fromEntries(url.searchParams), Object.keys(api.fields));
                             } else {
-                                bodyData = Object.fromEntries(url.searchParams);
+                                ctx.body = Object.fromEntries(url.searchParams);
                             }
                         }
                         if (req.method === 'POST') {
@@ -230,21 +248,21 @@ class BunPii {
                                 const contentType = req.headers.get('content-type') || '';
 
                                 if (contentType.indexOf('json') !== -1) {
-                                    bodyData = await req.json();
+                                    ctx.body = await req.json();
                                 } else if (contentType.indexOf('xml') !== -1) {
                                     const xmlData = await req.text();
-                                    bodyData = new XMLParser().parse(xmlData);
+                                    ctx.body = new XMLParser().parse(xmlData);
                                 } else if (contentType.indexOf('form-data') !== -1) {
-                                    bodyData = await req.formData();
+                                    ctx.body = await req.formData();
                                 } else if (contentType.indexOf('x-www-form-urlencoded') !== -1) {
                                     const text = await clonedReq.text();
                                     const formData = new URLSearchParams(text);
-                                    bodyData = Object.fromEntries(formData);
+                                    ctx.body = Object.fromEntries(formData);
                                 } else {
-                                    bodyData = {};
+                                    ctx.body = {};
                                 }
                                 if (isEmptyObject(api.fields) === false) {
-                                    bodyData = pickFields(bodyData, Object.keys(api.fields));
+                                    ctx.body = pickFields(ctx.body, Object.keys(api.fields));
                                 }
                             } catch (err) {
                                 Logger.error({
@@ -260,7 +278,7 @@ class BunPii {
                         for await (const plugin of this.pluginLists) {
                             try {
                                 if (typeof plugin?.onGet === 'function') {
-                                    await plugin?.onGet(this.appContext, req);
+                                    await plugin?.onGet(this.appContext, ctx);
                                 }
                             } catch (error) {
                                 console.error(`${colors.error} 插件处理请求时发生错误:`, error);
@@ -271,20 +289,20 @@ class BunPii {
                         Logger.debug({
                             请求路径: apiPath,
                             请求方法: req.method,
-                            用户信息: this.appContext?.user,
-                            请求体: this.appContext?.body
+                            用户信息: ctx.user,
+                            请求体: ctx.body
                         });
 
                         // 登录验证
-                        if (api.auth && !this.appContext?.user?.id) {
+                        if (api.auth && !ctx.user.id) {
                             return Response.json(Code.LOGIN_REQUIRED);
                         }
-                        // if (api.auth && api.auth !== true && this.appContext?.user?.role !== api.auth) {
+                        // if (api.auth && api.auth !== true && ctx.user.role !== api.auth) {
                         //     return Response.json(Code.PERMISSION_DENIED);
                         // }
 
                         // 参数验证
-                        const validate = validator.validate(bodyData, api.fields, api.required);
+                        const validate = validator.validate(ctx.body, api.fields, api.required);
                         if (validate.code !== 0) {
                             return Response.json({
                                 ...Code.API_PARAMS_ERROR,
@@ -293,7 +311,7 @@ class BunPii {
                         }
 
                         // 执行函数
-                        const result = await api.handler(this.appContext, bodyData, req);
+                        const result = await api.handler(this.appContext, ctx.body, req);
 
                         // 返回数据
                         if (result && typeof result === 'object' && 'code' in result) {

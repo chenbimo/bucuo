@@ -8,7 +8,7 @@ export default {
         fields: {},
         required: []
     },
-    handler: async (bunpii, body, req) => {
+    handler: async (bunpii, ctx) => {
         const info = {
             status: 'ok',
             timestamp: new Date().toISOString(),
