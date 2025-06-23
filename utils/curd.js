@@ -45,6 +45,14 @@ export function Crud(db, redis) {
         return await selectQuery.selectAll().executeTakeFirst();
     };
 
+    // 查询所有记录
+    db.getAll = async function (selectQuery, fields) {
+        if (fields) {
+            return await selectQuery.select(fields).execute();
+        }
+        return await selectQuery.selectAll().execute();
+    };
+
     // 分页查询 - 这个方法保持原样，因为它需要构建复杂的查询
     db.getList = async function (table, options = {}) {
         const { where = null, page = 1, pageSize = 10, fields = null, orderBy = null } = options;
