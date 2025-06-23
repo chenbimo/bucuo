@@ -1,4 +1,5 @@
 import { Code } from '../config/code.js';
+import { Logger } from '../utils/logger.js';
 export class Api {
     // GET 方法
     static GET(name, auth = false, fields = {}, required = [], handler) {
@@ -26,9 +27,9 @@ export class Api {
 
     // 包装处理器，自动处理异常和响应格式
     static wrapHandler(handler) {
-        return async (bunpii, req) => {
+        return async (bunpii, ctx, req) => {
             try {
-                const result = await handler(bunpii, req);
+                const result = await handler(bunpii, ctx, req);
 
                 // 如果返回的结果已经包含 code 字段，直接返回
                 if (result && typeof result === 'object' && 'code' in result) {
@@ -41,8 +42,7 @@ export class Api {
                     data: result || {}
                 };
             } catch (error) {
-                // 记录错误日志
-                bunpii.logger?.error({
+                Logger.error({
                     ...Code.API_INTERNAL_ERROR,
                     error: error.message,
                     stack: error.stack,
