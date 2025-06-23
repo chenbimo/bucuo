@@ -153,7 +153,11 @@ class BunPii {
                 }
             }
         } catch (error) {
-            console.log('🔥[ error ]-83', error);
+            Logger.error({
+                msg: '加载插件时发生错误',
+                error: error.message,
+                stack: error.stack
+            });
         }
     }
     async loadApis(dirName) {
@@ -177,7 +181,11 @@ class BunPii {
                 this.apiRoutes.set(apiInstance.route, apiInstance);
             }
         } catch (error) {
-            console.error(`${colors.error} 加载 API 时发生错误:`, error);
+            Logger.error({
+                msg: '加载接口时发生错误',
+                error: error.message,
+                stack: error.stack
+            });
         }
     }
 
@@ -299,9 +307,10 @@ class BunPii {
                         if (api.auth && !ctx.user.id) {
                             return Response.json(Code.LOGIN_REQUIRED);
                         }
-                        // if (api.auth && api.auth !== true && ctx.user.role !== api.auth) {
-                        //     return Response.json(Code.PERMISSION_DENIED);
-                        // }
+
+                        if (api.auth && api.auth !== true && ctx.user.role !== api.auth) {
+                            return Response.json(Code.PERMISSION_DENIED);
+                        }
 
                         // 参数验证
                         const validate = validator.validate(ctx.body, api.fields, api.required);
@@ -348,7 +357,11 @@ class BunPii {
                 ...(this.appOptions.routes || {})
             },
             error(error) {
-                console.error(error);
+                Logger.error({
+                    msg: '服务启动时发生错误',
+                    error: error.message,
+                    stack: error.stack
+                });
                 return Response.json(Code.INTERNAL_SERVER_ERROR);
             }
         });
