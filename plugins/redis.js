@@ -3,7 +3,7 @@ import { colors } from '../utils/colors.js';
 
 export default {
     after: ['_logger'],
-    async onInit(bunpii, req) {
+    async onInit(bunpii) {
         try {
             if (Env.REDIS_ENABLE === 1) {
                 const config = {

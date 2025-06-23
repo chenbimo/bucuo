@@ -278,7 +278,7 @@ class BunPii {
                         for await (const plugin of this.pluginLists) {
                             try {
                                 if (typeof plugin?.onGet === 'function') {
-                                    await plugin?.onGet(this.appContext, ctx);
+                                    await plugin?.onGet(this.appContext, ctx, req);
                                 }
                             } catch (error) {
                                 console.error(`${colors.error} 插件处理请求时发生错误:`, error);
