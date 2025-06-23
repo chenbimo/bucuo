@@ -311,7 +311,7 @@ class BunPii {
                         }
 
                         // 执行函数
-                        const result = await api.handler(this.appContext, ctx.body, req);
+                        const result = await api.handler(this.appContext, ctx, req);
 
                         // 返回数据
                         if (result && typeof result === 'object' && 'code' in result) {
