@@ -1,6 +1,6 @@
 {
     "name": "bunpii",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "description": "BunPii - 为 Bun 专属打造的 API 接口框架核心引擎",
     "type": "module",
     "private": false,
