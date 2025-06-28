@@ -31,12 +31,6 @@ export class Api {
             try {
                 const result = await handler(bunpii, ctx, req);
 
-                // 如果返回的结果已经包含 code 字段，直接返回
-                if (result && typeof result === 'object' && 'code' in result) {
-                    return result;
-                }
-
-                // 否则自动包装为成功响应
                 return result;
             } catch (error) {
                 Logger.error({
