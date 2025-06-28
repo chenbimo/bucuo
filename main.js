@@ -298,6 +298,7 @@ class BunPii {
 
                         // 请求记录
                         Logger.debug({
+                            msg: '通用接口日志',
                             请求路径: apiPath,
                             请求方法: req.method,
                             用户信息: ctx.user,
