@@ -1,4 +1,3 @@
-import { Code } from '../../config/code.js';
 import { Env } from '../../config/env.js';
 import { Api } from '../../utils/api.js';
 
@@ -30,7 +29,8 @@ export default Api.POST('健康检查', { auth: false }, {}, [], async (bunpii, 
         info.redis = '禁用';
     }
     return {
-        ...Code.SUCCESS,
+        code: 0,
+        msg: '健康检查成功',
         data: info
     };
 });

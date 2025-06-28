@@ -1,4 +1,3 @@
-import { Code } from '../config/code.js';
 import { Logger } from '../utils/logger.js';
 export class Api {
     // GET 方法
@@ -34,14 +33,18 @@ export class Api {
                 return result;
             } catch (error) {
                 Logger.error({
-                    ...Code.API_INTERNAL_ERROR,
+                    code: 1,
+                    msg: '内部服务器错误',
                     error: error.message,
                     stack: error.stack,
                     url: req.url || ''
                 });
 
                 // 返回错误响应
-                return Code.API_INTERNAL_ERROR;
+                return {
+                    code: 1,
+                    msg: '内部服务器错误'
+                };
             }
         };
     }

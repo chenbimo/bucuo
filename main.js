@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { Code } from './config/code.js';
 import { Env } from './config/env.js';
 
 // 工具函数
@@ -204,7 +203,7 @@ class BunPii {
             routes: {
                 '/': async (req) => {
                     return Response.json({
-                        ...Code.SUCCESS,
+                        code: 0,
                         msg: 'BunPii 接口服务已启动',
                         data: {
                             mode: Env.NODE_ENV
@@ -230,7 +229,11 @@ class BunPii {
                         const api = this.apiRoutes.get(apiPath);
 
                         // 接口不存在
-                        if (!api) return Response.json(Code.API_NOT_FOUND);
+                        if (!api)
+                            return Response.json({
+                                code: 1,
+                                msg: '接口不存在'
+                            });
 
                         const authHeader = req.headers.get('authorization');
                         if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -281,7 +284,10 @@ class BunPii {
                                     stack: err.stack
                                 });
 
-                                return Response.json(Code.INVALID_PARAM_FORMAT);
+                                return Response.json({
+                                    code: 1,
+                                    msg: '无效的请求参数格式'
+                                });
                             }
                         }
 
@@ -307,18 +313,25 @@ class BunPii {
 
                         // 登录验证
                         if (api.auth && !ctx.user.id) {
-                            return Response.json(Code.LOGIN_REQUIRED);
+                            return Response.json({
+                                code: 1,
+                                msg: '未登录'
+                            });
                         }
 
                         if (api.auth && api.auth !== true && ctx.user.role !== api.auth) {
-                            return Response.json(Code.PERMISSION_DENIED);
+                            return Response.json({
+                                code: 1,
+                                msg: '没有权限'
+                            });
                         }
 
                         // 参数验证
                         const validate = validator.validate(ctx.body, api.fields, api.required);
                         if (validate.code !== 0) {
                             return Response.json({
-                                ...Code.API_PARAMS_ERROR,
+                                code: 1,
+                                msg: '无效的请求参数格式',
                                 data: validate.fields
                             });
                         }
@@ -333,8 +346,16 @@ class BunPii {
                             return new Response(result);
                         }
                     } catch (err) {
-                        console.log(`${colors.error} [ err ]-133`, err);
-                        return Response.json(Code.INTERNAL_SERVER_ERROR);
+                        Logger.error({
+                            msg: '处理接口请求时发生错误',
+                            error: err.message,
+                            stack: err.stack,
+                            url: req.url
+                        });
+                        return Response.json({
+                            code: 1,
+                            msg: '内部服务器错误'
+                        });
                     }
                 },
                 '/*': async (req) => {
@@ -350,10 +371,16 @@ class BunPii {
                                 }
                             });
                         } else {
-                            return Response.json(Code.FILE_NOT_FOUND);
+                            return Response.json({
+                                code: 1,
+                                msg: '文件未找到'
+                            });
                         }
                     } catch (error) {
-                        return Response.json(Code.INTERNAL_SERVER_ERROR);
+                        return Response.json({
+                            code: 1,
+                            msg: '内部服务器错误'
+                        });
                     }
                 },
                 ...(this.appOptions.routes || {})
@@ -364,7 +391,10 @@ class BunPii {
                     error: error.message,
                     stack: error.stack
                 });
-                return Response.json(Code.INTERNAL_SERVER_ERROR);
+                return Response.json({
+                    code: 1,
+                    msg: '内部服务器错误'
+                });
             }
         });
 
@@ -374,4 +404,4 @@ class BunPii {
     }
 }
 
-export { BunPii, Code, Env, Api, Jwt, Crypto2, validator, colors, Logger };
+export { BunPii, Env, Api, Jwt, Crypto2, validator, colors, Logger };
