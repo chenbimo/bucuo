@@ -37,10 +37,7 @@ export class Api {
                 }
 
                 // 否则自动包装为成功响应
-                return {
-                    ...Code.SUCCESS,
-                    data: result || {}
-                };
+                return result;
             } catch (error) {
                 Logger.error({
                     ...Code.API_INTERNAL_ERROR,
