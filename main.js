@@ -172,10 +172,10 @@ class BunPii {
                 absolute: true
             })) {
                 const fileName = path.basename(file, '.js');
-                if (fileName.startsWith('_')) continue;
+                const apiPath = path.relative(apiDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
+                if (apiPath.indexOf('_') !== -1) continue;
                 const api = await import(file);
                 const apiInstance = api.default;
-                const apiPath = path.relative(apiDir, file).replace(/\.js$/, '').replace(/\\/g, '/');
                 apiInstance.route = `${apiInstance.method.toUpperCase()}/api/${dirName}/${apiPath}`;
                 this.apiRoutes.set(apiInstance.route, apiInstance);
             }
