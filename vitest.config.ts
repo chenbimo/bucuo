@@ -6,7 +6,7 @@ export default defineConfig({
         environment: 'node',
 
         // 测试文件匹配模式
-        include: ['packages/test/**/*{.,-}{test,spec}.{js,ts}'],
+        include: ['test/**/*{.,-}{test,spec}.{js,ts}'],
 
         // 排除的文件
         exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.{idea,git,cache,output,temp}/**'],
@@ -30,7 +30,7 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
-            exclude: ['coverage/**', 'dist/**', 'packages/**/node_modules/**', '**/*.{test,spec}.{js,ts}', '**/tests/**']
+            exclude: ['coverage/**', 'dist/**', '**/node_modules/**', '**/*.{test,spec}.{js,ts}', '**/tests/**']
         },
 
         // 监听模式配置
