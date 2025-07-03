@@ -1,3 +1,5 @@
+import { createSign } from 'node:crypto';
+
 export class Crypto2 {
     /**
      * MD5 哈希
@@ -59,6 +61,13 @@ export class Crypto2 {
         const hasher = new Bun.CryptoHasher('sha256');
         hasher.update(data);
         return hasher.digest(encoding);
+    }
+
+    static rsaSha256(data, privateKey, encoding = 'hex') {
+        const sign = createSign('RSA-SHA256');
+        sign.update(data);
+        const signature = sign.sign(privateKey, encoding);
+        return signature;
     }
 
     /**
